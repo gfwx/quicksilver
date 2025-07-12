@@ -1,0 +1,10 @@
+# ai/pyproject.toml
+[tool.pyright]
+venvPath = "."
+venv = "venv"
+include = ["**/"]
+exclude = ["**/node_modules", "**/__pycache__", "venv"]
+pythonVersion = "3.11"
+typeCheckingMode = "basic"
+reportMissingImports = "error"
+reportMissingModuleSource = "warning"
