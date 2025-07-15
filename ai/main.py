@@ -1,6 +1,38 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException, status
+from pydantic import BaseModel
+import datetime
+
+# Todo afterwards - need to figure out how this works with express api
+class File(BaseModel):
+    filename: str
+    encoding: str
+    originalname: str
+    size: str
+    timestamp: datetime.datetime
+    status: str
+    userid: str
+
+class FileAPIResponse(BaseModel):
+    filepath: str
 
 app = FastAPI()
-@app.get("/")
-async def read_root(name: str):
-    return {"message" : f"Hello {name}!"}
+@app.get("/api")
+async def read_root():
+    """
+        Root endpoint. Returns a simple greeting.
+    """
+    return {"message": "Welcome to my FastAPI app!"}
+
+@app.post("/api/process")
+async def read_process(jsonBody: FileAPIResponse):
+    """
+        File processing endpoint
+    """
+    if not jsonBody:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="File not found",
+            headers={'X-Error' : 'File upload error'}
+
+        )
+    return {"message": f"File stored at: {jsonBody.filepath}"}
