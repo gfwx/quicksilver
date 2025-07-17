@@ -1,0 +1,424 @@
+TalentedASF
+Hairpin Co.
+March 4, 2025
+1
+talentedASF
+Contents
+1
+Introduction
+4
+1.1
+Abstract . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+4
+1.2
+Business Idea . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+4
+1.3
+How it works
+. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+4
+1.4
+Problem Prevalence . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+4
+1.5
+Our Difference Factor . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+5
+1.6
+Objectives and Goals . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+5
+1.6.1
+Objective
+. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+5
+1.6.2
+Goals (In order) . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+5
+2
+Literature Review
+6
+2.1
+Market Landscape
+. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+6
+2.2
+Competitor Analysis
+. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+6
+2.2.1
+Direct Sponsorship Platforms
+. . . . . . . . . . . . . . . . . . . . . . . . . . .
+6
+2.2.2
+Indirect - Athlete Management
+. . . . . . . . . . . . . . . . . . . . . . . . . .
+7
+2.2.3
+Value Proposition Overview . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+7
+2.3
+Addressable Market Gaps
+. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+7
+3
+Business Model
+8
+3.1
+Product Brief . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+8
+3.2
+Revenue Streams . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+8
+3.2.1
+Direct Sponsorship Cut . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+8
+3.2.2
+Athlete Management Services . . . . . . . . . . . . . . . . . . . . . . . . . . .
+9
+3.3
+Key Assumptions . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+9
+3.3.1
+A diversified sponsorship deal will yield greater returns for a sponsor. . . . . .
+9
+3.3.2
+The market beyond cricket, in India, has potential for growth. . . . . . . . . .
+9
+3.4
+Ideal Customer Persona
+. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+9
+3.4.1
+Demographics . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+9
+3.4.2
+Career Stage . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+9
+3.4.3
+Pain Points . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+10
+3.4.4
+Needs
+. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+10
+3.4.5
+Where They Look for Solutions . . . . . . . . . . . . . . . . . . . . . . . . . .
+10
+3.5
+Customer Acquisition Channels . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+10
+3.6
+Costs Involved . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+11
+3.6.1
+Hiring Costs . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+11
+3.6.2
+Platform Costs
+. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+11
+4
+Software Requirements
+12
+4.1
+Tech Stack . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+12
+4.2
+Hosting
+. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+12
+2
+talentedASF
+5
+References
+13
+List of Figures
+1
+An extremely brief summary of our value chain
+. . . . . . . . . . . . . . . . . . . . .
+8
+List of Tables
+1
+A brief comparison of value propositions between competitors
+. . . . . . . . . . . . .
+7
+3
+talentedASF
+1
+Introduction
+1.1
+Abstract
+82% of individuals drop out of competitive sports between the ages of 15 to 18 years in India; Shiva
+Keshavan says athletes resort to crowdfunding due to lack of funds — headlines you read in India,
+the world’s soon-to-be 3rd largest economy.
+The problem we want to solve is twofold: the lack of funding for the right athletes to advance
+their careers in various sports at the right time. Second, sports in India is bigger than cricket. We
+want to package athlete sponsorships as a marketing tool that helps homegrown brands
+position themselves better.
+1.2
+Business Idea
+TalentedASF is an athlete management tool that helps package athlete sponsorship
+deals for small to medium-sized businesses to minimize sponsorship risk.
+1.3
+How it works
+• Athletes create a profile on the platform - highlighting their statistics, sponsorship requirements,
+guaranteed deliverables
+• We manually rank athletes behind-the-scenes on objective and subjective factors that would
+help inform sponsors on a clear decision.
+• Based on sponsor requirements, we package athletes into sponsorship bundles which align to
+the sponsor’s brand and deliverable requirements.
+• We handle all communication and brokering between athletes and sponsors.
+• We take a 12% success fee from the total sponsorship amount from each athlete.
+1.4
+Problem Prevalence
+1. Grassroots athletes come with a high investment risk from a stakeholder’s perspective due to
+many uncertainties:
+(a) An athlete’s physical capability after X years.
+(b) Intrinsic potential / talent of a given athlete
+(c) Opportunities to compete in championships.
+2. Brand activation is solely dependent on the athlete’s ability to sell the brand through personal
+brand and/or career advancement.
+4
+talentedASF
+3. The demands of athletes are too large for sole sponsors, leaving them to appease large brands
+that already work with massive marketing budgets and plans.
+4. Underdeveloped digital media channels and low media coverage lead to lower audience reach.
+1.5
+Our Difference Factor
+We’re applying a new model of packaging athletes from different fields of play together to solve the
+core problem of sponsorships - namely the risk of putting a large amount of money into a
+single athlete and invariably bringing down the threshold for a business to look into sponsoring
+athletes as a marketing expense.
+1.6
+Objectives and Goals
+1.6.1
+Objective
+To build a platform that:
+• Gets rising sports talent the access they need to financial stakeholders.
+• Makes athlete sponsorships into safer, enticing investment opportunities for SMBs and large
+businesses alike.
+1.6.2
+Goals (In order)
+1. Identify at least 30 high-value proposition (from a sponsor perspective) athletes from a specific
+field of sports initially.
+2. Crack at least INR 5 Lakh worth of sponsorship deals for our athletes.
+3. Prove our model of diversifying investment works better for both athletes and sponsors.
+4. Diversify talent acquisition to at least 3 different fields of sports.
+5
+talentedASF
+2
+Literature Review
+2.1
+Market Landscape
+• The Indian sports sponsorship industry has experienced significant growth in recent years. In
+2022, total sports sponsorship expenditure reached INR 5,907 crore, marking a 105% increase
+from 2021, and has increased by 24% in 2023 to a figure of INR 7,343 crore. [1]
+• Cricket dominates 79% of sponsorship spending through ground, team and franchise fees in
+India, with emerging sports claiming the other 21%. [1]
+• India presents the most dramatic shift in progression of athlete support between upcoming
+and elite athletes. For the 2024 Paris Olympics, Elite performers like Neeraj Chopra (Javelin
+Throw), Chirag Shetty (Badminton) and PV Sindhu (Badminton) received INR 5.72, 5.62 and
+3.13 crore in training funds respectively, whereas allocations for developing athletes like Dhindhi
+Desinghu (Swimming) received INR 10.87 lakh, less than 2% of what the aforementioned elite
+athletes received. [2]
+• Close to 82% of individuals drop out of competitive sport in the age groups of 15-18 years. [3]
+• In India, foundational financial support for young athletes comes majorly through the Khelo
+India Scheme, which provides assistance of INR 6.28 Lakh per annum [4]. This is inadequate
+for the following reasons:
+1. Structured only to cover basic training expenses but falls short of the increasing expenses
+of athletes as they progress in their careers
+2. It is a one-size-fits-all solution that does not account for the disparity in spending across
+all fields of sport.
+• Traditional sectors, namely Fast Moving Consumer Goods (FMCG), Telecom, and Financial
+businesses, maintain a substantial investment in sports sponsorships.
+However, there is a
+dramatic growth emerging from new-age tech startups and consumer technology businesses
+and therefore a greater focus on capturing a younger, more technologically engaged population
+through digital / social media. [5]
+2.2
+Competitor Analysis
+2.2.1
+Direct Sponsorship Platforms
+OpenSponsorship
+• OpenSponsorship runs an online platform where right holders— athletes, teams, leagues, and
+their agents— can publish profiles for free. Brands can search the platform and publish anony-
+mous requests for proposals detailing their marketing needs.
+6
+talentedASF
+2.2.2
+Indirect - Athlete Management
+TRP Sports
+• TRP Sports is one of the biggest athlete management companies in India, with a majority stake
+in Indian football athletes. They provide a variety of services ranging from sports marketing
+to athlete sponsorships and brand endorsements.
+• TRP primarily makes money from sports player auctions as opposed to direct sponsorships,
+invariably focusing on team-based sports as opposed to individual sports, however they have a
+limited focus on the latter.
+Meraki Sport and Entertainment
+• Meraki operates across multiple verticals, including strategic advisory, experiential marketing,
+digital and content marketing, franchise management, and athlete management. They special-
+ize in representing non-cricket athletes such as such as Olympic gymnast Dipa Karmakar and
+Paralympic Gold Medallist Devendra Jhajharia.
+• Meraki opts purely for fewer long-term partnerships over short-term opportunities.
+• Additionally, they depend heavily on Corporate Social Responsibility (CSR) funds to scout
+and sponsor athletes - akin to a modern Venture Capital (VC) fund model.
+2.2.3
+Value Proposition Overview
+OpenSponsorship
+TRP Sports
+Meraki S&E
+Athlete Discoverability
+X
+Athlete Database
+X
+Variety of Services
+X
+Stakeholder Network
+X
+Asian Athlete Emphasis
+X
+Stakeholder Priority
+X
+Table 1: A brief comparison of value propositions between competitors
+2.3
+Addressable Market Gaps
+1. Identifying high-potential transition-stage athletes through talent scouts and subject-matter
+experts.
+2. Catering to SMBs and heavily funded, digital-first businesses.
+3. Short-term / quid-pro-quo sponsorships that are based on fixed media / brand deliverables.
+7
+talentedASF
+3
+Business Model
+3.1
+Product Brief
+Figure 1: An extremely brief summary of our value chain
+Athletes: This represents individual athletes whom either we scout, or come to us directly.
+Athletes provide us with data.
+talentedASF: This represents us, the platform that facilitates the deal between sponsors and
+athletes.
+Sponsors: This represents the stakeholders, who fund our end consumer. We take a cut of
+the final brokered deal between stakeholders and athletes.
+• A web-hosted platform that aggregates athlete data (via a thorough onboarding experience)
+and groups athletes based on their sport, accomplishments, targets and sponsorship needs.
+• Features a public front which displays athletes in ”cards” - highlighting their biodata and career
+record.
+• Features a protected front which does matchmaking between stakeholders and athlete groups.
+• The protected front is accessible only by the platform, making talentedASF the broker between
+athletes and sponsors.
+3.2
+Revenue Streams
+3.2.1
+Direct Sponsorship Cut
+• We take a direct cut of 12%, of the overall sponsorship, from the athlete’s end. This means
+that, for a sponsor that commits X, an athlete gets 0.88 * X.
+• Why 12%: Initially, we want to undercut the current sponsorship market to entice athletes to
+work with us. As the platform offers better value, the sponsorship cut will reflect accordingly
+to match the improvised value.
+8
+talentedASF
+3.2.2
+Athlete Management Services
+• Provide athletes with media services post-sponsorship deal to ensure deliverables to ensure
+sponsorships are activated effectively.
+• This service varies from athlete-athlete, but we would charge an average of INR 30-50,000 based
+on a monthly retainer model and fixed deliverables according to sponsor needs.
+3.3
+Key Assumptions
+3.3.1
+A diversified sponsorship deal will yield greater returns for a sponsor.
+• It’s a novel way to approach sponsorships, and therefore will attract skepticism, especially when
+large transactions are involved.
+3.3.2
+The market beyond cricket, in India, has potential for growth.
+• Athlete sponsorship spending in India is currently dominated by cricket, which accounts for
+more than 3 quarters of yearly spending as of 2023.
+• We believe that as a result, most sports fraternities are severely underrepresented and lack the
+overarching roadmap that cricket has.
+3.4
+Ideal Customer Persona
+3.4.1
+Demographics
+• Age: 14-19 years old
+• Gender: Male or Female
+• Nationality: Indian / Asian
+• Location: Primarily based in India, but competing internationally or aspiring to
+3.4.2
+Career Stage
+• Competition Level: Proven track record in national championships, now transitioning to
+international competitions.
+• Public Presence: Moderate to large social media following (5K-15K), using digital presence
+to attract sponsorships.
+• Sport Focus: Likely in motorsports or other high-expense sports requiring external funding.
+9
+talentedASF
+3.4.3
+Pain Points
+• Financial Struggles: High running costs with higher level of progression
+• Media Visibility Issues: Limited exposure for non-European athletes, making personal
+brand development crucial.
+• Sponsorship Roadblocks: Traditional sponsorship models don’t always align with emerging
+athletes’ needs.
+3.4.4
+Needs
+• Sponsorship Access: A streamlined way to connect with brands looking to support rising
+athletes.
+• Digital Branding Support: Tools to improve social media engagement and make them more
+attractive to sponsors.
+• Competitive Edge: Financial backing to focus on training, performance, and breaking into
+the international scene.
+3.4.5
+Where They Look for Solutions
+• Social Media: Instagram, YouTube, and LinkedIn for networking & branding.
+• Athlete Sponsorship Platforms: Online platforms that connect athletes with sponsors.
+• Industry Networks: Coaches, managers, and athlete agencies helping with sponsorship deals.
+3.5
+Customer Acquisition Channels
+1. Social Media
+• Leveraging popular media channels / pages that specialize around sports media.
+• Direct outreach to athletes on social media platforms
+2. Word-Of-Mouth
+• Spreading the word through athlete stakeholders - team managers, talent scouts, sports
+commentators - who have a wide understanding of the athlete market.
+3. Strategic Partnerships
+• Directly working with sports training facilities, news media to scout for talent.
+10
+talentedASF
+3.6
+Costs Involved
+3.6.1
+Hiring Costs
+1. Developer: To develop and maintain the platform.
+2. Design Team: 2 graphic / product designers for marketing material and good software user
+experience.
+3. Account Managers: Dedicated account managers to handle sponsor deliverables, quid-pro-
+quo (if needed by athletes)
+3.6.2
+Platform Costs
+1. Annual domain renewals
+2. Backend hosting, database management, software maintenance costs.
+3. Strategic partnership costs - commission-based or percentage based earnings for business part-
+ners.
+11
+talentedASF
+4
+Software Requirements
+4.1
+Tech Stack
+• NextJS
+• Supabase / Firebase
+• Mailchimp / Nodemailer
+4.2
+Hosting
+• Vercel / Cloudflare Pages
+12
+talentedASF
+5
+References
+[1] Group M ESP India Sports Sponsorship Report XI Edition
+[2] Times of India - Paris Olympics: How much did India spend on athletes’ training?
+[3] Sportskeeda - 18 Realities of Indian Sport
+[4] Ministry of Youth Affairs and Sports, India - Financial Support to Athletes
+[5] Adgully - Indian sports sponsorship at a transformative phase: Trends & sectors shaping the
+future
+13
+
