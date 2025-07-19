@@ -1,9 +1,9 @@
 import pymupdf
+import asyncio
 import os
 from langchain_text_splitters import RecursiveCharacterTextSplitter
-from sentence_transformers import SentenceTransformer
-import lancedb
 from typing import List
+from db.db import Embedder
 
 class FileProcessor:
     def __init__(self, filepath: str):
@@ -91,11 +91,14 @@ class FileProcessor:
 
 
 if __name__ == "__main__":
-    filepath= "tasf_report.pdf"
+    filepath= "test.pdf"
     fp = FileProcessor(filepath);
+    embedder = Embedder()
+
     fp.process();
     data = fp.chunk_data()
-
-    if data is not None:
-        for line in data:
-            print(line)
+    if (data != None):
+        embedder.add(data, "test_document_id")
+        results = embedder.search("What are the possible streams of revenue?")
+        for i, result in enumerate(results):
+            print(f"[TOP RESULT #{i + 1}]\n{result['text']}\n")
