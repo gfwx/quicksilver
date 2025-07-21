@@ -59,7 +59,7 @@ router.post('/', upload.single('file'), async (req, res) => {
 
     const payloadToFastAPI = {
       filepath: uploaddir + req.file.filename,
-      db_file_id: createdFile.filename
+      document_id: createdFile.filename
     }
 
     const response = await fetch(`${ai_endpoint}api/process`, {

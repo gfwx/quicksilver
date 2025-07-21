@@ -3,7 +3,7 @@ from sentence_transformers import SentenceTransformer
 import pyarrow as pa
 from typing import List
 
-class Embedder:
+class VectorStore:
     # Vector dimension is derived directly from the SentenceTransformer model
     # to ensure schema and embedding dimensions always match.
     def __init__(self, path: str = 'data'):

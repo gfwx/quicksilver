@@ -12,3 +12,7 @@ class File(BaseModel):
 
 class FileAPIResponse(BaseModel):
     filepath: str
+    document_id: str
+
+class Query(BaseModel):
+    query: str

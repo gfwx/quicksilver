@@ -1,14 +1,12 @@
 import pymupdf
-import asyncio
 import os
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from typing import List
-from db.db import Embedder
+from .db.vector import VectorStore
 
 class FileProcessor:
-    def __init__(self, filepath: str):
+    def __init__(self, filepath: str = ""):
         self.filepath = filepath
-        self.extension = os.path.splitext(filepath)[1]
         self.data = None
 
     def _process_pdf(self):
@@ -30,16 +28,17 @@ class FileProcessor:
             return None
 
     def process(self):
+        extension = os.path.splitext(self.filepath)[1]
         actions = {
             ".pdf" : self._process_pdf,
             ".txt" : self._process_txt,
             ".csv" : self._process_txt
         }
 
-        action = actions.get(self.extension)
+        action = actions.get(extension)
 
         if not action:
-            print(f"Unsupported file type: {self.extension}")
+            print(f"Unsupported file type: {extension}")
             return None
 
         self.data = action()
@@ -93,12 +92,12 @@ class FileProcessor:
 if __name__ == "__main__":
     filepath= "test.pdf"
     fp = FileProcessor(filepath);
-    embedder = Embedder()
+    vs = VectorStore()
 
     fp.process();
     data = fp.chunk_data()
     if (data != None):
-        embedder.add(data, "test_document_id")
-        results = embedder.search("What are the possible streams of revenue?")
+        vs.add(data, "test_document_id")
+        results = vs.search("What are the possible streams of revenue?")
         for i, result in enumerate(results):
             print(f"[TOP RESULT #{i + 1}]\n{result['text']}\n")
