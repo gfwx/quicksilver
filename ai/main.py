@@ -1,20 +1,54 @@
 from fastapi import FastAPI, HTTPException, status
+from fastapi.responses import StreamingResponse
 from .models import FileAPIResponse, Query
 from .reader import FileProcessor
 from .db.vector import VectorStore
-from typing import List
+from ollama import AsyncClient
+from dotenv import load_dotenv
+from os import getenv
+from typing import AsyncGenerator, List
+import asyncio
 
-# Todo afterwards - need to figure out how this works with express api
-
+load_dotenv()
 vs = VectorStore()
 app = FastAPI()
+host=getenv('OLLAMA_ENDPOINT', 'http://localhost:11434')
+
+client = AsyncClient(host=host)
+
+def make_prompt(query: str, ctx: List[str]):
+    prompt_string = f"Answer the following question based on the context provided. If the context is not relevant, just say 'I don't know'.\n\nQuestion: {query}\n\nContext:\n"
+    for i, chunk in enumerate(ctx):
+        prompt_string += f"Chunk {i+1}: {chunk}\n"
+
+    return prompt_string
 
 @app.get("/api")
 async def read_root():
     return {"message": "FastCTX Python Microservice"}
 
+def _process_file_sync(filepath: str, document_id: str):
+    """Synchronous file processing pipeline to be run in a thread."""
+    # 1. Process the file to extract text
+    fp = FileProcessor(filepath)
+    fp.process()
+    text_content = fp.get()
+
+    if not text_content:
+        raise ValueError("Failed to process file.")
+
+    # 2. Chunk the extracted text
+    chunks = fp.chunk_data()
+    if not chunks:
+        raise ValueError("Failed to chunk data.")
+
+    # 3. Add chunks to the vector store
+    vs.add(chunks, document_id=document_id)
+
+    return document_id
+
 @app.post("/api/process")
-def read_process(jsonBody: FileAPIResponse):
+async def read_process(jsonBody: FileAPIResponse):
     filepath = jsonBody.filepath
     if not filepath:
         raise HTTPException(
@@ -24,32 +58,35 @@ def read_process(jsonBody: FileAPIResponse):
         )
 
     try:
-        # 1. Process the file to extract text
-        fp = FileProcessor(filepath)
-        fp.process()
-        text_content = fp.get()
+        # Run the synchronous pipeline in a worker thread
+        document_id = await asyncio.to_thread(
+            _process_file_sync,
+            filepath,
+            jsonBody.document_id
+        )
 
-        if not text_content:
+        return {"message": f"File processed and embeddings stored successfully for: {document_id}"}
+
+    except ValueError as e:
+        # Handle expected processing errors
+        if "Failed to process file" in str(e):
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
                 detail="Failed to process file.",
                 headers={'X-Error': 'File processing error'}
             )
-
-        # 2. Chunk the extracted text
-        chunks = fp.chunk_data()
-        if not chunks:
+        elif "Failed to chunk data" in str(e):
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
                 detail="Failed to chunk data.",
                 headers={'X-Error': 'Data chunking error'}
             )
-
-        # 3. Add chunks to the vector store
-        vs.add(chunks, document_id=jsonBody.document_id)
-
-        return {"message": f"File processed and embeddings stored successfully for: {jsonBody.document_id}"}
-
+        else:
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail=f"Processing error: {e}",
+                headers={'X-Error': 'Processing error'}
+            )
     except Exception as e:
         # Catch-all for any other unexpected errors
         raise HTTPException(
@@ -57,21 +94,49 @@ def read_process(jsonBody: FileAPIResponse):
             detail=f"An unexpected error occurred: {e}",
             headers={'X-Error': 'Internal Server Error'}
         )
+
+async def _ollama_stream_generator(prompt: str, model: str) -> AsyncGenerator[str, None]:
+    try:
+        async for chunk in await client.chat(
+            model=model,
+            messages=[{'role': 'user', 'content': prompt}],
+            stream=True,
+        ):
+            if chunk.message and chunk.message.content:
+                yield chunk.message.content
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Ollama API Error: {e}"
+        )
+
 @app.post('/api/query')
 async def read_query(jsonBody: Query):
+    data = []
     if not jsonBody.query:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="No query found!",
             headers={'X-Error' : 'No query'}
         )
+
+    if not jsonBody.model:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Model information not specified!",
+            headers={'X-Error' : 'No model specified'}
+        )
     try:
         results = vs.search(jsonBody.query);
         data = [r["text"] for r in results]
-        return {"message" : "Query process successful", "data" : data}
-
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Query process failure: {e}"
+            detail=f"Vector embeddings failure: {e}"
         )
+
+    query = make_prompt(jsonBody.query, data)
+
+    return StreamingResponse(
+        _ollama_stream_generator(query, jsonBody.model), media_type="text/event-stream"
+    )

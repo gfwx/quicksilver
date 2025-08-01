@@ -16,3 +16,4 @@ class FileAPIResponse(BaseModel):
 
 class Query(BaseModel):
     query: str
+    model: str
