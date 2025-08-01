@@ -15,21 +15,29 @@ datasource db {
 }
 
 model User {
-  uid    String @id
-  name   String
-  email  String
-  status String
-  File   File[]
+  id                String    @id
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  email             String    @unique
+  role              String
+  emailVerified     Boolean
+  firstName         String
+  lastName          String
+  lastSignInAt      DateTime?
+  profilePictureUrl String?
+  files             File[]
 }
 
 model File {
   filename     String   @id
   encoding     String
   originalname String
-  size         String
-  timestamp    DateTime @default(now())
+  size         Int
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
   status       String
 
-  userid String?
-  user   User?   @relation(fields: [userid], references: [uid])
+  // Mandatory Relationship: A file MUST belong to a user.
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
 }
