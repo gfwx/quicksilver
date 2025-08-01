@@ -110,9 +110,16 @@ async def _ollama_stream_generator(prompt: str, model: str) -> AsyncGenerator[st
             detail=f"Ollama API Error: {e}"
         )
 
+
+def _vector_query_sync(query : str) -> List[str]:
+    try:
+        results = vs.search(query);
+        return [r["text"] for r in results]
+    except Exception as e:
+        raise ValueError(f"Vector embeddings failure: {e}");
+
 @app.post('/api/query')
 async def read_query(jsonBody: Query):
-    data = []
     if not jsonBody.query:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -127,9 +134,11 @@ async def read_query(jsonBody: Query):
             headers={'X-Error' : 'No model specified'}
         )
     try:
-        results = vs.search(jsonBody.query);
-        data = [r["text"] for r in results]
-    except Exception as e:
+        data = await asyncio.to_thread(
+            _vector_query_sync,
+            jsonBody.query
+        )
+    except ValueError as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Vector embeddings failure: {e}"
