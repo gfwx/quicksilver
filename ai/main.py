@@ -17,7 +17,7 @@ host=getenv('OLLAMA_ENDPOINT', 'http://localhost:11434')
 client = AsyncClient(host=host)
 
 def make_prompt(query: str, ctx: List[str]):
-    prompt_string = f"Answer the following question based on the context provided. If the context is not relevant, just say 'I don't know'.\n\nQuestion: {query}\n\nContext:\n"
+    prompt_string = f"Answer the following question based on the context provided. If the context is not provided, just say 'I don't know'.\n\nQuestion: {query}\n\nContext:\n"
     for i, chunk in enumerate(ctx):
         prompt_string += f"Chunk {i+1}: {chunk}\n"
 
@@ -109,7 +109,6 @@ async def _ollama_stream_generator(prompt: str, model: str) -> AsyncGenerator[st
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Ollama API Error: {e}"
         )
-
 
 def _vector_query_sync(query : str) -> List[str]:
     try:
