@@ -1,43 +1,67 @@
-import { Router, Request, Response } from "express"
-import { WorkOS } from "@workos-inc/node";
-import { PrismaClient } from "../../app/generated/prisma"
-import dotenv from "dotenv"
-import cookieParser from "cookie-parser";
-
+import dotenv from 'dotenv'
 dotenv.config();
 
-const workosApiKey = process.env.WORKOS_API_KEY;
+import { Router, Request, Response } from "express"
+import { globals } from "../lib/instances"
+import cookieParser from "cookie-parser";
+
+const { workos, prisma } = globals;
+
 const workosClientId = process.env.WORKOS_CLIENT_ID;
 const cookiePassword = process.env.WORKOS_COOKIE_PASSWORD;
 const redirectUri = process.env.EXPRESS_SERVER_PATH;
 const frontendUrl = process.env.FRONTEND_URL;
 
 
-if (!workosApiKey || !workosClientId || !cookiePassword || !redirectUri) {
+if (!workosClientId || !cookiePassword || !redirectUri) {
   throw new Error('Missing environment variables');
 }
 
-const prisma = new PrismaClient()
-const workos = new WorkOS(workosApiKey, { clientId: workosClientId });
+if (!workos || !prisma) {
+  throw new Error('Missing global instances!')
+}
+
 const router = Router();
 
 router.use(cookieParser())
 
-router.get('/api/auth/login', async (req: Request, res: Response) => {
+router.get('/login', async (req: Request, res: Response) => {
   try {
     const authUrl = workos.userManagement.getAuthorizationUrl({
       provider: 'authkit',
-      redirectUri: redirectUri ?? "http://localhost:3001" + '/api/auth/callback',
+      redirectUri: 'http://localhost:3001/api/auth/callback', // needs to be changed to an environment variable
       clientId: workosClientId
     })
     res.redirect(authUrl);
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: 'Failed to generate authorization URL' });
+    res.status(500).json({ error: `Failed to generate authorization URL: ${error}` });
   }
 });
 
-router.get('/api/auth/callback', async (req: Request, res: Response) => {
+router.get('/logout', async (req: Request, res: Response) => {
+  const sessionCookie = req.cookies['wos-session']
+  if (!sessionCookie) {
+    res.status(401).json({ error: 'No sealed session token found.' })
+    return;
+  }
+  try {
+    const session = workos.userManagement.loadSealedSession({
+      sessionData: sessionCookie,
+      cookiePassword: cookiePassword
+    })
+
+    await session.authenticate();
+    const logoutUrl = await session.getLogoutUrl()
+    res.redirect(logoutUrl);
+  }
+  catch (error) {
+    console.error(error);
+    res.status(500).json({ error: `Failed to generate logout URL: ${error}` })
+  }
+})
+
+router.get('/callback', async (req: Request, res: Response) => {
   const code = req.query.code as string;
 
   if (!code) {
@@ -88,7 +112,7 @@ router.get('/api/auth/callback', async (req: Request, res: Response) => {
       },
     });
 
-    res.redirect(frontendUrl ?? "http://localhost:3000/dashboard")
+    res.redirect(frontendUrl ?? "http://localhost:3000/dashboard") // temp
   }
 
   catch (error) {
@@ -97,5 +121,7 @@ router.get('/api/auth/callback', async (req: Request, res: Response) => {
     res.redirect('/login')
   }
 });
+
+
 
 export default router;

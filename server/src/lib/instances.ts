@@ -1,8 +1,8 @@
 import { PrismaClient } from "../../app/generated/prisma"; // Assuming path is correct
 import { WorkOS } from "@workos-inc/node";
-import dotenv from 'dotenv';
-
+import dotenv from 'dotenv'
 dotenv.config();
+
 const workosApiKey = process.env.WORKOS_API_KEY;
 const workosClientId = process.env.WORKOS_CLIENT_ID;
 

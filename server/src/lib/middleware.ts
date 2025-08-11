@@ -1,5 +1,8 @@
 import { Request, Response, NextFunction } from "express";
 import { globals } from "./instances";
+import dotenv from "dotenv"
+
+dotenv.config();
 
 const cookiePassword = process.env.WORKOS_COOKIE_PASSWORD;
 
