@@ -6,7 +6,6 @@ import path from "path";
 import fs from 'fs/promises';
 import { globals } from "../lib/instances"
 
-// --- Configuration Validation ---
 const workosApiKey = process.env.WORKOS_API_KEY;
 const workosClientId = process.env.WORKOS_CLIENT_ID;
 const cookiePassword = process.env.WORKOS_COOKIE_PASSWORD;
@@ -15,7 +14,6 @@ if (!workosApiKey || !workosClientId || !cookiePassword) {
   throw new Error('Missing required WorkOS environment variables.');
 }
 
-// --- Service Initialization ---
 const { prisma } = globals;
 const router = Router();
 const uploaddir = 'uploads/';
@@ -42,18 +40,15 @@ const storage = multer.diskStorage({
 const upload = multer({ storage });
 router.use(cookieParser());
 
-// --- Secured Upload Endpoint ---
 router.post('/', authMiddleware, upload.single('file'), async (req: Request, res: Response, next: NextFunction) => {
-  // By the time this handler runs, authMiddleware has already run.
-  // We can safely assume req.user exists and is valid.
+  console.log("Route fired")
   if (!prisma) {
     console.error('Prisma instance is not initialized');
-    res.status(500).json({ message: 'Internal Server Error: Prisma instane not initialized' });
+    res.status(500).json({ message: 'Internal Server Error: Prisma instance not initialized' });
     return;
   }
 
   if (!req.user) {
-    // This should theoretically never be reached if middleware is correct
     res.status(401).json({ message: 'Unauthorized' });
     return;
   }
@@ -73,14 +68,14 @@ router.post('/', authMiddleware, upload.single('file'), async (req: Request, res
       originalname: req.file.originalname,
       size: req.file.size,
       encoding: req.file.encoding,
-      userId: userId, // Correctly link the file to the authenticated user
+      userId: userId,
     };
 
     const createdFile = await prisma.file.create({ data: fileData });
     console.log(`File metadata stored for user ${userId} with id ${createdFile.filename}`);
 
     const payloadToFastAPI = {
-      filepath: path.resolve(upload_path), // Use absolute path
+      filepath: path.resolve(upload_path),
       document_id: createdFile.filename
     };
 
@@ -91,7 +86,6 @@ router.post('/', authMiddleware, upload.single('file'), async (req: Request, res
     });
 
     if (!response.ok) {
-      // Let the error handler manage this failure
       throw new Error(`FastAPI failed to process file with status: ${response.status}`);
     }
 
@@ -111,11 +105,9 @@ router.post('/', authMiddleware, upload.single('file'), async (req: Request, res
     return;
 
   } catch (error) {
-    // Cleanup orphaned file on failure
     if (upload_path) {
       fs.unlink(upload_path).catch(err => console.error("Failed to delete orphaned file:", err));
     }
-    // Pass error to a central error handler
     next(error);
   }
 });
