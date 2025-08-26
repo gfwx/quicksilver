@@ -12,7 +12,6 @@ const cookiePassword = process.env.WORKOS_COOKIE_PASSWORD;
 const redirectUri = process.env.EXPRESS_SERVER_PATH;
 const frontendUrl = process.env.FRONTEND_URL;
 
-
 if (!workosClientId || !cookiePassword || !redirectUri) {
   throw new Error('Missing environment variables');
 }
@@ -118,7 +117,7 @@ router.get('/callback', async (req: Request, res: Response) => {
   catch (error) {
     // Theoretical login route for the client. May be subject to change?
     console.error(error)
-    res.redirect('/login')
+    res.redirect('/')
   }
 });
 
