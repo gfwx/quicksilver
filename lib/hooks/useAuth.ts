@@ -17,7 +17,7 @@ interface AuthState {
   isAuthenticated: boolean;
 }
 
-interface UseAuthReturn extends AuthState {
+interface UseAuthReturn {
   login: () => void;
   logout: () => void;
   authState: AuthState;
