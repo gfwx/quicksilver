@@ -5,7 +5,6 @@ import dotenv from "dotenv"
 dotenv.config();
 
 const cookiePassword = process.env.WORKOS_COOKIE_PASSWORD;
-
 const { workos } = globals;
 
 export const authMiddleware = async (req: Request, res: Response, next: NextFunction) => {
@@ -15,12 +14,10 @@ export const authMiddleware = async (req: Request, res: Response, next: NextFunc
     res.status(500).json({ message: 'Internal Server Error: WorkOS instance not initialized.' });
     return;
   }
-
   if (!sessionCookie) {
     res.status(401).json({ message: 'Unauthorized: No session cookie provided.' });
     return;
   }
-
   if (!cookiePassword) {
     res.status(500).json({ message: 'Internal Server Error: Missing cookie password.' });
     return;
@@ -35,22 +32,20 @@ export const authMiddleware = async (req: Request, res: Response, next: NextFunc
     const authStatus = await session.authenticate();
 
     if (authStatus.authenticated) {
-      req.user = authStatus.user; // Attach user to the request object
-      return next();// Proceed to the next handler
+      req.user = authStatus.user;
+      return next();
     }
 
-    // Attempt to refresh the session if it's not authenticated
     const sessionRefresh = await session.refresh();
 
     if (sessionRefresh.authenticated) {
       res.cookie('wos-session', sessionRefresh.sealedSession, {
         path: '/', httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'lax'
       });
-      req.user = sessionRefresh.user; // Attach refreshed user
+      req.user = sessionRefresh.user;
       return next();
     }
 
-    // If refresh fails, it's a definitive unauthorized
     throw new Error("Session is invalid and could not be refreshed.");
 
   } catch (error) {

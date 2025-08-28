@@ -39,7 +39,9 @@ router.get('/login', async (req: Request, res: Response) => {
 });
 
 router.get('/logout', async (req: Request, res: Response) => {
+  console.log("Session Logout...")
   const sessionCookie = req.cookies['wos-session']
+
   if (!sessionCookie) {
     res.status(401).json({ error: 'No sealed session token found.' })
     return;
@@ -52,6 +54,14 @@ router.get('/logout', async (req: Request, res: Response) => {
 
     await session.authenticate();
     const logoutUrl = await session.getLogoutUrl()
+
+    res.clearCookie("wos-session", {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax", // or "none" if cross-site
+      path: "/",       // must match cookie’s original path
+    })
+
     res.redirect(logoutUrl);
   }
   catch (error) {
@@ -62,6 +72,7 @@ router.get('/logout', async (req: Request, res: Response) => {
 
 router.get('/callback', async (req: Request, res: Response) => {
   const code = req.query.code as string;
+  console.log("Initiated callback route")
 
   if (!code) {
     res.status(400).json({ error: 'No code provided' });
