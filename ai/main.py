@@ -25,7 +25,7 @@ def make_prompt(query: str, ctx: List[str]):
 
 @app.get("/api")
 async def read_root():
-    return {"message": "FastCTX Python Microservice"}
+    return {"message": "Quicksilver Python Microservice"}
 
 def _process_file_sync(filepath: str, document_id: str):
     """Synchronous file processing pipeline to be run in a thread."""

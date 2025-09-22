@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 
-interface User {
+export interface User {
   id: string;
   email: string;
   firstName?: string;
@@ -33,10 +33,6 @@ export const useAuth = (): UseAuthReturn => {
 
   const router = useRouter();
   const serverUrl = process.env.NEXT_PUBLIC_EXPRESS_SERVER_PATH || "http://localhost:3001";
-
-  useEffect(() => {
-    checkAuthStatus();
-  }, []); // Empty dependency array - only run once
 
   const checkAuthStatus = useCallback(async () => {
     console.log("Auth Status checking in progress..")
@@ -78,6 +74,10 @@ export const useAuth = (): UseAuthReturn => {
       });
     }
   }, [serverUrl]);
+
+  useEffect(() => {
+    checkAuthStatus();
+  }, [checkAuthStatus]); // Empty dependency array - only run once
 
   const login = useCallback(() => {
     window.location.href = `${serverUrl}/api/auth/login`;
