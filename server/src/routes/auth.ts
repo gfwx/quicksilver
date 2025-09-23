@@ -4,6 +4,7 @@ dotenv.config();
 import { Router, Request, Response } from "express"
 import { globals } from "../lib/instances"
 import cookieParser from "cookie-parser";
+import { upsertUser } from '../lib/userCrudService';
 
 const { workos, prisma } = globals;
 
@@ -91,6 +92,8 @@ router.get('/callback', async (req: Request, res: Response) => {
       });
 
     const { user, sealedSession } = authenticateResponse;
+    await upsertUser(user);
+
     res.cookie('wos-session', sealedSession, {
       path: '/',
       httpOnly: true,
@@ -99,36 +102,13 @@ router.get('/callback', async (req: Request, res: Response) => {
       maxAge: 7 * 24 * 60 * 60 * 1000
     })
 
-    // business logic
-    await prisma.user.upsert({
-      where: { id: user.id },
-      update: {
-        email: user.email,
-        firstName: user.firstName ?? "User",
-        lastName: user.lastName ?? "",
-        emailVerified: user.emailVerified,
-        profilePictureUrl: user.profilePictureUrl,
-        lastSignInAt: new Date(),
-      },
-      create: {
-        id: user.id,
-        role: 'user',
-        email: user.email,
-        firstName: user.firstName ?? "User",
-        lastName: user.lastName ?? "",
-        emailVerified: user.emailVerified,
-        profilePictureUrl: user.profilePictureUrl,
-        lastSignInAt: new Date(),
-      },
-    });
-
-    res.redirect(frontendUrl ?? "http://localhost:3000/dashboard") // temp
+    res.redirect(`${frontendUrl}/dashboard`)
   }
 
   catch (error) {
     // Theoretical login route for the client. May be subject to change?
     console.error(error)
-    res.redirect('/')
+    res.redirect('/?error=callback_failed')
   }
 });
 
