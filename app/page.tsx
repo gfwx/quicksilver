@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { useAuth } from '@/lib/hooks/useAuth';
 import logoMark from "@/public/logomark.svg"
 import wordMark from "@/public/wordmark.svg"
+import Link from 'next/link';
 
 export default function Home() {
   const { authState, login, logout } = useAuth();
@@ -41,7 +42,9 @@ export default function Home() {
                   Sign Out
                 </Button>
 
-                <Button variant="secondary" className="hover:cursor-pointer">Onboarding (Debug)</Button>
+                <Link href="/onboarding">
+                  <Button variant="link" className="hover:cursor-pointer">Onboarding (Debug)</Button>
+                </Link>
               </div>
             </div>
           ) : (
@@ -49,7 +52,9 @@ export default function Home() {
               <Button variant="default" className="hover:cursor-pointer" onClick={login}>
                 Sign Up
               </Button>
-              <Button variant="secondary" className="hover:cursor-pointer">Onboarding (Debug)</Button>
+              <Link href="/onboarding">
+                <Button variant="secondary" className="hover:cursor-pointer">Onboarding (Debug)</Button>
+              </Link>
             </div>
           )}
         </div>
