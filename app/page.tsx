@@ -11,15 +11,16 @@ export default function Home() {
   const { authState, login, logout } = useAuth();
   return (
     <div className='flex flex-col h-screen'>
-      <section className="flex flex-col w-full h-full items-center justify-center p-4 gap-4">
-        <div className="flex flex-col items-center gap-4">
-          <div className="flex flex-col items-center gap-10">
-            <Image src={logoMark} alt="Quicksilver Logomark" />
-            <Image src={wordMark} alt="Quicksilver Wordmark" />
-          </div>
+      <section className="flex flex-col w-full h-full items-center justify-center p-4 gap-9">
+        <Image src={logoMark} alt="Quicksilver Logomark" />
+        <div className="flex flex-col gap-4 items-center">
+          <Image src={wordMark} alt="Quicksilver Wordmark" />
+          <p className="text-foreground text-lg font-serif tracking-tight"><b>Self-Hosted</b> AI Document Inference</p>
+        </div>
 
+        <div className="flex gap-4">
           {authState.isLoading ? (
-            <Button variant="outline" disabled>
+            <Button variant="default" disabled>
               Loading...
             </Button>
           ) : authState.isAuthenticated ? (
@@ -27,7 +28,7 @@ export default function Home() {
               <div className="text-center">
                 <p className="text-lg">Welcome back, {authState.user?.firstName || authState.user?.email}!</p>
               </div>
-              <div className="flex gap-2">
+              <div className="flex gap-4">
                 <Button
                   variant="default"
                   className="hover:cursor-pointer"
@@ -35,16 +36,21 @@ export default function Home() {
                 >
                   Go to Dashboard
                 </Button>
-                <Button variant="outline" onClick={logout}
+                <Button variant="destructive" onClick={logout}
                   className="hover:cursor-pointer">
                   Sign Out
                 </Button>
+
+                <Button variant="secondary" className="hover:cursor-pointer">Onboarding (Debug)</Button>
               </div>
             </div>
           ) : (
-            <Button variant="outline" onClick={login}>
-              Sign Up
-            </Button>
+            <div className="flex gap-2">
+              <Button variant="default" className="hover:cursor-pointer" onClick={login}>
+                Sign Up
+              </Button>
+              <Button variant="secondary" className="hover:cursor-pointer">Onboarding (Debug)</Button>
+            </div>
           )}
         </div>
       </section>

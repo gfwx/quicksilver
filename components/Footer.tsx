@@ -6,12 +6,12 @@ export function Footer() {
     <footer className="p-9 w-full">
       <div className="flex justify-end">
         <Link
-          href="https://github.com/gfwx/Quicksilver"
+          href="https://github.com/gfwx/quicksilver"
           target="_blank"
           rel="noopener noreferrer"
-          className="text-muted-foreground hover:text-foreground transition-colors"
+          className="text-muted-foreground hover:text-foreground transition-colors underline"
         >
-          gfwx/Quicksilver
+          gfwx/quicksilver
         </Link>
       </div>
     </footer>
