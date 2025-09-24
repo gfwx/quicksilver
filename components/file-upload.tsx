@@ -1,18 +1,30 @@
 'use client';
 
-import { useCallback, useState } from 'react';
+import { useCallback } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { UploadCloud } from 'lucide-react';
+import { UploadCloud, X } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
-export function FileUpload() {
-  const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
+interface FileUploadProps {
+  value?: File[];
+  onChange?: (files: File[]) => void;
+  error?: string;
+}
 
+export function FileUpload({ value = [], onChange, error }: FileUploadProps) {
   const onDrop = useCallback((acceptedFiles: File[]) => {
-    // Here you would typically handle the file upload to your backend
-    console.log(acceptedFiles);
-    setUploadedFiles((prev) => [...prev, ...acceptedFiles]);
-  }, []);
+    if (onChange) {
+      onChange([...value, ...acceptedFiles]);
+    }
+  }, [value, onChange]);
+
+  const removeFile = useCallback((index: number) => {
+    if (onChange) {
+      const newFiles = value.filter((_, i) => i !== index);
+      onChange(newFiles);
+    }
+  }, [value, onChange]);
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
@@ -23,14 +35,18 @@ export function FileUpload() {
   });
 
   return (
-    <Card className="w-full max-w-lg">
+    <Card className="w-full">
       <CardHeader>
         <CardTitle>Upload Documents</CardTitle>
       </CardHeader>
       <CardContent>
         <div
           {...getRootProps()}
-          className={`flex flex-col items-center justify-center p-10 border-2 border-dashed rounded-md cursor-pointer transition-colors ${isDragActive ? 'border-primary bg-primary/10' : 'border-border'
+          className={`flex flex-col items-center justify-center p-10 border-2 border-dashed rounded-md cursor-pointer transition-colors ${isDragActive
+              ? 'border-primary bg-primary/10'
+              : error
+                ? 'border-destructive bg-destructive/10'
+                : 'border-border'
             }`}
         >
           <input {...getInputProps()} />
@@ -43,16 +59,32 @@ export function FileUpload() {
             </p>
           )}
         </div>
-        {uploadedFiles.length > 0 && (
+
+        {error && (
+          <p className="text-sm text-destructive mt-2">{error}</p>
+        )}
+
+        {value.length > 0 && (
           <div className="mt-4">
-            <h4 className="font-semibold">Uploaded Files:</h4>
-            <ul className="list-disc list-inside">
-              {uploadedFiles.map((file, index) => (
-                <li key={index} className="text-sm text-muted-foreground">
-                  {file.name}
-                </li>
+            <h4 className="font-semibold mb-2">Uploaded Files:</h4>
+            <div className="space-y-2">
+              {value.map((file, index) => (
+                <div key={index} className="flex items-center justify-between p-2 bg-muted rounded-md">
+                  <span className="text-sm text-muted-foreground truncate">
+                    {file.name}
+                  </span>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => removeFile(index)}
+                    className="h-6 w-6 p-0"
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                </div>
               ))}
-            </ul>
+            </div>
           </div>
         )}
       </CardContent>
