@@ -29,10 +29,8 @@ export const AuthGuard = ({ children, fallback, redirectTo = '/', requireAuth = 
   const router = useRouter();
 
   useEffect(() => {       // Only redirect when loading is complete and auth requirement isn't met
-    if (!authState.isLoading) {
-      if (requireAuth && !authState.isAuthenticated) {
-        router.push(redirectTo);
-      }
+    if (!authState.isLoading && requireAuth && !authState.isAuthenticated) {
+      router.push(redirectTo);
     }
   }, [authState.isLoading, authState.isAuthenticated, requireAuth, redirectTo, router]);
 
@@ -52,7 +50,7 @@ export const AuthGuard = ({ children, fallback, redirectTo = '/', requireAuth = 
   }
 
   // Don't render anything while redirecting
-  return null;
+  return fallback;
 };
 
 /**

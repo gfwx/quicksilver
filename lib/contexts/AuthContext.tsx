@@ -114,7 +114,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   }, [serverUrl]);
 
   const logout = useCallback(async () => {
-    try {
+
+    try {       // Mainly done to update the app auth state
       setAuthState(prev => ({ ...prev, isLoading: true }));     // Changes global loading auth state — can be used to acivate loading components
       window.location.href = `${serverUrl}/api/auth/logout`;
 
