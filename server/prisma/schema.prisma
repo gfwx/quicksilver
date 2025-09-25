@@ -25,11 +25,14 @@ model User {
   lastName          String
   lastSignInAt      DateTime?
   profilePictureUrl String?
-  files             File[]
+
+  projects Project[]
+  File     File[]
 }
 
 model File {
-  filename     String   @id
+  id           String   @id
+  filename     String
   encoding     String
   originalname String
   size         Int
@@ -37,7 +40,31 @@ model File {
   updatedAt    DateTime @updatedAt
   status       String
 
-  // Mandatory Relationship: A file MUST belong to a user.
+  projectId     String
+  parentProject Project @relation(fields: [projectId], references: [id])
+
+  userId     String
+  uploadedBy User   @relation(fields: [userId], references: [id])
+}
+
+model Project {
+  id             String   @id
+  projectTitle   String
+  projectContext String
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime
+  projectTags    String[]
+
   userId String
-  user   User   @relation(fields: [userId], references: [id])
+  user   User    @relation(fields: [userId], references: [id])
+  files  File[]
+  Chats  Chats[]
+}
+
+model Chats {
+  id        String @id
+  chatTitle String
+
+  project   Project @relation(fields: [projectId], references: [id])
+  projectId String
 }
