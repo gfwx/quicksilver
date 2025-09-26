@@ -47,8 +47,14 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { FileUpload } from "@/components/file-upload";
+import { useAuth } from "@/lib/hooks/useAuth";
+import { useState } from "react";
 
 export default function Dashboard() {
+  const { authState } = useAuth();
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
   // form function (with zod validation)
   const form = useForm<z.infer<typeof CreateProjectSchema>>({
     resolver: zodResolver(CreateProjectSchema),
@@ -60,8 +66,50 @@ export default function Dashboard() {
   })
 
   // form submission handler
-  const onSubmit = (values: z.infer<typeof CreateProjectSchema>) => {
-    console.log(values);
+  const onSubmit = async (values: z.infer<typeof CreateProjectSchema>) => {
+    if (!authState.user) {
+      console.error("User not authenticated");
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    try {
+      const serverUrl = process.env.NEXT_PUBLIC_EXPRESS_SERVER_PATH || "http://localhost:3001";
+      const formData = new FormData();
+
+      // Add files to FormData
+      values.documents.forEach((file) => {
+        formData.append('files', file);
+      });
+
+      const response = await fetch(`${serverUrl}/api/upload`, {
+        method: 'POST',
+        headers: {
+          'X-Project-Name': values.project_name,
+          'X-Project-Context': values.project_context || '',
+        },
+        body: formData,
+        credentials: 'include', // Important for auth cookies
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        console.log('Project created successfully:', result);
+
+        // Reset form and close dialog
+        form.reset();
+        setDialogOpen(false);
+
+      } else {
+        const error = await response.json();
+        console.error('Failed to create project:', error);
+      }
+    } catch (error) {
+      console.error('Error submitting project:', error);
+    } finally {
+      setIsSubmitting(false);
+    }
   }
 
   return (
@@ -71,7 +119,7 @@ export default function Dashboard() {
         <div className="flex gap-2 justify-center">
 
           {/*Create project dialog*/}
-          <Dialog>
+          <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
             <DialogTrigger asChild>
               <Button className="hover:cursor-pointer" variant="default"><Plus /> Create a project</Button>
             </DialogTrigger>
@@ -136,10 +184,17 @@ export default function Dashboard() {
                     />
 
                     <div className="flex gap-2">
-                      <Button type="submit"><Plus /> Submit</Button>
-                      <DialogTrigger asChild>
-                        <Button className="hover:cursor-pointer" variant="destructive"><X /> Cancel</Button>
-                      </DialogTrigger>
+                      <Button type="submit" disabled={isSubmitting}>
+                        <Plus /> {isSubmitting ? 'Creating...' : 'Submit'}
+                      </Button>
+                      <Button
+                        type="button"
+                        className="hover:cursor-pointer"
+                        variant="destructive"
+                        onClick={() => setDialogOpen(false)}
+                      >
+                        <X /> Cancel
+                      </Button>
                     </div>
                   </form>
                 </Form>

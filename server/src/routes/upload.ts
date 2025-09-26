@@ -5,6 +5,7 @@ import multer from "multer";
 import path from "path";
 import fs from 'fs/promises';
 import { globals } from "../lib/instances"
+import { v4 } from "uuid"
 
 const workosApiKey = process.env.WORKOS_API_KEY;
 const workosClientId = process.env.WORKOS_CLIENT_ID;
@@ -18,7 +19,6 @@ const { prisma } = globals;
 const router = Router();
 const uploaddir = 'uploads/';
 const ai_endpoint = process.env.FASTAPI_ENDPOINT || 'http://127.0.0.1:8000/';
-
 
 const storage = multer.diskStorage({
   destination: async (req, file, cb) => {
@@ -40,74 +40,137 @@ const storage = multer.diskStorage({
 const upload = multer({ storage });
 router.use(cookieParser());
 
-router.post('/', authMiddleware, upload.single('file'), async (req: Request, res: Response, next: NextFunction) => {
-  console.log("Route fired")
+router.post('/', authMiddleware, upload.array('files'), async (req: Request, res: Response, next: NextFunction) => {
+  console.log("Route fired for multiple file upload");
+
+  console.log("Checking prisma..")
   if (!prisma) {
     console.error('Prisma instance is not initialized');
     res.status(500).json({ message: 'Internal Server Error: Prisma instance not initialized' });
     return;
   }
 
+  console.log("Checking user..")
   if (!req.user) {
     res.status(401).json({ message: 'Unauthorized' });
     return;
   }
 
-  if (!req.file) {
-    res.status(400).json({ message: 'No file upload found' });
+  console.log("Checking files..")
+  const files = req.files as Express.Multer.File[];
+  if (!files || files.length === 0) {
+    res.status(400).json({ message: 'No files uploaded' });
+    return;
+  }
+  console.log("Completed checking files")
+
+  // Read project information from headers
+  console.log("Checking request headers:")
+  const projectName = req.headers['x-project-name'] as string;
+  const projectContext = req.headers['x-project-context'] as string;
+  console.log("Completed checking project headers")
+
+  console.log("Checking project name..")
+  if (!projectName) {
+    res.status(400).json({ message: 'Project name is required in headers' });
     return;
   }
 
+  console.log("Passed tests")
+  console.log(`Project name: ${projectName}`)
+  console.log(`Project context: ${projectContext}`)
+
   const userId = req.user.id;
-  const upload_path: string | undefined = req.file.path;
+  const uploadedFilePaths: string[] = [];
 
   try {
-    const fileData = {
-      status: 'Pending',
-      filename: req.file.filename,
-      originalname: req.file.originalname,
-      size: req.file.size,
-      encoding: req.file.encoding,
+    // Create the project first
+    const projectData = {
+      id: v4(),
+      projectTitle: projectName,
+      projectContext: projectContext || '',
+      updatedAt: new Date(),
+      projectTags: [],
       userId: userId,
     };
 
-    const createdFile = await prisma.file.create({ data: fileData });
-    console.log(`File metadata stored for user ${userId} with id ${createdFile.filename}`);
+    const createdProject = await prisma.project.create({ data: projectData });
+    console.log(`Project created for user ${userId} with id ${createdProject.id}`);
 
-    const payloadToFastAPI = {
-      filepath: path.resolve(upload_path),
-      document_id: createdFile.filename
-    };
+    // Process each file
+    const filePromises = files.map(async (file) => {
+      uploadedFilePaths.push(file.path);
 
-    const response = await fetch(`${ai_endpoint}api/process`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-      body: JSON.stringify(payloadToFastAPI)
+      const fileId = v4();
+
+      const fileData = {
+        id: fileId,
+        status: 'Pending',
+        filename: file.filename,
+        originalname: file.originalname,
+        size: file.size,
+        encoding: file.encoding,
+        userId: userId,
+        projectId: createdProject.id,
+      };
+
+      const createdFile = await prisma.file.create({ data: fileData });
+      console.log(`File metadata stored for user ${userId} with filename ${createdFile.filename}`);
+
+      // Send to FastAPI for processing
+      const payloadToFastAPI = {
+        filepath: path.resolve(file.path),
+        document_id: createdFile.filename
+      };
+
+      const response = await fetch(`${ai_endpoint}/api/process`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        body: JSON.stringify(payloadToFastAPI)
+      });
+
+      if (!response.ok) {
+        throw new Error(`FastAPI failed to process file ${file.originalname} with status: ${response.status}`);
+      }
+
+      const fastAPIResponse = await response.json();
+      console.log(`Processed by FastAPI: ${JSON.stringify(fastAPIResponse)}`);
+
+      // Update file status
+      await prisma.file.update({
+        where: { id: createdFile.id },
+        data: { status: 'Processed' }
+      });
+
+      return {
+        fileName: createdFile.filename,
+        originalName: file.originalname,
+        fastApiResult: fastAPIResponse
+      };
     });
 
-    if (!response.ok) {
-      throw new Error(`FastAPI failed to process file with status: ${response.status}`);
-    }
-
-    const fastAPIResponse = await response.json();
-    console.log(`Processed by FastAPI: ${JSON.stringify(fastAPIResponse)}`);
-
-    await prisma.file.update({
-      where: { filename: createdFile.filename },
-      data: { status: 'Processed' }
-    });
+    const processedFiles = await Promise.all(filePromises);
 
     res.status(200).json({
-      message: 'File uploaded and processed successfully.',
-      fileName: createdFile.filename,
-      fastApiResult: fastAPIResponse
+      message: 'Project created and files uploaded successfully.',
+      projectId: createdProject.id,
+      projectName: createdProject.projectTitle,
+      filesProcessed: processedFiles.length,
+      files: processedFiles
     });
     return;
 
   } catch (error) {
-    if (upload_path) {
-      fs.unlink(upload_path).catch(err => console.error("Failed to delete orphaned file:", err));
-    }
+    console.error('Error processing project and files:', error);
+
+    // Clean up uploaded files if there was an error
+    const cleanupPromises = uploadedFilePaths.map(filePath =>
+      fs.unlink(filePath).catch(err =>
+        console.error(`Failed to delete orphaned file ${filePath}:`, err)
+      )
+    );
+    await Promise.allSettled(cleanupPromises);
+
     next(error);
   }
 });
