@@ -47,25 +47,30 @@ export const useAuth = (): AuthContextType => {
   return context;
 };
 
-
 /**
  *
  * @param children - Content to expose useAuth to
  * @returns
  */
-export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
-
+export const AuthProvider = ({ children, user = null }: { children: React.ReactNode, user: User | null }) => {
   const serverUrl = process.env.NEXT_PUBLIC_EXPRESS_SERVER_PATH || "http://localhost:3001";
-  // 1. Set initial state
+
   const [authState, setAuthState] = useState<AuthState>({
-    user: null,
-    isLoading: true,
-    isAuthenticated: false,
+    user: user ?? null,
+    isLoading: user ? false : true,
+    isAuthenticated: user ? true : false,
   });
 
-  // 2. Check for the current authenticated user
   const checkAuthStatus = useCallback(async () => {
-    console.log("Auth Status checking in progress..")
+    if (user) {
+      console.log("User found by AuthProvider!")
+      return;
+    }
+    console.log("User not found by AuthProvider. Auth Status checking in progress..")
+
+    // 1. Set initial state. Assume that the user is already authenticated
+    // This is because the NextJS application already checks if the user is authenticated via /api/user/me.
+    // If the user is not authenticated, then the "user" prop will simply be null and the other states will be set accordingly.
     try {
       console.log("Fetching user data from API...")
 
@@ -102,9 +107,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         isAuthenticated: false,
       });
     }
-  }, [serverUrl]);
+  }, [serverUrl, user]);
 
-  // 3. Run auth check once when the provider mounts
+  // 2. Run auth check once when the provider mounts
   useEffect(() => {
     checkAuthStatus();
   }, [checkAuthStatus]);
@@ -125,12 +130,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
   }, [serverUrl]);
 
-  // 4. Expose refetch function for manual auth state refresh
   const refetchUser = useCallback(async () => {
     await checkAuthStatus();
   }, [checkAuthStatus]);
 
-  // 5. After all the callbacks, return the final authentication state object.
   const contextValue: AuthContextType = {
     authState,
     login,

@@ -1,23 +1,27 @@
-import { PrismaClient } from "./generated/prisma"; // Assuming path is correct
+import { PrismaClient } from "./app/generated/prisma";
 import { WorkOS } from "@workos-inc/node";
 import dotenv from 'dotenv'
+
 dotenv.config();
 
-const workosApiKey = process.env.WORKOS_API_KEY;
-const workosClientId = process.env.WORKOS_CLIENT_ID;
+// This is done to prevent additional PrismaClient instances from being created upon mounting
+const globalForPrisma = globalThis as unknown as {
+  prisma: PrismaClient | undefined;
+};
 
-class Globals {
-  public prisma: PrismaClient | null;
-  public workos: WorkOS | null;
+export const prisma =
+  globalForPrisma.prisma ??
+  new PrismaClient();
 
-  constructor() {
-    this.prisma = new PrismaClient();
-    if (!workosApiKey || !workosClientId) {
-      this.workos = null;
-      throw new Error('Missing WorkOS API key or client ID');
-    }
-    this.workos = new WorkOS(workosApiKey, { clientId: workosClientId });
-  }
+
+if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prisma;
+
+let workos: WorkOS | null = null;
+
+if (process.env.WORKOS_API_KEY && process.env.WORKOS_CLIENT_ID) {
+  workos = new WorkOS(process.env.WORKOS_API_KEY, {
+    clientId: process.env.WORKOS_CLIENT_ID,
+  });
 }
 
-export const globals = new Globals();
+export { workos };
