@@ -2,6 +2,7 @@
 
 import logoMark from "@/public/logomark.svg"
 import Image from 'next/image';
+import Link from "next/link";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { useAuth } from "@/lib/hooks/useAuth";
 import {
@@ -21,7 +22,7 @@ export const UserNav = () => {
         <ContextMenuTrigger asChild>
           <div className="flex gap-4 w-fit items-center cursor-context-menu">
             <Avatar>
-              <AvatarImage src={user?.profilePictureUrl} />
+              <AvatarImage height={32} width={32} src={user?.profilePictureUrl} />
               <AvatarFallback>{user?.firstName?.charAt(0)}</AvatarFallback>
             </Avatar>
             <div>
@@ -39,7 +40,9 @@ export const UserNav = () => {
           </ContextMenuItem>
         </ContextMenuContent>
       </ContextMenu>
-      <Image width={32} height={32} src={logoMark} alt="Quicksilver Logomark" />
+      <Link href="/">
+        <Image width={32} height={32} src={logoMark} alt="Quicksilver Logomark" />
+      </Link>
     </div>
   );
 }
