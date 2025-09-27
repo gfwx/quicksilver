@@ -1,13 +1,5 @@
 "use client"
 import {
-  Table,
-  TableBody,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table"
-
-import {
   Drawer,
   DrawerClose,
   DrawerContent,
@@ -44,16 +36,17 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form"
+
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { FileUpload } from "@/components/file-upload";
-import { useAuth } from "@/lib/hooks/useAuth";
-import { useState } from "react";
+import { ProjectTable } from "@/components/dashboard/project-table";
+import { useProjects } from "@/lib/contexts/ProjectContext";
+import type { PrismaModels } from "@/lib/instances";
 
 export default function Dashboard() {
-  const { authState } = useAuth();
-  const [dialogOpen, setDialogOpen] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { projects } = useProjects();
+  console.log('Projects:', projects);
 
   // form function (with zod validation)
   const form = useForm<z.infer<typeof CreateProjectSchema>>({
@@ -66,50 +59,8 @@ export default function Dashboard() {
   })
 
   // form submission handler
-  const onSubmit = async (values: z.infer<typeof CreateProjectSchema>) => {
-    if (!authState.user) {
-      console.error("User not authenticated");
-      return;
-    }
-
-    setIsSubmitting(true);
-
-    try {
-      const serverUrl = process.env.NEXT_PUBLIC_EXPRESS_SERVER_PATH || "http://localhost:3001";
-      const formData = new FormData();
-
-      // Add files to FormData
-      values.documents.forEach((file) => {
-        formData.append('files', file);
-      });
-
-      const response = await fetch(`${serverUrl}/api/upload`, {
-        method: 'POST',
-        headers: {
-          'X-Project-Name': values.project_name,
-          'X-Project-Context': values.project_context || '',
-        },
-        body: formData,
-        credentials: 'include', // Important for auth cookies
-      });
-
-      if (response.ok) {
-        const result = await response.json();
-        console.log('Project created successfully:', result);
-
-        // Reset form and close dialog
-        form.reset();
-        setDialogOpen(false);
-
-      } else {
-        const error = await response.json();
-        console.error('Failed to create project:', error);
-      }
-    } catch (error) {
-      console.error('Error submitting project:', error);
-    } finally {
-      setIsSubmitting(false);
-    }
+  const onSubmit = (values: z.infer<typeof CreateProjectSchema>) => {
+    console.log(values);
   }
 
   return (
@@ -119,7 +70,7 @@ export default function Dashboard() {
         <div className="flex gap-2 justify-center">
 
           {/*Create project dialog*/}
-          <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+          <Dialog>
             <DialogTrigger asChild>
               <Button className="hover:cursor-pointer" variant="default"><Plus /> Create a project</Button>
             </DialogTrigger>
@@ -184,17 +135,10 @@ export default function Dashboard() {
                     />
 
                     <div className="flex gap-2">
-                      <Button type="submit" disabled={isSubmitting}>
-                        <Plus /> {isSubmitting ? 'Creating...' : 'Submit'}
-                      </Button>
-                      <Button
-                        type="button"
-                        className="hover:cursor-pointer"
-                        variant="destructive"
-                        onClick={() => setDialogOpen(false)}
-                      >
-                        <X /> Cancel
-                      </Button>
+                      <Button type="submit"><Plus /> Submit</Button>
+                      <DialogTrigger asChild>
+                        <Button className="hover:cursor-pointer" variant="destructive"><X /> Cancel</Button>
+                      </DialogTrigger>
                     </div>
                   </form>
                 </Form>
@@ -227,23 +171,7 @@ export default function Dashboard() {
       </div>
 
       {/*Active projects table*/}
-      <Table className="">
-        <TableHeader>
-          <TableRow>
-            <TableHead className="w-[100px]">Name</TableHead>
-            <TableHead>Date Created</TableHead>
-            <TableHead>Last Updated</TableHead>
-            <TableHead>Documents added</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          <TableRow>
-
-            {/*This is where data goes*/}
-
-          </TableRow>
-        </TableBody>
-      </Table>
+      <ProjectTable projects={projects as PrismaModels['Project'][]} />
     </section>
   );
 }

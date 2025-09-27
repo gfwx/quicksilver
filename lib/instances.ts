@@ -1,4 +1,5 @@
 import { PrismaClient } from "./app/generated/prisma";
+import { Prisma } from "./app/generated/prisma/client"
 import { WorkOS } from "@workos-inc/node";
 import dotenv from 'dotenv'
 
@@ -13,7 +14,15 @@ export const prisma =
   globalForPrisma.prisma ??
   new PrismaClient();
 
-
+// Insane hack i found on github
+// ALSO move this to types.d.ts
+type ModelNames = Prisma.ModelName;
+export type PrismaModels = {
+  [M in ModelNames]: Exclude<
+    Awaited<ReturnType<PrismaClient[Uncapitalize<M>]["findUnique"]>>,
+    null
+  >;
+};
 if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prisma;
 
 let workos: WorkOS | null = null;

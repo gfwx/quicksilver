@@ -1,19 +1,12 @@
 "use client"
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import type { User } from '../types';
+
 
 /**
  * This is the heart of the client side authentication system.
  * Deals with everything UI-state
  */
-
-// Standard interface for storing users as global state
-export interface User {
-  id: string;
-  email: string;
-  firstName?: string;
-  lastName?: string;
-  profilePictureUrl?: string;
-}
 
 // Interface for authentication - combines authenticated user and UI state
 interface AuthState {

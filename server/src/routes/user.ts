@@ -1,6 +1,9 @@
 import { authMiddleware } from "../lib/middleware";
 import { Router, Request, Response } from "express";
 
+
+// [FIX] Needs to be completely changed to include encrypted id in the response, not just plaintext.
+
 const router = Router();
 //@ts-expect-error BECAUSE I KNOW WHAT I AM DOING
 router.get('/me', authMiddleware, (req: Request, res: Response) => {
