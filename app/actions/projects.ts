@@ -35,5 +35,3 @@ export async function getProjects(encryptedUserId: string) {
     console.error('Failed to decrypt user data from cookie: ', error);
   }
 }
-
-export async function addProject()
