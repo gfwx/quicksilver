@@ -6,3 +6,8 @@ export interface User {
   lastName?: string;
   profilePictureUrl?: string;
 }
+
+export type Payload = {
+  id: string;
+  exp: number;
+};

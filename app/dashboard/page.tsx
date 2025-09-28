@@ -44,6 +44,8 @@ import { ProjectTable } from "@/components/dashboard/project-table";
 import { useProjects } from "@/lib/contexts/ProjectContext";
 import type { PrismaModels } from "@/lib/instances";
 
+const NEXT_URL = process.env.NEXT_PUBLIC_SERVER_URL;
+
 export default function Dashboard() {
   const { projects } = useProjects();
   console.log('Projects:', projects);

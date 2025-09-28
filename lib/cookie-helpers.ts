@@ -1,14 +1,9 @@
 // cookie-helpers.ts
 // A set of cookie-signing helper functions
 // Rewritten to use Web Crypto API for Next.js Edge runtime compatibility
-
+import type { Payload } from "./types";
 const KEY = process.env.ENCRYPTION_KEY;
 const IV_BYTES = 12;
-
-type Payload = {
-  id: string;
-  exp: number;
-};
 
 let cryptoKeyPromise: Promise<CryptoKey> | null = null;
 
