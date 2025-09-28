@@ -16,11 +16,14 @@ interface ProjectTableProps {
 }
 
 export const ProjectTable = ({ projects }: ProjectTableProps) => {
+  projects.forEach(project => {
+    console.log(project.fileCount);
+  });
   return (
-    <Table className="">
+    <Table className="w-[75%]">
       <TableHeader>
         <TableRow>
-          <TableHead className="w-[100px]">Name</TableHead>
+          <TableHead>Name</TableHead>
           <TableHead>Date Created</TableHead>
           <TableHead>Last Updated</TableHead>
           <TableHead>Documents added</TableHead>
@@ -30,11 +33,14 @@ export const ProjectTable = ({ projects }: ProjectTableProps) => {
         {projects.map((project) => (
           <TableRow key={project.id}>
             <TableCell className="font-medium">{project.projectTitle}</TableCell>
+            <TableCell>
+              {new Date(project.createdAt).toISOString().split("T")[0]}
+            </TableCell>
+            <TableCell>
+              {new Date(project.updatedAt).toISOString().split("T")[0]}
+            </TableCell>
 
-            {/*need to fix this to prevent HTML hydration errors*/}
-            <TableCell>{new Date(project.createdAt).toLocaleDateString()}</TableCell>
-            <TableCell>{new Date(project.updatedAt).toLocaleDateString()}</TableCell>
-            {/*<TableCell>{project.documentCount || 0}</TableCell>*/}
+            <TableCell>{project.fileCount}</TableCell>
           </TableRow>
         ))}
       </TableBody>

@@ -55,6 +55,9 @@ model Project {
   updatedAt      DateTime
   projectTags    String[]
 
+  fileCount Int @default(0)
+  chatCount Int @default(0)
+
   userId String
   user   User    @relation(fields: [userId], references: [id])
   files  File[]

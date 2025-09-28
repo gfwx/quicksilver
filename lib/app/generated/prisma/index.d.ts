@@ -3555,8 +3555,20 @@ export namespace Prisma {
 
   export type AggregateProject = {
     _count: ProjectCountAggregateOutputType | null
+    _avg: ProjectAvgAggregateOutputType | null
+    _sum: ProjectSumAggregateOutputType | null
     _min: ProjectMinAggregateOutputType | null
     _max: ProjectMaxAggregateOutputType | null
+  }
+
+  export type ProjectAvgAggregateOutputType = {
+    fileCount: number | null
+    chatCount: number | null
+  }
+
+  export type ProjectSumAggregateOutputType = {
+    fileCount: number | null
+    chatCount: number | null
   }
 
   export type ProjectMinAggregateOutputType = {
@@ -3565,6 +3577,8 @@ export namespace Prisma {
     projectContext: string | null
     createdAt: Date | null
     updatedAt: Date | null
+    fileCount: number | null
+    chatCount: number | null
     userId: string | null
   }
 
@@ -3574,6 +3588,8 @@ export namespace Prisma {
     projectContext: string | null
     createdAt: Date | null
     updatedAt: Date | null
+    fileCount: number | null
+    chatCount: number | null
     userId: string | null
   }
 
@@ -3584,10 +3600,22 @@ export namespace Prisma {
     createdAt: number
     updatedAt: number
     projectTags: number
+    fileCount: number
+    chatCount: number
     userId: number
     _all: number
   }
 
+
+  export type ProjectAvgAggregateInputType = {
+    fileCount?: true
+    chatCount?: true
+  }
+
+  export type ProjectSumAggregateInputType = {
+    fileCount?: true
+    chatCount?: true
+  }
 
   export type ProjectMinAggregateInputType = {
     id?: true
@@ -3595,6 +3623,8 @@ export namespace Prisma {
     projectContext?: true
     createdAt?: true
     updatedAt?: true
+    fileCount?: true
+    chatCount?: true
     userId?: true
   }
 
@@ -3604,6 +3634,8 @@ export namespace Prisma {
     projectContext?: true
     createdAt?: true
     updatedAt?: true
+    fileCount?: true
+    chatCount?: true
     userId?: true
   }
 
@@ -3614,6 +3646,8 @@ export namespace Prisma {
     createdAt?: true
     updatedAt?: true
     projectTags?: true
+    fileCount?: true
+    chatCount?: true
     userId?: true
     _all?: true
   }
@@ -3656,6 +3690,18 @@ export namespace Prisma {
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
+     * Select which fields to average
+    **/
+    _avg?: ProjectAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: ProjectSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
      * Select which fields to find the minimum value
     **/
     _min?: ProjectMinAggregateInputType
@@ -3686,6 +3732,8 @@ export namespace Prisma {
     take?: number
     skip?: number
     _count?: ProjectCountAggregateInputType | true
+    _avg?: ProjectAvgAggregateInputType
+    _sum?: ProjectSumAggregateInputType
     _min?: ProjectMinAggregateInputType
     _max?: ProjectMaxAggregateInputType
   }
@@ -3697,8 +3745,12 @@ export namespace Prisma {
     createdAt: Date
     updatedAt: Date
     projectTags: string[]
+    fileCount: number
+    chatCount: number
     userId: string
     _count: ProjectCountAggregateOutputType | null
+    _avg: ProjectAvgAggregateOutputType | null
+    _sum: ProjectSumAggregateOutputType | null
     _min: ProjectMinAggregateOutputType | null
     _max: ProjectMaxAggregateOutputType | null
   }
@@ -3724,6 +3776,8 @@ export namespace Prisma {
     createdAt?: boolean
     updatedAt?: boolean
     projectTags?: boolean
+    fileCount?: boolean
+    chatCount?: boolean
     userId?: boolean
     user?: boolean | UserDefaultArgs<ExtArgs>
     files?: boolean | Project$filesArgs<ExtArgs>
@@ -3738,6 +3792,8 @@ export namespace Prisma {
     createdAt?: boolean
     updatedAt?: boolean
     projectTags?: boolean
+    fileCount?: boolean
+    chatCount?: boolean
     userId?: boolean
     user?: boolean | UserDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["project"]>
@@ -3749,6 +3805,8 @@ export namespace Prisma {
     createdAt?: boolean
     updatedAt?: boolean
     projectTags?: boolean
+    fileCount?: boolean
+    chatCount?: boolean
     userId?: boolean
     user?: boolean | UserDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["project"]>
@@ -3760,10 +3818,12 @@ export namespace Prisma {
     createdAt?: boolean
     updatedAt?: boolean
     projectTags?: boolean
+    fileCount?: boolean
+    chatCount?: boolean
     userId?: boolean
   }
 
-  export type ProjectOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "projectTitle" | "projectContext" | "createdAt" | "updatedAt" | "projectTags" | "userId", ExtArgs["result"]["project"]>
+  export type ProjectOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "projectTitle" | "projectContext" | "createdAt" | "updatedAt" | "projectTags" | "fileCount" | "chatCount" | "userId", ExtArgs["result"]["project"]>
   export type ProjectInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     user?: boolean | UserDefaultArgs<ExtArgs>
     files?: boolean | Project$filesArgs<ExtArgs>
@@ -3791,6 +3851,8 @@ export namespace Prisma {
       createdAt: Date
       updatedAt: Date
       projectTags: string[]
+      fileCount: number
+      chatCount: number
       userId: string
     }, ExtArgs["result"]["project"]>
     composites: {}
@@ -4224,6 +4286,8 @@ export namespace Prisma {
     readonly createdAt: FieldRef<"Project", 'DateTime'>
     readonly updatedAt: FieldRef<"Project", 'DateTime'>
     readonly projectTags: FieldRef<"Project", 'String[]'>
+    readonly fileCount: FieldRef<"Project", 'Int'>
+    readonly chatCount: FieldRef<"Project", 'Int'>
     readonly userId: FieldRef<"Project", 'String'>
   }
     
@@ -5772,6 +5836,8 @@ export namespace Prisma {
     createdAt: 'createdAt',
     updatedAt: 'updatedAt',
     projectTags: 'projectTags',
+    fileCount: 'fileCount',
+    chatCount: 'chatCount',
     userId: 'userId'
   };
 
@@ -6060,6 +6126,8 @@ export namespace Prisma {
     createdAt?: DateTimeFilter<"Project"> | Date | string
     updatedAt?: DateTimeFilter<"Project"> | Date | string
     projectTags?: StringNullableListFilter<"Project">
+    fileCount?: IntFilter<"Project"> | number
+    chatCount?: IntFilter<"Project"> | number
     userId?: StringFilter<"Project"> | string
     user?: XOR<UserScalarRelationFilter, UserWhereInput>
     files?: FileListRelationFilter
@@ -6073,6 +6141,8 @@ export namespace Prisma {
     createdAt?: SortOrder
     updatedAt?: SortOrder
     projectTags?: SortOrder
+    fileCount?: SortOrder
+    chatCount?: SortOrder
     userId?: SortOrder
     user?: UserOrderByWithRelationInput
     files?: FileOrderByRelationAggregateInput
@@ -6089,6 +6159,8 @@ export namespace Prisma {
     createdAt?: DateTimeFilter<"Project"> | Date | string
     updatedAt?: DateTimeFilter<"Project"> | Date | string
     projectTags?: StringNullableListFilter<"Project">
+    fileCount?: IntFilter<"Project"> | number
+    chatCount?: IntFilter<"Project"> | number
     userId?: StringFilter<"Project"> | string
     user?: XOR<UserScalarRelationFilter, UserWhereInput>
     files?: FileListRelationFilter
@@ -6102,10 +6174,14 @@ export namespace Prisma {
     createdAt?: SortOrder
     updatedAt?: SortOrder
     projectTags?: SortOrder
+    fileCount?: SortOrder
+    chatCount?: SortOrder
     userId?: SortOrder
     _count?: ProjectCountOrderByAggregateInput
+    _avg?: ProjectAvgOrderByAggregateInput
     _max?: ProjectMaxOrderByAggregateInput
     _min?: ProjectMinOrderByAggregateInput
+    _sum?: ProjectSumOrderByAggregateInput
   }
 
   export type ProjectScalarWhereWithAggregatesInput = {
@@ -6118,6 +6194,8 @@ export namespace Prisma {
     createdAt?: DateTimeWithAggregatesFilter<"Project"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"Project"> | Date | string
     projectTags?: StringNullableListFilter<"Project">
+    fileCount?: IntWithAggregatesFilter<"Project"> | number
+    chatCount?: IntWithAggregatesFilter<"Project"> | number
     userId?: StringWithAggregatesFilter<"Project"> | string
   }
 
@@ -6361,6 +6439,8 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt: Date | string
     projectTags?: ProjectCreateprojectTagsInput | string[]
+    fileCount?: number
+    chatCount?: number
     user: UserCreateNestedOneWithoutProjectsInput
     files?: FileCreateNestedManyWithoutParentProjectInput
     Chats?: ChatsCreateNestedManyWithoutProjectInput
@@ -6373,6 +6453,8 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt: Date | string
     projectTags?: ProjectCreateprojectTagsInput | string[]
+    fileCount?: number
+    chatCount?: number
     userId: string
     files?: FileUncheckedCreateNestedManyWithoutParentProjectInput
     Chats?: ChatsUncheckedCreateNestedManyWithoutProjectInput
@@ -6385,6 +6467,8 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     projectTags?: ProjectUpdateprojectTagsInput | string[]
+    fileCount?: IntFieldUpdateOperationsInput | number
+    chatCount?: IntFieldUpdateOperationsInput | number
     user?: UserUpdateOneRequiredWithoutProjectsNestedInput
     files?: FileUpdateManyWithoutParentProjectNestedInput
     Chats?: ChatsUpdateManyWithoutProjectNestedInput
@@ -6397,6 +6481,8 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     projectTags?: ProjectUpdateprojectTagsInput | string[]
+    fileCount?: IntFieldUpdateOperationsInput | number
+    chatCount?: IntFieldUpdateOperationsInput | number
     userId?: StringFieldUpdateOperationsInput | string
     files?: FileUncheckedUpdateManyWithoutParentProjectNestedInput
     Chats?: ChatsUncheckedUpdateManyWithoutProjectNestedInput
@@ -6409,6 +6495,8 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt: Date | string
     projectTags?: ProjectCreateprojectTagsInput | string[]
+    fileCount?: number
+    chatCount?: number
     userId: string
   }
 
@@ -6419,6 +6507,8 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     projectTags?: ProjectUpdateprojectTagsInput | string[]
+    fileCount?: IntFieldUpdateOperationsInput | number
+    chatCount?: IntFieldUpdateOperationsInput | number
   }
 
   export type ProjectUncheckedUpdateManyInput = {
@@ -6428,6 +6518,8 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     projectTags?: ProjectUpdateprojectTagsInput | string[]
+    fileCount?: IntFieldUpdateOperationsInput | number
+    chatCount?: IntFieldUpdateOperationsInput | number
     userId?: StringFieldUpdateOperationsInput | string
   }
 
@@ -6774,7 +6866,14 @@ export namespace Prisma {
     createdAt?: SortOrder
     updatedAt?: SortOrder
     projectTags?: SortOrder
+    fileCount?: SortOrder
+    chatCount?: SortOrder
     userId?: SortOrder
+  }
+
+  export type ProjectAvgOrderByAggregateInput = {
+    fileCount?: SortOrder
+    chatCount?: SortOrder
   }
 
   export type ProjectMaxOrderByAggregateInput = {
@@ -6783,6 +6882,8 @@ export namespace Prisma {
     projectContext?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    fileCount?: SortOrder
+    chatCount?: SortOrder
     userId?: SortOrder
   }
 
@@ -6792,7 +6893,14 @@ export namespace Prisma {
     projectContext?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    fileCount?: SortOrder
+    chatCount?: SortOrder
     userId?: SortOrder
+  }
+
+  export type ProjectSumOrderByAggregateInput = {
+    fileCount?: SortOrder
+    chatCount?: SortOrder
   }
 
   export type ChatsCountOrderByAggregateInput = {
@@ -7255,6 +7363,8 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt: Date | string
     projectTags?: ProjectCreateprojectTagsInput | string[]
+    fileCount?: number
+    chatCount?: number
     files?: FileCreateNestedManyWithoutParentProjectInput
     Chats?: ChatsCreateNestedManyWithoutProjectInput
   }
@@ -7266,6 +7376,8 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt: Date | string
     projectTags?: ProjectCreateprojectTagsInput | string[]
+    fileCount?: number
+    chatCount?: number
     files?: FileUncheckedCreateNestedManyWithoutParentProjectInput
     Chats?: ChatsUncheckedCreateNestedManyWithoutProjectInput
   }
@@ -7340,6 +7452,8 @@ export namespace Prisma {
     createdAt?: DateTimeFilter<"Project"> | Date | string
     updatedAt?: DateTimeFilter<"Project"> | Date | string
     projectTags?: StringNullableListFilter<"Project">
+    fileCount?: IntFilter<"Project"> | number
+    chatCount?: IntFilter<"Project"> | number
     userId?: StringFilter<"Project"> | string
   }
 
@@ -7382,6 +7496,8 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt: Date | string
     projectTags?: ProjectCreateprojectTagsInput | string[]
+    fileCount?: number
+    chatCount?: number
     user: UserCreateNestedOneWithoutProjectsInput
     Chats?: ChatsCreateNestedManyWithoutProjectInput
   }
@@ -7393,6 +7509,8 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt: Date | string
     projectTags?: ProjectCreateprojectTagsInput | string[]
+    fileCount?: number
+    chatCount?: number
     userId: string
     Chats?: ChatsUncheckedCreateNestedManyWithoutProjectInput
   }
@@ -7453,6 +7571,8 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     projectTags?: ProjectUpdateprojectTagsInput | string[]
+    fileCount?: IntFieldUpdateOperationsInput | number
+    chatCount?: IntFieldUpdateOperationsInput | number
     user?: UserUpdateOneRequiredWithoutProjectsNestedInput
     Chats?: ChatsUpdateManyWithoutProjectNestedInput
   }
@@ -7464,6 +7584,8 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     projectTags?: ProjectUpdateprojectTagsInput | string[]
+    fileCount?: IntFieldUpdateOperationsInput | number
+    chatCount?: IntFieldUpdateOperationsInput | number
     userId?: StringFieldUpdateOperationsInput | string
     Chats?: ChatsUncheckedUpdateManyWithoutProjectNestedInput
   }
@@ -7681,6 +7803,8 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt: Date | string
     projectTags?: ProjectCreateprojectTagsInput | string[]
+    fileCount?: number
+    chatCount?: number
     user: UserCreateNestedOneWithoutProjectsInput
     files?: FileCreateNestedManyWithoutParentProjectInput
   }
@@ -7692,6 +7816,8 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt: Date | string
     projectTags?: ProjectCreateprojectTagsInput | string[]
+    fileCount?: number
+    chatCount?: number
     userId: string
     files?: FileUncheckedCreateNestedManyWithoutParentProjectInput
   }
@@ -7719,6 +7845,8 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     projectTags?: ProjectUpdateprojectTagsInput | string[]
+    fileCount?: IntFieldUpdateOperationsInput | number
+    chatCount?: IntFieldUpdateOperationsInput | number
     user?: UserUpdateOneRequiredWithoutProjectsNestedInput
     files?: FileUpdateManyWithoutParentProjectNestedInput
   }
@@ -7730,6 +7858,8 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     projectTags?: ProjectUpdateprojectTagsInput | string[]
+    fileCount?: IntFieldUpdateOperationsInput | number
+    chatCount?: IntFieldUpdateOperationsInput | number
     userId?: StringFieldUpdateOperationsInput | string
     files?: FileUncheckedUpdateManyWithoutParentProjectNestedInput
   }
@@ -7741,6 +7871,8 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt: Date | string
     projectTags?: ProjectCreateprojectTagsInput | string[]
+    fileCount?: number
+    chatCount?: number
   }
 
   export type FileCreateManyUploadedByInput = {
@@ -7762,6 +7894,8 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     projectTags?: ProjectUpdateprojectTagsInput | string[]
+    fileCount?: IntFieldUpdateOperationsInput | number
+    chatCount?: IntFieldUpdateOperationsInput | number
     files?: FileUpdateManyWithoutParentProjectNestedInput
     Chats?: ChatsUpdateManyWithoutProjectNestedInput
   }
@@ -7773,6 +7907,8 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     projectTags?: ProjectUpdateprojectTagsInput | string[]
+    fileCount?: IntFieldUpdateOperationsInput | number
+    chatCount?: IntFieldUpdateOperationsInput | number
     files?: FileUncheckedUpdateManyWithoutParentProjectNestedInput
     Chats?: ChatsUncheckedUpdateManyWithoutProjectNestedInput
   }
@@ -7784,6 +7920,8 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     projectTags?: ProjectUpdateprojectTagsInput | string[]
+    fileCount?: IntFieldUpdateOperationsInput | number
+    chatCount?: IntFieldUpdateOperationsInput | number
   }
 
   export type FileUpdateWithoutUploadedByInput = {
