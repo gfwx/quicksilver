@@ -59,6 +59,7 @@ router.post('/', authMiddleware, upload.array('files'), async (req: Request, res
   console.log("Checking files..")
   const files = req.files as Express.Multer.File[];
   if (!files || files.length === 0) {
+    console.log('No files uploaded')
     res.status(400).json({ message: 'No files uploaded' });
     return;
   }

@@ -18,7 +18,8 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button";
-import { Plus, Settings, X } from "lucide-react";
+import { Plus, Settings, X, Loader2, Check, AlertCircle } from "lucide-react";
+import { useState } from "react";
 // import { TableCaption, TableCell } from "@/components/ui/table"
 
 // form validation imports
@@ -44,10 +45,11 @@ import { ProjectTable } from "@/components/dashboard/project-table";
 import { useProjects } from "@/lib/contexts/ProjectContext";
 import type { PrismaModels } from "@/lib/instances";
 
-const NEXT_URL = process.env.NEXT_PUBLIC_SERVER_URL;
-
 export default function Dashboard() {
   const { projects } = useProjects();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitStatus, setSubmitStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
+  const [dialogOpen, setDialogOpen] = useState(false);
   console.log('Projects:', projects);
 
   // form function (with zod validation)
@@ -61,8 +63,63 @@ export default function Dashboard() {
   })
 
   // form submission handler
-  const onSubmit = (values: z.infer<typeof CreateProjectSchema>) => {
-    console.log(values);
+  const onSubmit = async (values: z.infer<typeof CreateProjectSchema>) => {
+    setIsSubmitting(true);
+    setSubmitStatus('loading');
+
+    try {
+      const formData = new FormData();
+
+      // Add files to FormData
+      if (values.documents && values.documents.length > 0) {
+        values.documents.forEach((file) => {
+          formData.append('files', file);
+        });
+      }
+
+      // Debug: Log the files being sent
+      console.log('Files to upload:', values.documents);
+      values.documents?.forEach((file, index) => {
+        console.log(`File ${index}:`, file.name, file.type, file.size);
+      });
+
+      const response = await fetch(`${process.env.NEXT_PUBLIC_EXPRESS_SERVER_PATH}/api/upload`, {
+        method: 'POST',
+        credentials: 'include',
+        headers: {
+          'x-project-name': values.project_name,
+          'x-project-context': values.project_context || ''
+        },
+        body: formData
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to create project');
+      }
+
+      setSubmitStatus('success');
+      form.reset();
+
+      // Close dialog after a brief delay to show success
+      setTimeout(() => {
+        setDialogOpen(false);
+        setSubmitStatus('idle');
+      }, 1500);
+
+      // Refresh page to show updated projects list
+      window.location.reload();
+
+    } catch (error) {
+      console.error('Error creating project:', error);
+      setSubmitStatus('error');
+
+      // Reset error state after 3 seconds
+      setTimeout(() => {
+        setSubmitStatus('idle');
+      }, 3000);
+    } finally {
+      setIsSubmitting(false);
+    }
   }
 
   return (
@@ -72,7 +129,7 @@ export default function Dashboard() {
         <div className="flex gap-2 justify-center">
 
           {/*Create project dialog*/}
-          <Dialog>
+          <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
             <DialogTrigger asChild>
               <Button className="hover:cursor-pointer" variant="default"><Plus /> Create a project</Button>
             </DialogTrigger>
@@ -137,10 +194,29 @@ export default function Dashboard() {
                     />
 
                     <div className="flex gap-2">
-                      <Button type="submit"><Plus /> Submit</Button>
-                      <DialogTrigger asChild>
-                        <Button className="hover:cursor-pointer" variant="destructive"><X /> Cancel</Button>
-                      </DialogTrigger>
+                      <Button
+                        type="submit"
+                        disabled={isSubmitting}
+                        variant={submitStatus === 'success' ? 'default' : submitStatus === 'error' ? 'destructive' : 'default'}
+                      >
+                        {submitStatus === 'loading' && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+                        {submitStatus === 'success' && <Check className="w-4 h-4 mr-2" />}
+                        {submitStatus === 'error' && <AlertCircle className="w-4 h-4 mr-2" />}
+                        {submitStatus === 'idle' && <Plus className="w-4 h-4 mr-2" />}
+                        {submitStatus === 'loading' && 'Creating...'}
+                        {submitStatus === 'success' && 'Created!'}
+                        {submitStatus === 'error' && 'Failed'}
+                        {submitStatus === 'idle' && 'Submit'}
+                      </Button>
+                      <Button
+                        type="button"
+                        onClick={() => setDialogOpen(false)}
+                        className="hover:cursor-pointer"
+                        variant="destructive"
+                        disabled={isSubmitting}
+                      >
+                        <X /> Cancel
+                      </Button>
                     </div>
                   </form>
                 </Form>
