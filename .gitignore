@@ -40,9 +40,10 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-/lib/generated/prisma
+**/app/generated/
+
 
 **/uploads/
 **/test.pdf
 
-**/prisma/migrations
+**lib/prisma/migrations
