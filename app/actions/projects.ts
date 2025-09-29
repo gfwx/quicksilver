@@ -1,6 +1,10 @@
-import { prisma } from "@/lib/instances";
+"use server";
+
+import { prisma, PrismaModels } from "@/lib/instances";
 import { decryptPayload } from "@/lib/cookie-helpers";
 import { checkPayload } from "./helpers";
+
+type Project = PrismaModels["Project"]
 
 /**
  * Gets all projects given the encrypted user string. If the payload is not expired, then
@@ -28,19 +32,23 @@ export async function getProjects(encryptedUserId: string) {
   }
 }
 
-export async function createProject(projectTitle: string, projectContext: string | null, encryptedUserID: string) {
+export async function createProject(projectTitle: string, projectContext: string | null, encryptedUserID: string): Promise<Project | null> {
   if (!projectTitle) {
-    throw new Error('Project title is required!')
+
+    console.error('Project title is required!')
+    return null;
   }
 
   const payload = await decryptPayload(encryptedUserID);
 
   if (!checkPayload(payload)) {
-    throw new Error('Invalid payload');
+    console.error('Invalid payload');
+    return null;
   }
 
   if (payload.exp < Math.floor(Date.now() / 1000)) {
-    throw new Error('Payload expired, please re-authenticate');
+    console.error('Payload expired, please re-authenticate');
+    return null;
   }
 
   const userId = payload.id;
