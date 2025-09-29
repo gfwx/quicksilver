@@ -44,6 +44,7 @@ import { FileUpload } from "@/components/file-upload";
 import { ProjectTable } from "@/components/dashboard/project-table";
 import { useProjects } from "@/lib/contexts/ProjectContext";
 import type { PrismaModels } from "@/lib/instances";
+import createProject from "@/lib/actions/projects";
 
 export default function Dashboard() {
   const { projects } = useProjects();
@@ -51,8 +52,8 @@ export default function Dashboard() {
   const [submitStatus, setSubmitStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
   const [dialogOpen, setDialogOpen] = useState(false);
   console.log('Projects:', projects);
-
   // form function (with zod validation)
+
   const form = useForm<z.infer<typeof CreateProjectSchema>>({
     resolver: zodResolver(CreateProjectSchema),
     defaultValues: {
