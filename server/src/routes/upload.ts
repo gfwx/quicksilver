@@ -93,6 +93,7 @@ router.post('/', authMiddleware, upload.array('files'), async (req: Request, res
       updatedAt: new Date(),
       projectTags: [],
       userId: userId,
+      fileCount: files.length,
     };
 
     const createdProject = await prisma.project.create({ data: projectData });
