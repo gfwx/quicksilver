@@ -67,38 +67,19 @@ router.post('/', authMiddleware, upload.array('files'), async (req: Request, res
 
   // Read project information from headers
   console.log("Checking request headers:")
-  const projectName = req.headers['x-project-name'] as string;
-  const projectContext = req.headers['x-project-context'] as string;
+  const projectId = req.headers['x-project-id'] as string;
   console.log("Completed checking project headers")
-
-  console.log("Checking project name..")
-  if (!projectName) {
-    res.status(400).json({ message: 'Project name is required in headers' });
-    return;
-  }
-
-  console.log("Passed tests")
-  console.log(`Project name: ${projectName}`)
-  console.log(`Project context: ${projectContext}`)
 
   const userId = req.user.id;
   const uploadedFilePaths: string[] = [];
 
+  const project = await prisma.project.findUnique({ where: { id: projectId } });
+  if (!project) {
+    res.status(400).json({ message: "No matching project id!", id: projectId })
+    return;
+  }
+
   try {
-    // Create the project first
-    const projectData = {
-      id: v4(),
-      projectTitle: projectName,
-      projectContext: projectContext || '',
-      updatedAt: new Date(),
-      projectTags: [],
-      userId: userId,
-      fileCount: files.length,
-    };
-
-    const createdProject = await prisma.project.create({ data: projectData });
-    console.log(`Project created for user ${userId} with id ${createdProject.id}`);
-
     // Process each file
     const filePromises = files.map(async (file) => {
       uploadedFilePaths.push(file.path);
@@ -113,7 +94,7 @@ router.post('/', authMiddleware, upload.array('files'), async (req: Request, res
         size: file.size,
         encoding: file.encoding,
         userId: userId,
-        projectId: createdProject.id,
+        projectId: project.id,
       };
 
       const createdFile = await prisma.file.create({ data: fileData });
@@ -140,7 +121,7 @@ router.post('/', authMiddleware, upload.array('files'), async (req: Request, res
 
       // Update file status
       await prisma.file.update({
-        where: { id: createdFile.id },
+        where: { id: fileId },
         data: { status: 'Processed' }
       });
 
@@ -153,12 +134,21 @@ router.post('/', authMiddleware, upload.array('files'), async (req: Request, res
 
     const processedFiles = await Promise.all(filePromises);
 
+    await prisma.project.update({
+      where: { id: project.id },
+      data: {
+        updatedAt: new Date(),
+        fileCount: {
+          increment: processedFiles.length
+        }
+      }
+    })
+
     res.status(200).json({
-      message: 'Project created and files uploaded successfully.',
-      projectId: createdProject.id,
-      projectName: createdProject.projectTitle,
+      message: 'Files processed and uploaded securely.',
       filesProcessed: processedFiles.length,
-      files: processedFiles
+      files: processedFiles,
+      projectId: project.id
     });
     return;
 

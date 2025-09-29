@@ -44,15 +44,25 @@ import { FileUpload } from "@/components/file-upload";
 import { ProjectTable } from "@/components/dashboard/project-table";
 import { useProjects } from "@/lib/contexts/ProjectContext";
 import type { PrismaModels } from "@/lib/instances";
+import { createProject } from "../actions/projects";
+import { useAuth } from "@/lib/contexts/AuthContext";
+import { redirect } from "next/navigation";
 
 export default function Dashboard() {
   const { projects } = useProjects();
+  const { authState } = useAuth()
+  const user = authState.user;
+
+  if (!user) {
+    console.error("[/dashboard] No valid user found!");
+    redirect('/');
+  }
+
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
   const [dialogOpen, setDialogOpen] = useState(false);
-  console.log('Projects:', projects);
-
   // form function (with zod validation)
+
   const form = useForm<z.infer<typeof CreateProjectSchema>>({
     resolver: zodResolver(CreateProjectSchema),
     defaultValues: {
@@ -83,19 +93,57 @@ export default function Dashboard() {
         console.log(`File ${index}:`, file.name, file.type, file.size);
       });
 
-      const response = await fetch(`${process.env.NEXT_PUBLIC_EXPRESS_SERVER_PATH}/api/upload`, {
+      const project = await createProject(values.project_name, values.project_context ?? "", user.id);
+
+      if (!project) {
+        throw new Error('Failed to create project');
+      }
+
+      // Debug environment variable
+      console.log('Express server path:', process.env.NEXT_PUBLIC_EXPRESS_SERVER_PATH);
+
+      const serverUrl = process.env.NEXT_PUBLIC_EXPRESS_SERVER_PATH || 'http://localhost:3001';
+      console.log('Using server URL:', `${serverUrl}/api/upload`);
+      console.log('Project ID being sent:', project.id);
+      console.log('FormData contents:');
+      for (const [key, value] of formData.entries()) {
+        console.log(`  ${key}:`, value);
+      }
+
+      console.log('Making fetch request...');
+
+      // BUG: this needs to occur in a transaction, because a project cannot be created without adding files.
+      const response = await fetch(`${serverUrl}/api/upload`, {
         method: 'POST',
         credentials: 'include',
         headers: {
-          'x-project-name': values.project_name,
-          'x-project-context': values.project_context || ''
+          'x-project-id': project.id,
+          // Don't set Content-Type for FormData - let browser handle it
         },
         body: formData
       });
 
+      console.log('Response received:', {
+        ok: response.ok,
+        status: response.status,
+        statusText: response.statusText,
+        headers: Object.fromEntries(response.headers.entries())
+      });
+
       if (!response.ok) {
-        throw new Error('Failed to create project');
+        let errorText = '';
+        try {
+          errorText = await response.text();
+        } catch (e) {
+          console.log(e)
+          errorText = 'Could not read error response';
+        }
+        console.error('Upload failed:', response.status, response.statusText, errorText);
+        throw new Error(`Upload failed: ${response.status} ${response.statusText} - ${errorText}`);
       }
+
+      const responseData = await response.json();
+      console.log('Upload successful:', responseData);
 
       setSubmitStatus('success');
       form.reset();
@@ -111,6 +159,21 @@ export default function Dashboard() {
 
     } catch (error) {
       console.error('Error creating project:', error);
+
+      // Enhanced error logging
+      if (error instanceof Error) {
+        console.error('Error message:', error.message);
+        console.error('Error stack:', error.stack);
+      }
+
+      // Check if it's a network error
+      if (error instanceof TypeError && error.message.includes('fetch')) {
+        console.error('This appears to be a network/CORS error. Check:');
+        console.error('1. Express server is running');
+        console.error('2. NEXT_PUBLIC_EXPRESS_SERVER_PATH is set correctly');
+        console.error('3. CORS is configured properly on the server');
+      }
+
       setSubmitStatus('error');
 
       // Reset error state after 3 seconds

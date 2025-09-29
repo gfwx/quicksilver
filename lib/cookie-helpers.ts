@@ -2,16 +2,22 @@
 // A set of cookie-signing helper functions
 // Rewritten to use Web Crypto API for Next.js Edge runtime compatibility
 import type { Payload } from "./types";
-const KEY = process.env.ENCRYPTION_KEY;
+
 const IV_BYTES = 12;
 
 let cryptoKeyPromise: Promise<CryptoKey> | null = null;
 
-async function getCryptoKey(): Promise<CryptoKey> {
+function getEncryptionKey(): string {
+  const KEY = process.env.ENCRYPTION_KEY;
   if (!KEY) {
     throw new Error("Missing ENCRYPTION_KEY env var");
   }
+  return KEY;
+}
+
+async function getCryptoKey(): Promise<CryptoKey> {
   if (!cryptoKeyPromise) {
+    const KEY = getEncryptionKey();
     const keyData = Uint8Array.from(atob(KEY), (c) => c.charCodeAt(0));
 
     cryptoKeyPromise = crypto.subtle.importKey(
