@@ -1,19 +1,27 @@
+import dotenv from "dotenv"
 import { authMiddleware } from "../lib/middleware";
 import { Router, Request, Response } from "express";
+import { encryptPayload, type Payload } from "../lib/encryption";
 
-
-// [FIX] Needs to be completely changed to include encrypted id in the response, not just plaintext.
+dotenv.config();
 
 const router = Router();
 //@ts-expect-error BECAUSE I KNOW WHAT I AM DOING
-router.get('/me', authMiddleware, (req: Request, res: Response) => {
+router.get('/me', authMiddleware, async (req: Request, res: Response) => {
   console.log("/api/user/me fetched")
   if (!req.user) {
     return res.status(401).json({ error: 'Unauthorized' });
   }
+
+  const payload: Payload = {
+    id: req.user.id,
+    exp: Math.floor((Date.now() / 1000) + 3600)
+  }
+
+  const encryptedUserId = await encryptPayload(payload)
   res.json({
     user: {
-      id: req.user.id,
+      id: encryptedUserId,
       email: req.user.email,
       firstName: req.user.firstName,
       lastName: req.user.lastName,

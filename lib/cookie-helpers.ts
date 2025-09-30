@@ -8,9 +8,9 @@ const IV_BYTES = 12;
 let cryptoKeyPromise: Promise<CryptoKey> | null = null;
 
 function getEncryptionKey(): string {
-  const KEY = process.env.ENCRYPTION_KEY;
+  const KEY = process.env.ENCRYPTION_KEY_BASED;
   if (!KEY) {
-    throw new Error("Missing ENCRYPTION_KEY env var");
+    throw new Error("Missing ENCRYPTION_KEY_BASED env var");
   }
   return KEY;
 }
