@@ -41,10 +41,10 @@ model File {
   status       String
 
   projectId     String
-  parentProject Project @relation(fields: [projectId], references: [id])
+  parentProject Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
 
   userId     String
-  uploadedBy User   @relation(fields: [userId], references: [id])
+  uploadedBy User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model Project {
@@ -59,7 +59,7 @@ model Project {
   chatCount Int @default(0)
 
   userId String
-  user   User    @relation(fields: [userId], references: [id])
+  user   User    @relation(fields: [userId], references: [id], onDelete: Cascade)
   files  File[]
   Chats  Chats[]
 }
@@ -68,6 +68,6 @@ model Chats {
   id        String @id
   chatTitle String
 
-  project   Project @relation(fields: [projectId], references: [id])
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
   projectId String
 }
