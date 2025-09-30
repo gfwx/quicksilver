@@ -12,9 +12,6 @@ router.get('/me', authMiddleware, async (req: Request, res: Response) => {
   if (!req.user) {
     return res.status(401).json({ error: 'Unauthorized' });
   }
-  const keyBytes = crypto.getRandomValues(new Uint8Array(32));  // Edge: crypto is global; Node: import { webcrypto } from 'node:crypto'; or use crypto.randomBytes(32)
-  const base64Key = btoa(String.fromCharCode(...keyBytes));
-  console.log('New ENCRYPTION_KEY:', base64Key);  // Copy this to .env (44 chars with padding)
 
   const payload: Payload = {
     id: req.user.id,

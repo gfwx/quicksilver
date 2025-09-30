@@ -8,7 +8,7 @@ export type Payload = { id: string; exp: number; };
 let keyBuffer: Buffer | null = null;
 
 function getEncryptionKey(): string {
-  const KEY = process.env.ENCRYPTION_KEY;
+  const KEY = process.env.ENCRYPTION_KEY_BASED;
   if (!KEY) {
     throw new Error("Missing ENCRYPTION_KEY env var");
   }
@@ -30,7 +30,7 @@ export async function encryptPayload(payload: Payload): Promise<string> {
   const key = getKeyBuffer();
   const iv = crypto.randomBytes(12);
 
-  const cipher = crypto.createCipheriv('aes-192-gcm', key, iv);
+  const cipher = crypto.createCipheriv('aes-128-gcm', key, iv);
   const plaintext = Buffer.from(JSON.stringify(payload), 'utf8');
 
   let encrypted = cipher.update(plaintext);
@@ -58,7 +58,7 @@ export async function decryptPayload(token: string): Promise<Payload> {
 
   const key = getKeyBuffer();
 
-  const decipher = crypto.createDecipheriv('aes-192-gcm', key, iv);
+  const decipher = crypto.createDecipheriv('aes-128-gcm', key, iv);
   decipher.setAuthTag(tag);
 
   let decrypted = decipher.update(ciphertext);
