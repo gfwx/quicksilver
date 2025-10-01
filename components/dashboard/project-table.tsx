@@ -1,5 +1,6 @@
 "use client"
 
+import { cn } from "@/lib/utils"
 import {
   Table,
   TableBody,
@@ -8,6 +9,20 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
+
+import { Info } from "lucide-react"
+
+import {
+  Drawer,
+  DrawerContent,
+  DrawerDescription,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerTrigger,
+} from "@/components/ui/drawer"
+
+import { Button } from "@/components/ui/button"
+
 
 import type { PrismaModels } from "@/lib/instances"
 
@@ -31,8 +46,36 @@ export const ProjectTable = ({ projects }: ProjectTableProps) => {
       </TableHeader>
       <TableBody>
         {projects.map((project) => (
-          <TableRow key={project.id}>
-            <TableCell className="font-medium">{project.projectTitle}</TableCell>
+          <TableRow key={project.id} className="group">
+            <TableCell className={cn("font-medium flex gap-4 items-center")}>
+
+              <Drawer direction="left">
+                <DrawerTrigger asChild>
+                  <Info className='cursor-pointer' />
+                </DrawerTrigger>
+
+                <DrawerContent>
+                  <DrawerHeader>
+                    <DrawerTitle className='text-2xl'>
+                      {project.projectTitle}
+                    </DrawerTitle>
+                    <DrawerDescription>
+                      {project.projectContext}
+                    </DrawerDescription>
+                  </DrawerHeader>
+                </DrawerContent>
+              </Drawer>
+              <p>
+                {project.projectTitle}
+              </p>
+              <Button variant="default" className="
+                                opacity-0 group-hover:opacity-100 pointer-events-none
+                                group-hover:pointer-events-auto
+                                transition-opacity duration-200 cursor-pointer"
+              >
+                OPEN
+              </Button>
+            </TableCell>
             <TableCell>
               {new Date(project.createdAt).toISOString().split("T")[0]}
             </TableCell>
