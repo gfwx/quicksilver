@@ -1,8 +1,8 @@
 from fastapi import FastAPI, HTTPException, status
 from fastapi.responses import StreamingResponse
-from .models import FileAPIResponse, Query
-from .reader import FileProcessor
-from .db.vector import VectorStore
+from models import FileAPIResponse, Query
+from reader import FileProcessor
+from db.vector import VectorStore
 from ollama import AsyncClient
 from dotenv import load_dotenv
 from os import getenv

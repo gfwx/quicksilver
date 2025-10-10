@@ -81,8 +81,9 @@ export default function Dashboard() {
 
     try {
       const formData = new FormData();
+      formData.append('project_name', values.project_name);
+      formData.append('project_context', values.project_context ?? "");
 
-      // Add files to FormData
       if (values.documents && values.documents.length > 0) {
         values.documents.forEach((file) => {
           formData.append("files", file);
@@ -179,7 +180,6 @@ export default function Dashboard() {
       setSubmitStatus("success");
       form.reset();
 
-      // Close dialog after a brief delay to show success
       setTimeout(() => {
         setDialogOpen(false);
         setSubmitStatus("idle");
@@ -206,7 +206,6 @@ export default function Dashboard() {
 
       setSubmitStatus("error");
 
-      // Reset error state after 3 seconds
       setTimeout(() => {
         setSubmitStatus("idle");
       }, 3000);
