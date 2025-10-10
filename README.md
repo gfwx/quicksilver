@@ -8,7 +8,7 @@ The following diagram illustrates the key end-to-end workflows of the applicatio
 
 ```mermaid
 graph TD
-    subgraph Frontend (Next.js)
+    subgraph "Frontend (Next.js)"
         A[User] --> B{Home Page};
         B --> C[Login Button];
         C --> D[Redirect to Backend for Auth];
@@ -20,7 +20,7 @@ graph TD
         I --> J[Query Input];
     end
 
-    subgraph Backend (Express.js)
+    subgraph "Backend (Express.js)"
         D --> K{/api/auth/login};
         K --> L[WorkOS API];
         L --> M[Redirect to Frontend with Session];
