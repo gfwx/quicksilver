@@ -1,56 +1,63 @@
-export const runtime = "edge";
+import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/instances";
-import { checkPayload } from "@/lib/helpers";
 import { decryptPayload } from "@/lib/cookie-helpers";
+import { checkPayload } from "@/lib/helpers";
 
 /**
  * Gets files for a specific project given a project ID.
  * Returns an empty array if no files are found.
- * Request headers need to contain project-id
+ * Request headers need to contain x-project-id and x-encrypted-user-id
  */
 
-export async function GET(request: Request) {
-  const projectId = request.headers.get("project-id");
-  const userPayloadString = request.headers.get("user-id");
-  if (!projectId) {
-    return new Response(JSON.stringify({ message: "Empty project id" }), {
-      status: 400,
-      headers: { "Content-Type": "application/json" },
-    });
-  }
+export async function GET(request: NextRequest) {
+  try {
+    const projectId = request.headers.get("x-project-id");
+    const encryptedUserId = request.headers.get("x-encrypted-user-id");
 
-  if (!userPayloadString) {
-    return new Response(
-      JSON.stringify({ message: "User payload not present." }),
-      {
-        status: 400,
-        headers: { "Content-Type": "application/json" },
-      },
-    );
-  }
+    if (!projectId) {
+      return NextResponse.json(
+        { error: "Missing project ID" },
+        { status: 400 },
+      );
+    }
 
-  const pl = await decryptPayload(userPayloadString);
-  if (checkPayload(pl)) {
+    if (!encryptedUserId) {
+      return NextResponse.json(
+        { error: "Missing encrypted user ID" },
+        { status: 400 },
+      );
+    }
+
+    const payload = await decryptPayload(encryptedUserId);
+
+    if (!payload) {
+      return NextResponse.json({ error: "Invalid payload" }, { status: 401 });
+    }
+
+    if (!checkPayload(payload)) {
+      return NextResponse.json({ error: "Invalid payload" }, { status: 401 });
+    }
+
+    if (payload.exp < Math.floor(Date.now() / 1000)) {
+      return NextResponse.json(
+        { error: "Payload expired, please re-authenticate" },
+        { status: 401 },
+      );
+    }
+
     const files = await prisma.file.findMany({
       where: {
         projectId: projectId,
-        userId: pl.id,
+        userId: payload.id,
       },
     });
 
-    return new Response(JSON.stringify(files), {
-      status: 200,
-      headers: { "Content-Type": "application/json" },
-    });
-  } else {
-    return new Response(
-      JSON.stringify({
-        message: "User payload is invalid, please reauthenticate",
-      }),
-      {
-        status: 400,
-        headers: { "Content-Type": "application/json" },
-      },
+    return NextResponse.json(files);
+  } catch (error) {
+    console.error("Failed to get files: ", error);
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 },
     );
   }
 }

@@ -1,7 +1,7 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { getFiles } from "@/app/actions/files";
+
 import {
   Table,
   TableBody,
@@ -26,13 +26,17 @@ import { Button } from "@/components/ui/button";
 import { ProjectFilesDisplay } from "./ProjectFilesDisplay";
 import type { PrismaModels } from "@/lib/instances";
 import { useState } from "react";
+import { useAuth } from "@/lib/contexts/AuthContext";
 
 interface ProjectTableProps {
   projects: PrismaModels["Project"][];
 }
 
 export const ProjectTable = ({ projects }: ProjectTableProps) => {
-  const projectFileData: { [key: string]: PrismaModels["File"][] } = {};
+  const { authState } = useAuth(); // I can get away with this because it's a client component.
+  const [projectFileData, setProjectFileData] = useState<{
+    [key: string]: PrismaModels["File"][];
+  }>({});
   const [currentProjectFileData, setCurrentProjectFileData] = useState<
     PrismaModels["File"][]
   >([]);
@@ -41,19 +45,34 @@ export const ProjectTable = ({ projects }: ProjectTableProps) => {
   const [openDrawerId, setOpenDrawerId] = useState<string | null>(null);
 
   const fetchProjectFiles = async (projectId: string) => {
-    console.log("Function fired");
-    setLoading(true);
-    setError("");
     if (projectFileData[projectId]) {
       setCurrentProjectFileData(projectFileData[projectId]);
+      setError("");
     } else {
+      console.log(projectFileData);
+      setLoading(true);
+      setError("");
       try {
-        const files = await getFiles(projectId);
+        const res = await fetch("/api/files", {
+          method: "GET",
+          headers: {
+            "x-project-id": projectId,
+            "x-encrypted-user-id": authState.user?.id ?? "",
+          },
+        });
 
-        if (!files) {
-          setError("No files found!");
+        if (!res.ok) {
+          let errorMsg = "Failed to fetch files";
+          try {
+            const error = await res.json();
+            errorMsg = error.error || `HTTP ${res.status}`;
+          } catch {
+            errorMsg = `HTTP ${res.status}`;
+          }
+          setError(errorMsg);
         } else {
-          projectFileData[projectId] = files;
+          const files = await res.json();
+          setProjectFileData((prev) => ({ ...prev, [projectId]: files }));
           setCurrentProjectFileData(files);
         }
       } catch (error) {
@@ -93,7 +112,6 @@ export const ProjectTable = ({ projects }: ProjectTableProps) => {
                 <DrawerTrigger asChild>
                   <Info className="cursor-pointer" />
                 </DrawerTrigger>
-
                 <DrawerContent>
                   <DrawerHeader>
                     <DrawerTitle className="text-2xl">
