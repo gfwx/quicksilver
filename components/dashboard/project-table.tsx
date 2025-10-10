@@ -1,6 +1,7 @@
 "use client"
 
 import { cn } from "@/lib/utils"
+import { getFiles } from "@/app/actions/files"
 import {
   Table,
   TableBody,
@@ -22,15 +23,32 @@ import {
 } from "@/components/ui/drawer"
 
 import { Button } from "@/components/ui/button"
-
-
 import type { PrismaModels } from "@/lib/instances"
+import { useState } from "react"
 
 interface ProjectTableProps {
   projects: PrismaModels['Project'][];
 }
 
 export const ProjectTable = ({ projects }: ProjectTableProps) => {
+  const [data, setData] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  const fetchProjectFiles = async (projectId: string) => {
+    setLoading(true);
+    setError("");
+
+    try {
+      const files = await getFiles(projectId);
+      if (!files) {
+        setError('No files found!');
+      }
+      else {
+        setData(files)
+      }
+    }
+  }
   projects.forEach(project => {
     console.log(project.fileCount);
   });
