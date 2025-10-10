@@ -32,41 +32,6 @@ export async function getProjects(encryptedUserId: string) {
   }
 }
 
-export async function createProject(projectTitle: string, projectContext: string | null, encryptedUserID: string): Promise<Project | null> {
-  if (!projectTitle) {
-
-    console.error('Project title is required!')
-    return null;
-  }
-
-  const payload = await decryptPayload(encryptedUserID);
-
-  if (!checkPayload(payload)) {
-    console.error('Invalid payload');
-    return null;
-  }
-
-  if (payload.exp < Math.floor(Date.now() / 1000)) {
-    console.error('Payload expired, please re-authenticate');
-    return null;
-  }
-
-  const userId = payload.id;
-
-  const pid = crypto.randomUUID();
-  const project = await prisma.project.create({
-    data: {
-      id: pid,
-      userId: userId,
-      projectTitle: projectTitle,
-      projectContext: projectContext ?? "",
-      updatedAt: new Date()
-    }
-  })
-
-  console.log(`Project created with id ${project.id}`)
-  return project;
-}
 
 export async function deleteProject(projectId: string, encryptedUserID: string) {
   const payload = await decryptPayload(encryptedUserID);

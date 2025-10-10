@@ -2,7 +2,7 @@ import pymupdf
 import os
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from typing import List
-from .db.vector import VectorStore
+from db.vector import VectorStore
 
 class FileProcessor:
     def __init__(self, filepath: str = ""):
