@@ -3,11 +3,14 @@ import { cookies } from "next/headers";
 import { prisma, PrismaModels } from "@/lib/instances";
 import { decryptPayload } from "@/lib/cookie-helpers";
 import type { User } from "@/lib/types";
-
 import { ProjectProvider } from "@/lib/contexts/ProjectContext";
 
-export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
-  let projects: PrismaModels["Project"][] = []
+export default async function DashboardLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  let projects: PrismaModels["Project"][] = [];
 
   try {
     const cookieStore = await cookies();
@@ -18,16 +21,18 @@ export default async function DashboardLayout({ children }: { children: React.Re
         const { id } = JSON.parse(userData) as User;
         const payload = await decryptPayload(id);
         if (payload.exp < Math.floor(Date.now() / 1000)) {
-          console.error('User session expired');
+          console.error("User session expired");
         } else {
-          projects = await prisma.project.findMany({ where: { userId: payload.id } })
+          projects = await prisma.project.findMany({
+            where: { userId: payload.id },
+          });
         }
       } catch (error) {
-        console.error('Failed to decrypt user data from cookie: ', error);
+        console.error("Failed to decrypt user data from cookie: ", error);
       }
     }
   } catch (error) {
-    console.error('An error occured while trying to fetch cookies: ', error);
+    console.error("An error occured while trying to fetch cookies: ", error);
   }
   return (
     <ProjectProvider initialProjects={projects}>
@@ -37,4 +42,4 @@ export default async function DashboardLayout({ children }: { children: React.Re
       </main>
     </ProjectProvider>
   );
-};
+}
