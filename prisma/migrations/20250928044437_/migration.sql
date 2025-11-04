@@ -1,0 +1,3 @@
+-- AlterTable
+ALTER TABLE "Project" ADD COLUMN     "chatCount" INTEGER NOT NULL DEFAULT 0,
+ADD COLUMN     "fileCount" INTEGER NOT NULL DEFAULT 0;

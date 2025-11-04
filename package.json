@@ -9,6 +9,8 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@ai-sdk/openai": "^2.0.62",
+    "@ai-sdk/react": "^2.0.87",
     "@hookform/resolvers": "^5.2.2",
     "@prisma/client": "^6.11.1",
     "@prisma/extension-accelerate": "^2.0.2",
@@ -22,6 +24,7 @@
     "@radix-ui/react-slot": "^1.2.3",
     "@tailwindcss/postcss": "^4.1.12",
     "@workos-inc/authkit-nextjs": "^2.4.6",
+    "ai": "^5.0.87",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "dotenv": "^17.2.1",
@@ -37,7 +40,7 @@
     "swr": "^2.3.4",
     "tailwindcss": "^4.1.12",
     "vaul": "^1.1.2",
-    "zod": "^4.1.11"
+    "zod": "^4.1.12"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
