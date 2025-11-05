@@ -16,6 +16,7 @@ import {
   SidebarGroupLabel,
   SidebarGroupContent,
   SidebarFooter,
+  SidebarTrigger,
 } from "@/components/ui/sidebar";
 
 import {
@@ -150,7 +151,10 @@ export function ChatSidebar({ chats, projectId, userId }: SidebarProps) {
 
   return (
     <Sidebar>
-      <SidebarHeader />
+      <SidebarHeader className="flex flex-row items-center justify-between">
+        <h2 className="text-lg font-semibold px-2">QuickSilver</h2>
+        <SidebarTrigger />
+      </SidebarHeader>
       <SidebarContent>
         <SidebarGroup>
           <SidebarGroupLabel>Chats</SidebarGroupLabel>

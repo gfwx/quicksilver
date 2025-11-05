@@ -1,12 +1,6 @@
-import type { Metadata } from "next";
 import { headers } from "next/headers";
 import { ChatSidebar } from "@/lib/components/ChatSidebar";
 import { SidebarProvider } from "@/components/ui/sidebar";
-
-export const metadata: Metadata = {
-  title: "QuickSilver Chat Demo",
-  description: "A chat demo built with Next.js and Tailwind CSS",
-};
 
 export default async function RootLayout({
   children,

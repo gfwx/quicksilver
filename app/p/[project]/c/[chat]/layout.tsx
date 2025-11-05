@@ -6,10 +6,10 @@ export default async function RootLayout({
   params,
   children,
 }: {
-  params: { slug: string };
+  params: { chat: string };
   children: React.ReactNode;
 }) {
-  const { slug } = await params;
+  const { chat } = params;
   const user = {
     id: process.env.DEMO_USER_ID,
   };
@@ -21,7 +21,7 @@ export default async function RootLayout({
     const protocol = process.env.NODE_ENV === "development" ? "http" : "https";
     const baseUrl = `${protocol}://${host}`;
     const response = await fetch(
-      `${baseUrl}/api/db/messages?user_id=${user.id}&chat_id=${slug}`,
+      `${baseUrl}/api/db/messages?user_id=${user.id}&chat_id=${chat}`,
       {
         method: "GET",
       },

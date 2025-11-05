@@ -1,16 +1,12 @@
 "use client";
 
 import { useChat } from "@ai-sdk/react";
-import Link from "next/link";
 import { useEffect, useState, useRef } from "react";
 import { useParams } from "next/navigation";
 import { v4 as uuidv4 } from "uuid";
 import { useMessages } from "@/lib/providers/chatProvider";
 import { TextBoxButton } from "@/lib/components/TextboxBtn";
 import { ChatBubble } from "@/lib/components/ChatBubble";
-import Logomark from "@/public/logomark.svg";
-import Wordmark from "@/public/wordmark.svg";
-import Image from "next/image";
 import { useAuth } from "@/lib/contexts/AuthContext";
 
 export default function Chat() {
@@ -25,7 +21,8 @@ export default function Chat() {
   const { user } = authState;
   const params = useParams();
 
-  const chatId = params.slug as string;
+  const chatId = params.chat as string;
+
   const [input, setInput] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [isAtBottom, setIsAtBottom] = useState(true);
@@ -136,16 +133,10 @@ export default function Chat() {
 
   return (
     <div className="flex items-center flex-col w-full max-w-4xl pt-4 mx-auto stretch gap-8">
-      <div className="flex w-full justify-between gap-4 py-4 border-b-2 border-blue-700">
-        <Link href="/">
-          <Image src={Logomark} alt="Logo" width={18} height={18} />
-        </Link>
-        <Image src={Wordmark} alt="Wordmark" width={100} height={36} />
-      </div>
       {/*The main scroll section that contains chats.*/}
       <section
         ref={messagesRef}
-        className="messages w-full flex-1 overflow-y-auto flex flex-col gap-8 max-h-[calc(100vh-12rem)] no-scrollbar pb-24"
+        className="messages w-full flex-1 overflow-y-auto flex flex-col gap-8 max-h-full no-scrollbar pb-24"
       >
         {messages.map((message) => (
           <div
