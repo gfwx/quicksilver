@@ -68,7 +68,7 @@ export async function POST(req: NextRequest) {
     updated_at: created_at,
   });
 
-  return NextResponse.json({ message: message });
+  return NextResponse.json({ message: message, result });
 }
 
 export async function PATCH(req: NextRequest) {

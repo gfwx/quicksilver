@@ -8,10 +8,10 @@ import { v4 as uuidv4 } from "uuid";
 import { useMessages } from "@/lib/providers/chatProvider";
 import { TextBoxButton } from "@/lib/components/TextboxBtn";
 import { ChatBubble } from "@/lib/components/ChatBubble";
-import Logomark from "../../../../public/logomark.svg";
-import Wordmark from "../../../../public/wordmark.svg";
+import Logomark from "@/public/logomark.svg";
+import Wordmark from "@/public/wordmark.svg";
 import Image from "next/image";
-import { useAuth } from "@/lib/providers/authProvider";
+import { useAuth } from "@/lib/contexts/AuthContext";
 
 export default function Chat() {
   /**
@@ -21,8 +21,10 @@ export default function Chat() {
    * I'm not sure there's a way to fix this.
    */
 
-  const user = useAuth();
+  const { authState } = useAuth();
+  const { user } = authState;
   const params = useParams();
+
   const chatId = params.slug as string;
   const [input, setInput] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -31,14 +33,14 @@ export default function Chat() {
   const { messages, sendMessage, setMessages, status, stop } = useChat({
     onFinish: async ({ message: assistantMessage }) => {
       const created_at = new Date();
-      await fetch(`/api/db/messages?user_id=${user.id}&chat_id=${chatId}`, {
+      await fetch(`/api/db/messages?user_id=${user!.id}&chat_id=${chatId}`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
           message: assistantMessage,
-          user_id: user.id,
+          user_id: user!.id,
           chat_id: chatId,
           created_at,
           updated_at: created_at,
@@ -106,7 +108,7 @@ export default function Chat() {
           role: "user" as const,
           parts: [{ type: "text" as const, text: userInput }],
         };
-        fetch(`/api/db/messages?user_id=${user.id}&chat_id=${chatId}`, {
+        fetch(`/api/db/messages?user_id=${user!.id}&chat_id=${chatId}`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",

@@ -10,11 +10,6 @@ export default async function RootLayout({
   children: React.ReactNode;
 }) {
   const { slug } = await params;
-  /**
-   * In a realistic scenario, the user object would be
-   * fetched from the authentication server via middleware
-   * the middleware would then propagate auth state to the app via layout.
-   */
   const user = {
     id: process.env.DEMO_USER_ID,
   };

@@ -5,7 +5,7 @@
  * Since it takes event handlers as input, it is not suitable for SSR
  */
 
-import { ArrowUpIcon, StopIcon } from "@radix-ui/react-icons";
+import { ArrowUp, StopCircle } from "lucide-react";
 import * as ai from "ai";
 import { useEffect, useState } from "react";
 
@@ -32,19 +32,18 @@ export const TextBoxButton = ({
         }
         className="bg-blue-500 w-[48px] h-[48px] rounded-full flex justify-center items-center"
       >
-        <ArrowUpIcon color="white" width={28} height={28} />
+        <ArrowUp color="white" width={28} height={28} />
       </button>
     );
   } else {
     return (
       <button
-        // @ts-ignore
         onClick={(e) =>
           disabled_handler(e as unknown as React.FormEvent<HTMLFormElement>)
         }
         className="bg-black w-[48px] h-[48px] rounded-full flex justify-center items-center"
       >
-        <StopIcon color="white" width={28} height={28} />
+        <StopCircle color="white" width={28} height={28} />
       </button>
     );
   }
