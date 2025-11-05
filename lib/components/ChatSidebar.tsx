@@ -1,7 +1,6 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import { useRouter, usePathname } from "next/navigation";
-import { useAuth } from "@/lib/providers/authProvider";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Plus } from "lucide-react";
@@ -25,7 +24,6 @@ import {
   ContextMenuItem,
   ContextMenuTrigger,
 } from "@/components/ui/context-menu";
-import path from "node:path/win32";
 
 interface Chat {
   id: string;
@@ -34,16 +32,17 @@ interface Chat {
 
 interface SidebarProps {
   chats: Chat[];
+  userId: string;
+  projectId: string;
 }
 
-export function ChatSidebar({ chats }: SidebarProps) {
+export function ChatSidebar({ chats, projectId, userId }: SidebarProps) {
   const [localChats, setLocalChats] = useState(chats || []);
   const [currentPath, setCurrentPath] = useState<string | null>(usePathname());
   const [editingId, setEditingId] = useState<string | null>(null);
   const [newTitle, setNewTitle] = useState("");
   const router = useRouter();
   const pathname = usePathname();
-  const user = useAuth();
 
   useEffect(() => {
     setLocalChats(chats || []);
@@ -55,7 +54,7 @@ export function ChatSidebar({ chats }: SidebarProps) {
 
   const createNewChat = async () => {
     try {
-      const response = await fetch(`/api/db/chats?user_id=${user.id}`, {
+      const response = await fetch(`/api/db/chats?user_id=${userId}`, {
         method: "POST",
       });
 
@@ -67,7 +66,7 @@ export function ChatSidebar({ chats }: SidebarProps) {
       const newChatId = data.id;
       const newChat = { id: newChatId, title: "New Chat" };
       setLocalChats([newChat, ...localChats]);
-      router.push(`/chat/${newChatId}`);
+      router.push(`/p/${projectId}/c/${newChatId}`);
     } catch (error) {
       console.error("Error creating new chat:", error);
     }
@@ -84,7 +83,7 @@ export function ChatSidebar({ chats }: SidebarProps) {
 
     try {
       const response = await fetch(
-        `/api/db/chats?user_id=${user.id}&chat_id=${chatId}`,
+        `/api/db/chats?user_id=${userId}&chat_id=${chatId}`,
         {
           method: "DELETE",
         },
@@ -98,7 +97,7 @@ export function ChatSidebar({ chats }: SidebarProps) {
 
       // If current route is this chat, redirect to home
 
-      if (pathname.includes(`/chat/${chatId}`)) {
+      if (pathname.includes(`/p/${projectId}/c/${chatId}`)) {
         router.push("/");
       }
     } catch (error) {
@@ -123,7 +122,7 @@ export function ChatSidebar({ chats }: SidebarProps) {
 
     try {
       const response = await fetch(
-        `/api/db/chats?user_id=${user.id}&chat_id=${chatId}`,
+        `/api/db/chats?user_id=${userId}&chat_id=${chatId}`,
         {
           method: "PATCH",
           headers: {
@@ -161,7 +160,7 @@ export function ChatSidebar({ chats }: SidebarProps) {
                 <SidebarMenuItem key={chat.id}>
                   <ContextMenu>
                     <ContextMenuTrigger>
-                      <Link href={`/chat/${chat.id}`}>
+                      <Link href={`/p/${projectId}/c/${chat.id}`}>
                         {editingId === chat.id ? (
                           <Input
                             className={

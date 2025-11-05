@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
-import { AuthProvider } from "@/lib/providers/authProvider";
 import { headers } from "next/headers";
-import { ChatSidebar } from "@/lib/components/Sidebar";
+import { ChatSidebar } from "@/lib/components/ChatSidebar";
 import { SidebarProvider } from "@/components/ui/sidebar";
 
 export const metadata: Metadata = {
@@ -11,8 +10,10 @@ export const metadata: Metadata = {
 
 export default async function RootLayout({
   children,
+  params,
 }: Readonly<{
   children: React.ReactNode;
+  params: { project: string };
 }>) {
   /**
    * In a realistic scenario, the user object would be
@@ -20,8 +21,10 @@ export default async function RootLayout({
    * the middleware would then propagate auth state to the app via layout.
    */
   const user = {
-    id: process.env.DEMO_USER_ID,
+    id: process.env.DEMO_USER_ID, // temporrary
   };
+
+  const projectId = params.project;
 
   let chats: { id: string; title: string; createdAt: Date; updatedAt: Date }[] =
     [];
@@ -44,11 +47,9 @@ export default async function RootLayout({
   }
 
   return (
-    <AuthProvider user={user}>
-      <SidebarProvider>
-        <ChatSidebar chats={chats} />
-        <main className="flex-1 mx-auto overflow-auto">{children}</main>
-      </SidebarProvider>
-    </AuthProvider>
+    <SidebarProvider>
+      <ChatSidebar chats={chats} projectId={projectId} userId={user.id!} />
+      <main className="flex-1 mx-auto overflow-auto">{children}</main>
+    </SidebarProvider>
   );
 }
