@@ -1,6 +1,7 @@
 "use client";
 
 import { cn } from "@/lib/utils";
+import Link from "next/link";
 
 import {
   Table,
@@ -22,7 +23,6 @@ import {
   DrawerTrigger,
 } from "@/components/ui/drawer";
 
-import { Button } from "@/components/ui/button";
 import { ProjectFilesDisplay } from "./ProjectFilesDisplay";
 import type { PrismaModels } from "@/lib/instances";
 import { useState } from "react";
@@ -133,15 +133,15 @@ export const ProjectTable = ({ projects }: ProjectTableProps) => {
                 </DrawerContent>
               </Drawer>
               <p>{project.projectTitle}</p>
-              <Button
-                variant="default"
+              <Link
+                href={`/projects/${project.id}`}
                 className="
                               opacity-0 group-hover:opacity-100 pointer-events-none
                               group-hover:pointer-events-auto
                               transition-opacity duration-200 cursor-pointer"
               >
                 OPEN
-              </Button>
+              </Link>
             </TableCell>
             <TableCell>
               {new Date(project.createdAt).toISOString().split("T")[0]}
