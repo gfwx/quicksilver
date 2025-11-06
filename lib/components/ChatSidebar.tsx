@@ -55,8 +55,12 @@ export function ChatSidebar({ chats, projectId, userId }: SidebarProps) {
 
   const createNewChat = async () => {
     try {
-      const response = await fetch(`/api/db/chats?user_id=${userId}`, {
+      const response = await fetch(`/api/db/chats`, {
         method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-encrypted-user-id": userId,
+        },
       });
 
       if (!response.ok) {
@@ -83,12 +87,13 @@ export function ChatSidebar({ chats, projectId, userId }: SidebarProps) {
     }
 
     try {
-      const response = await fetch(
-        `/api/db/chats?user_id=${userId}&chat_id=${chatId}`,
-        {
-          method: "DELETE",
+      const response = await fetch(`/api/db/chats?chat_id=${chatId}`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          "x-encrypted-user-id": userId,
         },
-      );
+      });
 
       if (!response.ok) {
         throw new Error("Failed to delete chat");
@@ -122,16 +127,14 @@ export function ChatSidebar({ chats, projectId, userId }: SidebarProps) {
     }
 
     try {
-      const response = await fetch(
-        `/api/db/chats?user_id=${userId}&chat_id=${chatId}`,
-        {
-          method: "PATCH",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ title: newTitle }),
+      const response = await fetch(`/api/db/chats?chat_id=${chatId}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          "x-encrypted-user-id": userId,
         },
-      );
+        body: JSON.stringify({ title: newTitle }),
+      });
 
       if (!response.ok) {
         throw new Error("Failed to rename chat");

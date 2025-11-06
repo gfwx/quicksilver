@@ -21,6 +21,8 @@ export default function Chat() {
   const { user } = authState;
   const params = useParams();
 
+  console.log(`user: ${user?.id}`);
+
   const chatId = params.chat as string;
 
   const [input, setInput] = useState("");
@@ -30,10 +32,11 @@ export default function Chat() {
   const { messages, sendMessage, setMessages, status, stop } = useChat({
     onFinish: async ({ message: assistantMessage }) => {
       const created_at = new Date();
-      await fetch(`/api/db/messages?user_id=${user!.id}&chat_id=${chatId}`, {
+      await fetch(`/api/db/messages?chat_id=${chatId}`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          "x-encrypted-user-id": user!.id,
         },
         body: JSON.stringify({
           message: assistantMessage,
@@ -105,10 +108,11 @@ export default function Chat() {
           role: "user" as const,
           parts: [{ type: "text" as const, text: userInput }],
         };
-        fetch(`/api/db/messages?user_id=${user!.id}&chat_id=${chatId}`, {
+        fetch(`/api/db/messages?chat_id=${chatId}`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
+            "x-user-encrypted-id": user!.id,
           },
           body: JSON.stringify({
             message: userMessage,
