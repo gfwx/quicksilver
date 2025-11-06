@@ -10,6 +10,7 @@ export async function POST(req: Request) {
     baseURL: "http://127.0.0.1:11434/api",
   });
 
+  // this is hard-coded. needs to be fixed later.
   const model = "gemma3:4b-it-qat";
   const result = streamText({
     model: ollama(model),

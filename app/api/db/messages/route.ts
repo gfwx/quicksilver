@@ -1,18 +1,35 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getDb } from "@/lib/mongo";
 import { ObjectId } from "mongodb";
+import { decryptPayload } from "@/lib/cookie-helpers";
+import { checkPayload } from "@/lib/helpers";
 
 export const runtime = "nodejs";
 
 export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
-    const userId = searchParams.get("user_id");
     const chatId = searchParams.get("chat_id");
+    const encryptedUserPayload = req.headers.get("x-encrypted-user-id");
 
-    if (!userId || !chatId) {
+    if (!encryptedUserPayload) {
       return NextResponse.json(
-        { error: "user_id and chat_id query parameters are required" },
+        { error: "Missing encrypted user payload" },
+        { status: 400 },
+      );
+    }
+
+    const payload = await decryptPayload(encryptedUserPayload);
+    if (!checkPayload(payload)) {
+      return NextResponse.json(
+        { error: "Invalid user payload object" },
+        { status: 401 },
+      );
+    }
+
+    if (!chatId) {
+      return NextResponse.json(
+        { error: "chat_id query parameter are required" },
         { status: 400 },
       );
     }
@@ -23,7 +40,7 @@ export async function GET(req: NextRequest) {
     // Fetch messages: filter by user_id and chat_id, project only 'message', sort by message.id (sequential)
     const messagesCursor = await collection
       .find(
-        { user_id: userId, chat_id: chatId },
+        { user_id: payload.id, chat_id: chatId },
         { projection: { message: 1 } }, // Only return the UIMessage object
       )
       .sort({ created_at: 1 }) // Sort by timestamp
@@ -44,15 +61,35 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   const { searchParams } = new URL(req.url);
-  const userId = searchParams.get("user_id");
   const chatId = searchParams.get("chat_id");
 
-  const { message, created_at } = await req.json();
-
-  if (!userId || !chatId || !message) {
+  const encryptedUserPayload = req.headers.get("x-encrypted-user-id");
+  if (!encryptedUserPayload) {
     return NextResponse.json(
-      { error: "user_id, chat_id, and message are required" },
+      { error: "Missing encrypted user payload" },
       { status: 400 },
+    );
+  }
+
+  const payload = await decryptPayload(encryptedUserPayload);
+  if (!chatId) {
+    return NextResponse.json(
+      { error: "chat_id request parameter is required." },
+      { status: 400 },
+    );
+  }
+
+  const { message, created_at } = await req.json();
+  if (!message) {
+    return NextResponse.json(
+      { error: "message is required in request body." },
+      { status: 400 },
+    );
+  }
+  if (!checkPayload(payload)) {
+    return NextResponse.json(
+      { error: "Invalid user payload." },
+      { status: 401 },
     );
   }
 
@@ -61,7 +98,7 @@ export async function POST(req: NextRequest) {
 
   // Insert the new message into the database
   const result = await collection.insertOne({
-    user_id: userId,
+    user_id: payload.id,
     chat_id: chatId,
     message,
     created_at: created_at,
@@ -74,20 +111,41 @@ export async function POST(req: NextRequest) {
 export async function PATCH(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
-    const userId = searchParams.get("user_id");
     const chatId = searchParams.get("chat_id");
     const messageId = searchParams.get("message_id");
     const { message: update } = await req.json(); // Partial update (e.g., { parts: [...] })
 
-    if (!userId || !chatId || !messageId || !update) {
+    const encryptedUserPayload = req.headers.get("x-encrypted-user-id");
+    if (!encryptedUserPayload) {
       return NextResponse.json(
-        {
-          error:
-            "user_id, chat_id, message_id, and update (partial message) are required",
-        },
+        { error: "Missing user payload." },
         { status: 400 },
       );
     }
+
+    const payload = await decryptPayload(encryptedUserPayload);
+    if (!checkPayload(payload)) {
+      return NextResponse.json(
+        { error: "Invalid user payload." },
+        { status: 401 },
+      );
+    }
+    if (!chatId) {
+      return NextResponse.json({ error: "Missing chat_id." }, { status: 400 });
+    }
+    if (!messageId) {
+      return NextResponse.json(
+        { error: "Missing message_id." },
+        { status: 400 },
+      );
+    }
+    if (!update) {
+      return NextResponse.json(
+        { error: "Missing update (partial message)." },
+        { status: 400 },
+      );
+    }
+    const userId = payload.id;
 
     const db = await getDb();
     const collection = db.collection("messages");
@@ -124,19 +182,31 @@ export async function PATCH(req: NextRequest) {
 export async function DELETE(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
-    const userId = searchParams.get("user_id");
     const chatId = searchParams.get("chat_id");
     const messageId = searchParams.get("message_id");
 
-    if (!userId || !chatId || !messageId) {
+    if (!chatId || !messageId) {
       return NextResponse.json(
         {
-          error:
-            "user_id, chat_id, and message_id query parameters are required",
+          error: "chat_id and message_id query parameters are required",
         },
         { status: 400 },
       );
     }
+
+    const encryptedUserPayload = req.headers.get("x-encrypted-user-id");
+    if (!encryptedUserPayload) {
+      return NextResponse.json(
+        { error: "x-encrypted-user-id header is required" },
+        { status: 400 },
+      );
+    }
+    const payload = await decryptPayload(encryptedUserPayload);
+    if (!checkPayload(payload)) {
+      return NextResponse.json({ error: "Invalid payload" }, { status: 401 });
+    }
+
+    const userId = payload.id;
 
     const db = await getDb();
     const collection = db.collection("messages");

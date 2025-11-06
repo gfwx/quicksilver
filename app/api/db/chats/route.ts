@@ -2,13 +2,23 @@ import { NextRequest, NextResponse } from "next/server";
 import { getDb } from "@/lib/mongo";
 export const runtime = "nodejs";
 import { ObjectId } from "mongodb";
+import { decryptPayload } from "@/lib/cookie-helpers";
+import { checkPayload } from "@/lib/helpers";
 
 export async function GET(req: NextRequest) {
-  const { searchParams } = new URL(req.url);
-  const userId = searchParams.get("user_id");
+  const encryptedUserPayload = req.headers.get("x-encrypted-user-id");
 
-  if (!userId) {
-    return NextResponse.json({ error: "Missing user id!" }, { status: 400 });
+  if (!encryptedUserPayload) {
+    return NextResponse.json(
+      { error: "Missing encrypted user payload" },
+      { status: 400 },
+    );
+  }
+
+  const payload = await decryptPayload(encryptedUserPayload);
+
+  if (!checkPayload(payload)) {
+    return NextResponse.json({ error: "Payload expired" }, { status: 401 });
   }
 
   try {
@@ -16,7 +26,7 @@ export async function GET(req: NextRequest) {
     const collection = db.collection("chats");
 
     const chatsCursor = await collection
-      .find({ user_id: userId })
+      .find({ user_id: payload.id })
       .sort({ updatedAt: -1 })
       .toArray();
 

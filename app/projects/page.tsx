@@ -54,7 +54,7 @@ export default function Dashboard() {
   const user = authState.user;
 
   if (!user) {
-    console.error("[/dashboard] No valid user found!");
+    console.error("[/projects] No valid user found!");
     redirect("/");
   }
 
