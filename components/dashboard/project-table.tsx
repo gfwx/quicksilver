@@ -134,7 +134,7 @@ export const ProjectTable = ({ projects }: ProjectTableProps) => {
               </Drawer>
               <p>{project.projectTitle}</p>
               <Link
-                href={`/p/${project.id}`}
+                href={`/projects/${project.id}`}
                 className="
                               opacity-0 group-hover:opacity-100 pointer-events-none
                               group-hover:pointer-events-auto

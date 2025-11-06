@@ -38,7 +38,7 @@ export default function Home() {
                 <Button
                   variant="default"
                   className="hover:cursor-pointer"
-                  onClick={() => (window.location.href = "/dashboard")}
+                  onClick={() => (window.location.href = "/projects")}
                 >
                   Go to Dashboard
                 </Button>

@@ -18,7 +18,8 @@ export default async function RootLayout({
     id: process.env.DEMO_USER_ID, // temporrary
   };
 
-  const projectId = params.project;
+  const p = await params;
+  const projectId = p.project;
 
   let chats: { id: string; title: string; createdAt: Date; updatedAt: Date }[] =
     [];

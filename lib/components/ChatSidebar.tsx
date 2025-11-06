@@ -67,7 +67,7 @@ export function ChatSidebar({ chats, projectId, userId }: SidebarProps) {
       const newChatId = data.id;
       const newChat = { id: newChatId, title: "New Chat" };
       setLocalChats([newChat, ...localChats]);
-      router.push(`/p/${projectId}/c/${newChatId}`);
+      router.push(`/projects/${projectId}/chats/${newChatId}`);
     } catch (error) {
       console.error("Error creating new chat:", error);
     }
@@ -98,7 +98,7 @@ export function ChatSidebar({ chats, projectId, userId }: SidebarProps) {
 
       // If current route is this chat, redirect to home
 
-      if (pathname.includes(`/p/${projectId}/c/${chatId}`)) {
+      if (pathname.includes(`/projects/${projectId}/chats/${chatId}`)) {
         router.push("/");
       }
     } catch (error) {
@@ -164,7 +164,7 @@ export function ChatSidebar({ chats, projectId, userId }: SidebarProps) {
                 <SidebarMenuItem key={chat.id}>
                   <ContextMenu>
                     <ContextMenuTrigger>
-                      <Link href={`/p/${projectId}/c/${chat.id}`}>
+                      <Link href={`/projects/${projectId}/chats/${chat.id}`}>
                         {editingId === chat.id ? (
                           <Input
                             className={
