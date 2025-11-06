@@ -55,7 +55,7 @@ export default function Chat() {
   // Message history is passed from the layout component and stored as state here.
   useEffect(() => {
     setMessages(history);
-  }, [history]);
+  }, [history, setMessages]);
 
   // Attach the scroll event listener to a specified element (via useRef)
   useEffect(() => {
