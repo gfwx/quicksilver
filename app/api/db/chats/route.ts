@@ -7,10 +7,11 @@ import { checkPayload } from "@/lib/helpers";
 
 export async function GET(req: NextRequest) {
   const encryptedUserPayload = req.headers.get("x-encrypted-user-id");
+  const projectId = req.headers.get("x-project-id");
 
-  if (!encryptedUserPayload) {
+  if (!encryptedUserPayload || !projectId) {
     return NextResponse.json(
-      { error: "Missing encrypted user payload" },
+      { error: "Missing encrypted user payload or project id" },
       { status: 400 },
     );
   }
@@ -26,7 +27,7 @@ export async function GET(req: NextRequest) {
     const collection = db.collection("chats");
 
     const chatsCursor = await collection
-      .find({ user_id: payload.id })
+      .find({ user_id: payload.id, project_id: projectId })
       .sort({ updatedAt: -1 })
       .toArray();
 
@@ -48,6 +49,11 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   const encryptedUserPayload = req.headers.get("x-encrypted-user-id");
+  const projectId = req.headers.get("x-project-id");
+
+  if (!projectId) {
+    return NextResponse.json({ error: "Missing project id" }, { status: 400 });
+  }
 
   if (!encryptedUserPayload) {
     return NextResponse.json(
@@ -68,8 +74,8 @@ export async function POST(req: NextRequest) {
 
     const chat = await collection.insertOne({
       user_id: payload.id,
+      project_id: projectId,
       title: "New Chat",
-      messages: [],
     });
 
     return NextResponse.json({ id: chat.insertedId.toString() });
@@ -84,11 +90,16 @@ export async function POST(req: NextRequest) {
 
 export async function PATCH(req: NextRequest) {
   try {
+    const { searchParams } = new URL(req.url);
     const encryptedUserPayload = req.headers.get("x-encrypted-user-id");
+    const projectId = req.headers.get("x-project-id");
+    const chatId = searchParams.get("chat_id");
 
-    if (!encryptedUserPayload) {
+    const { title } = await req.json();
+
+    if (!encryptedUserPayload || !projectId) {
       return NextResponse.json(
-        { error: "Missing encrypted user payload" },
+        { error: "Missing encrypted user payload or project ID" },
         { status: 400 },
       );
     }
@@ -98,10 +109,6 @@ export async function PATCH(req: NextRequest) {
     if (!checkPayload(payload)) {
       return NextResponse.json({ error: "Payload expired" }, { status: 401 });
     }
-
-    const { searchParams } = new URL(req.url);
-    const chatId = searchParams.get("chat_id");
-    const { title } = await req.json(); // Optional partial update
 
     if (!chatId) {
       return NextResponse.json(
@@ -153,10 +160,11 @@ export async function PATCH(req: NextRequest) {
 export async function DELETE(req: NextRequest) {
   try {
     const encryptedUserPayload = req.headers.get("x-encrypted-user-id");
+    const projectId = req.headers.get("x-project-id");
 
-    if (!encryptedUserPayload) {
+    if (!encryptedUserPayload || !projectId) {
       return NextResponse.json(
-        { error: "Missing encrypted user payload" },
+        { error: "Missing encrypted user payload or project id" },
         { status: 400 },
       );
     }
@@ -178,30 +186,44 @@ export async function DELETE(req: NextRequest) {
     }
 
     const db = await getDb();
+    const session = db.client.startSession();
 
-    // Delete chat
-    const chatCollection = db.collection("chats");
-    const chatResult = await chatCollection.deleteOne({
-      user_id: payload.id,
-      _id: new ObjectId(chatId),
-    });
+    try {
+      await session.withTransaction(async () => {
+        // Delete chat
+        const chatCollection = db.collection("chats");
+        const chatResult = await chatCollection.deleteOne({
+          user_id: payload.id,
+          _id: new ObjectId(chatId),
+        });
 
-    if (chatResult.deletedCount === 0) {
-      return NextResponse.json({ error: "Chat not found" }, { status: 404 });
+        if (chatResult.deletedCount === 0) {
+          return NextResponse.json(
+            { error: "Chat not found" },
+            { status: 404 },
+          );
+        }
+
+        // Cascade: Delete associated messages
+        const messagesCollection = db.collection("messages");
+        const messagesResult = await messagesCollection.deleteMany({
+          user_id: payload.id,
+          chat_id: chatId,
+        });
+
+        return NextResponse.json({
+          deleted: true,
+          deletedChat: 1,
+          deletedMessages: messagesResult.deletedCount,
+        });
+      });
+    } catch (error) {
+      console.error("Transaction failed: ", error);
+      return NextResponse.json(
+        { error: "An internal server error occured with DB transaction" },
+        { status: 500 },
+      );
     }
-
-    // Cascade: Delete associated messages
-    const messagesCollection = db.collection("messages");
-    const messagesResult = await messagesCollection.deleteMany({
-      user_id: payload.id,
-      chat_id: chatId,
-    });
-
-    return NextResponse.json({
-      deleted: true,
-      deletedChat: 1,
-      deletedMessages: messagesResult.deletedCount,
-    });
   } catch (error) {
     console.error("Failed to delete chat:", error);
     return NextResponse.json(

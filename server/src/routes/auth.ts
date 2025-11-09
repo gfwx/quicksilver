@@ -103,7 +103,7 @@ router.get("/callback", async (req: Request, res: Response) => {
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
-    res.redirect(`${frontendUrl}/p`);
+    res.redirect(`${frontendUrl}/projects`);
   } catch (error) {
     // Theoretical login route for the client. May be subject to change?
     console.error(error);
