@@ -11,7 +11,6 @@ class FileProcessor:
         self.data = None
 
     # This only works for text-based PDFs.
-    # Needs to wokrk with OCR potentially
     def _process_pdf(self):
         try:
             with pymupdf.open(self.filepath) as doc:
