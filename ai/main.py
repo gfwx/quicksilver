@@ -1,14 +1,13 @@
 import asyncio
 from os import getenv
-from typing import AsyncGenerator, List
+from typing import List
 
 from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException, status
-from fastapi.responses import StreamingResponse
 from ollama import AsyncClient
 
 from .db.vector import VectorStore
-from .models import FileAPIResponse, Query
+from .models import FileAPIResponse, VectorAPIResponse
 from .reader import FileProcessor
 
 load_dotenv()
@@ -19,20 +18,12 @@ host = getenv("OLLAMA_ENDPOINT", "http://localhost:11434")
 client = AsyncClient(host=host)
 
 
-def make_prompt(query: str, ctx: List[str]):
-    prompt_string = f"Answer the following question based on the context provided. If the context is not provided, just say 'I don't know'.\n\nQuestion: {query}\n\nContext:\n"
-    for i, chunk in enumerate(ctx):
-        prompt_string += f"Chunk {i + 1}: {chunk}\n"
-
-    return prompt_string
-
-
 @app.get("/api")
 async def read_root():
     return {"message": "Quicksilver Python Microservice"}
 
 
-def _process_file_sync(filepath: str, document_id: str):
+def _process_file_sync(filepath: str, document_id: str, project_id: str):
     """Synchronous file processing pipeline to be run in a thread."""
     # 1. Process the file to extract text
     fp = FileProcessor(filepath)
@@ -48,7 +39,7 @@ def _process_file_sync(filepath: str, document_id: str):
         raise ValueError("Failed to chunk data.")
 
     # 3. Add chunks to the vector store
-    vs.add(chunks, document_id=document_id)
+    vs.add(chunks, document_id=document_id, project_id=project_id)
 
     return document_id
 
@@ -68,11 +59,11 @@ async def read_process(jsonBody: FileAPIResponse):
     try:
         # Run the synchronous pipeline in a worker thread
         document_id = await asyncio.to_thread(
-            _process_file_sync, filepath, jsonBody.document_id
+            _process_file_sync, filepath, jsonBody.document_id, jsonBody.project_id
         )
 
         return {
-            "message": f"File processed and embeddings stored successfully for: {document_id}"
+            "message": f"File processed and embeddings stored successfully for: {document_id} under project id: {jsonBody.project_id}"
         }
 
     except ValueError as e:
@@ -104,57 +95,37 @@ async def read_process(jsonBody: FileAPIResponse):
         )
 
 
-async def _ollama_stream_generator(
-    prompt: str, model: str
-) -> AsyncGenerator[str, None]:
+def _vector_query_sync(query: str, project_id: str) -> List[str]:
     try:
-        async for chunk in await client.chat(
-            model=model,
-            messages=[{"role": "user", "content": prompt}],
-            stream=True,
-        ):
-            if chunk.message and chunk.message.content:
-                yield chunk.message.content
-    except Exception as e:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Ollama API Error: {e}",
-        )
-
-
-def _vector_query_sync(query: str) -> List[str]:
-    try:
-        results = vs.search(query)
+        results = vs.search(query, project_id)
         return [r["text"] for r in results]
     except Exception as e:
         raise ValueError(f"Vector embeddings failure: {e}")
 
 
-@app.post("/api/query")
-async def read_query(jsonBody: Query):
+@app.get("/api/vector")
+async def get_vector(jsonBody: VectorAPIResponse):
     if not jsonBody.query:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="No query found!",
+            detail="Query not specified!",
             headers={"X-Error": "No query"},
         )
 
-    if not jsonBody.model:
+    if not jsonBody.project_id:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Model information not specified!",
-            headers={"X-Error": "No model specified"},
+            detail="Project ID not specified!",
+            headers={"X-Error": "No project id specified"},
         )
+
     try:
-        data = await asyncio.to_thread(_vector_query_sync, jsonBody.query)
+        data = await asyncio.to_thread(
+            _vector_query_sync, jsonBody.query, jsonBody.project_id
+        )
+        return {"text": data}
     except ValueError as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Vector embeddings failure: {e}",
         )
-
-    query = make_prompt(jsonBody.query, data)
-
-    return StreamingResponse(
-        _ollama_stream_generator(query, jsonBody.model), media_type="text/event-stream"
-    )

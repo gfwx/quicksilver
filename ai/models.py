@@ -11,14 +11,15 @@ class File(BaseModel):
     timestamp: datetime
     status: str
     userid: str
-    projectId: str
+    project_id: str
 
 
 class FileAPIResponse(BaseModel):
     filepath: str
     document_id: str
+    project_id: str
 
 
-class Query(BaseModel):
+class VectorAPIResponse(BaseModel):
     query: str
-    model: str
+    project_id: str

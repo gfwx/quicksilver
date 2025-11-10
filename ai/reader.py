@@ -1,8 +1,8 @@
-import pymupdf
 import os
-from langchain_text_splitters import RecursiveCharacterTextSplitter
 from typing import List
-from .db.vector import VectorStore
+
+import pymupdf
+from langchain_text_splitters import RecursiveCharacterTextSplitter
 
 
 class FileProcessor:
@@ -96,17 +96,3 @@ class FileProcessor:
 
     def get(self):
         return self.data
-
-
-if __name__ == "__main__":
-    filepath = "test.pdf"
-    fp = FileProcessor(filepath)
-    vs = VectorStore()
-
-    fp.process()
-    data = fp.chunk_data()
-    if data != None:
-        vs.add(data, "test_document_id")
-        results = vs.search("What are the possible streams of revenue?")
-        for i, result in enumerate(results):
-            print(f"[TOP RESULT #{i + 1}]\n{result['text']}\n")
