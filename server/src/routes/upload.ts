@@ -50,11 +50,9 @@ router.post(
     console.log("Checking prisma..");
     if (!prisma) {
       console.error("Prisma instance is not initialized");
-      res
-        .status(500)
-        .json({
-          message: "Internal Server Error: Prisma instance not initialized",
-        });
+      res.status(500).json({
+        message: "Internal Server Error: Prisma instance not initialized",
+      });
       return;
     }
 

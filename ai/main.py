@@ -1,13 +1,15 @@
-from fastapi import FastAPI, HTTPException, status
-from fastapi.responses import StreamingResponse
-from .models import FileAPIResponse, Query
-from .reader import FileProcessor
-from .db.vector import VectorStore
-from ollama import AsyncClient
-from dotenv import load_dotenv
+import asyncio
 from os import getenv
 from typing import AsyncGenerator, List
-import asyncio
+
+from dotenv import load_dotenv
+from fastapi import FastAPI, HTTPException, status
+from fastapi.responses import StreamingResponse
+from ollama import AsyncClient
+
+from .db.vector import VectorStore
+from .models import FileAPIResponse, Query
+from .reader import FileProcessor
 
 load_dotenv()
 vs = VectorStore()
