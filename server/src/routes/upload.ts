@@ -116,6 +116,7 @@ router.post(
         const payloadToFastAPI = {
           filepath: path.resolve(file.path),
           document_id: createdFile.filename,
+          project_id: projectId,
         };
 
         // TODO: do this whole part in express itself, and then directly store vector embeddings in Prisma.
