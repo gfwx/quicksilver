@@ -163,6 +163,8 @@ export async function PUT(request: NextRequest) {
 
 // DELETE - Delete a project
 export async function DELETE(request: NextRequest) {
+  const ai_endpoint = process.env.FASTAPI_ENDPOINT || "http://127.0.0.1:8000/";
+
   try {
     const body = await request.json();
     const { projectId, encryptedUserID } = body;
@@ -203,6 +205,34 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
     }
 
+    // Delete vector embeddings from FastAPI
+    try {
+      const vectorDeleteResponse = await fetch(
+        `${ai_endpoint}/api/vector?project_id=${encodeURIComponent(projectId)}`,
+        {
+          method: "DELETE",
+        },
+      );
+
+      if (!vectorDeleteResponse.ok) {
+        console.error(
+          `Failed to delete vector embeddings for project ${projectId}: ${vectorDeleteResponse.status}`,
+        );
+        // Continue with project deletion even if vector deletion fails
+      } else {
+        console.log(
+          `Successfully deleted vector embeddings for project ${projectId}`,
+        );
+      }
+    } catch (vectorError) {
+      console.error(
+        `Error calling FastAPI to delete vectors for project ${projectId}:`,
+        vectorError,
+      );
+      // Continue with project deletion even if vector deletion fails
+    }
+
+    // Delete project from database (cascading deletes will handle files)
     await prisma.project.delete({
       where: {
         id: projectId,

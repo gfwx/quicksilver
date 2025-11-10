@@ -144,6 +144,18 @@ router.post(
           data: { status: "Processed" },
         });
 
+        // Delete the uploaded file after processing is complete
+        try {
+          await fs.unlink(file.path);
+          console.log(`Successfully deleted file: ${file.path}`);
+        } catch (unlinkError) {
+          console.error(
+            `Failed to delete file ${file.path} after processing:`,
+            unlinkError,
+          );
+          // Don't throw - file processing was successful
+        }
+
         return {
           fileName: createdFile.filename,
           originalName: file.originalname,

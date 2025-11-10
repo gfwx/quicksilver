@@ -145,3 +145,24 @@ async def get_vector(jsonBody: VectorAPIResponse):
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Vector embeddings failure: {e}",
         )
+
+
+@app.delete("/api/vector")
+async def delete_vector_embeddings(project_id: str):
+    if not project_id:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Project ID not specified!",
+            headers={"X-Error": "No project id specified"},
+        )
+
+    try:
+        await asyncio.to_thread(vs.delete_many, project_id)
+        return {
+            "message": f"Successfully deleted all vector embeddings for project: {project_id}"
+        }
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to delete vector embeddings: {e}",
+        )
