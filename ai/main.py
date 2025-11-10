@@ -49,11 +49,27 @@ async def read_process(jsonBody: FileAPIResponse):
     print(f"Processing file: {jsonBody.filepath}")
     filepath = jsonBody.filepath
     document_id = jsonBody.document_id
+    project_id = jsonBody.project_id
+
     if not filepath:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="File path is required.",
             headers={"X-Error": "File path missing"},
+        )
+
+    if not document_id:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Document ID is required.",
+            headers={"X-Error": "Document id missing"},
+        )
+
+    if not project_id:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Project ID is required.",
+            headers={"X-Error": "Project ID missing"},
         )
 
     try:
