@@ -1,6 +1,6 @@
-import { PrismaClient } from "../../app/generated/prisma"; // Assuming path is correct
+import { PrismaClient } from "../../prisma-client"; // Assuming path is correct
 import { WorkOS } from "@workos-inc/node";
-import dotenv from 'dotenv'
+import dotenv from "dotenv";
 dotenv.config();
 
 const workosApiKey = process.env.WORKOS_API_KEY;
@@ -14,7 +14,7 @@ class Globals {
     this.prisma = new PrismaClient();
     if (!workosApiKey || !workosClientId) {
       this.workos = null;
-      throw new Error('Missing WorkOS API key or client ID');
+      throw new Error("Missing WorkOS API key or client ID");
     }
     this.workos = new WorkOS(workosApiKey, { clientId: workosClientId });
   }

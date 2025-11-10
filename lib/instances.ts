@@ -1,14 +1,11 @@
-import { PrismaClient } from "./app/generated/prisma";
-import { Prisma } from "./app/generated/prisma/client"
+import { Prisma, PrismaClient } from "./prisma-client";
 import { WorkOS } from "@workos-inc/node";
 // This is done to prevent additional PrismaClient instances from being created upon mounting
 const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined;
 };
 
-export const prisma =
-  globalForPrisma.prisma ??
-  new PrismaClient();
+export const prisma = globalForPrisma.prisma ?? new PrismaClient();
 
 // Insane hack i found on github
 // ALSO move this to types.d.ts
