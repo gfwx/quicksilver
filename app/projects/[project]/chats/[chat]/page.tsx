@@ -8,6 +8,7 @@ import { useMessages } from "@/lib/providers/chatProvider";
 import { TextBoxButton } from "@/lib/components/TextboxBtn";
 import { ChatBubble } from "@/lib/components/ChatBubble";
 import { useAuth } from "@/lib/contexts/AuthContext";
+import { DefaultChatTransport } from "ai";
 
 export default function Chat() {
   /**
@@ -24,12 +25,23 @@ export default function Chat() {
   console.log(`user: ${user?.id}`);
 
   const chatId = params.chat as string;
+  const projectId = params.project as string;
 
   const [input, setInput] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [isAtBottom, setIsAtBottom] = useState(true);
   const [previousScrollTop, setPreviousScrollTop] = useState(0);
   const { messages, sendMessage, setMessages, status, stop } = useChat({
+    transport: new DefaultChatTransport({
+      prepareSendMessagesRequest: ({ messages }) => {
+        return {
+          body: {
+            messages,
+            project_id: projectId,
+          },
+        };
+      },
+    }),
     onFinish: async ({ message: assistantMessage }) => {
       const created_at = new Date();
       await fetch(`/api/db/messages?chat_id=${chatId}`, {
@@ -112,7 +124,7 @@ export default function Chat() {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            "x-user-encrypted-id": user!.id,
+            "x-encrypted-user-id": user!.id,
           },
           body: JSON.stringify({
             message: userMessage,

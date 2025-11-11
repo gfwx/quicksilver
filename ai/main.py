@@ -120,15 +120,15 @@ def _vector_query_sync(query: str, project_id: str) -> List[str]:
 
 
 @app.get("/api/vector")
-async def get_vector(jsonBody: VectorAPIResponse):
-    if not jsonBody.query:
+async def get_vector(query, project_id):
+    if not query:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Query not specified!",
             headers={"X-Error": "No query"},
         )
 
-    if not jsonBody.project_id:
+    if not project_id:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Project ID not specified!",
@@ -136,9 +136,7 @@ async def get_vector(jsonBody: VectorAPIResponse):
         )
 
     try:
-        data = await asyncio.to_thread(
-            _vector_query_sync, jsonBody.query, jsonBody.project_id
-        )
+        data = await asyncio.to_thread(_vector_query_sync, query, project_id)
         return {"text": data}
     except ValueError as e:
         raise HTTPException(
@@ -147,7 +145,7 @@ async def get_vector(jsonBody: VectorAPIResponse):
         )
 
 
-@app.delete("/api/vector")
+@app.delete("/api/purge")
 async def delete_vector_embeddings(project_id: str):
     if not project_id:
         raise HTTPException(

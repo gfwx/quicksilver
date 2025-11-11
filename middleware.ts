@@ -15,8 +15,6 @@ export async function middleware(request: NextRequest) {
   const cookiePassword = process.env.WORKOS_COOKIE_PASSWORD;
   const isHomePage = request.nextUrl.pathname === "/";
 
-  console.log(request.cookies);
-
   // Check if user-data cookie exists and is valid
   if (userDataCookie) {
     try {

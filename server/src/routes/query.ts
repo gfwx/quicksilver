@@ -1,14 +1,13 @@
 import { Router, Request, Response } from "express";
 // import { authMiddleware } from "../lib/middleware";
 import dotenv from "dotenv";
-import { authMiddleware } from "../lib/middleware";
 
 dotenv.config();
 const FASTAPI_ENDPOINT =
   process.env.FASTAPI_ENDPOINT || "http://127.0.0.1:8000";
 const router = Router();
 
-router.post("/", authMiddleware, async (req: Request, res: Response) => {
+router.get("/", async (req: Request, res: Response) => {
   try {
     const { query, project_id } = req.body;
     if (!query) {
@@ -22,7 +21,7 @@ router.post("/", authMiddleware, async (req: Request, res: Response) => {
     }
 
     const aiResponse = await fetch(`${FASTAPI_ENDPOINT}/api/vector`, {
-      method: "POST",
+      method: "GET",
       headers: {
         "Content-Type": "application/json",
       },
@@ -40,12 +39,13 @@ router.post("/", authMiddleware, async (req: Request, res: Response) => {
       );
     } else {
       const data = await aiResponse.json();
+      console.log(data);
       topHits = data.text || [];
     }
 
     res.status(200).json({ topHits });
   } catch (e) {
-    res.status(500).json({ e });
+    res.status(500).json({ error: e });
   }
 });
 

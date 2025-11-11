@@ -1,8 +1,6 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
 import { cookies } from "next/headers";
 import "./globals.css";
-const inter = Inter({ subsets: ["latin"] });
 import { AuthProvider } from "@/lib/contexts/AuthContext";
 import type { User } from "@/lib/types";
 
@@ -35,7 +33,7 @@ export default async function RootLayout({
   return (
     <>
       <html lang="en" suppressHydrationWarning>
-        <body className={inter.className}>
+        <body>
           <AuthProvider user={user}>{children}</AuthProvider>
         </body>
       </html>
