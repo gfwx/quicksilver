@@ -60,6 +60,7 @@ export function ChatSidebar({ chats, projectId, userId }: SidebarProps) {
         headers: {
           "Content-Type": "application/json",
           "x-encrypted-user-id": userId,
+          "x-project-id": projectId,
         },
       });
 
@@ -92,6 +93,7 @@ export function ChatSidebar({ chats, projectId, userId }: SidebarProps) {
         headers: {
           "Content-Type": "application/json",
           "x-encrypted-user-id": userId,
+          "x-project-id": projectId,
         },
       });
 
@@ -132,12 +134,14 @@ export function ChatSidebar({ chats, projectId, userId }: SidebarProps) {
         headers: {
           "Content-Type": "application/json",
           "x-encrypted-user-id": userId,
+          "x-project-id": projectId,
         },
         body: JSON.stringify({ title: newTitle }),
       });
 
       if (!response.ok) {
-        throw new Error("Failed to rename chat");
+        const { error } = await response.json();
+        throw new Error(`Failed to rename chat: ${error}`);
       }
 
       setLocalChats(
