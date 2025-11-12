@@ -36,30 +36,38 @@ export async function GET(req: Request) {
     const { user, sealedSession } = authenticateResponse;
     await upsertUser(user);
 
-    // Create a redirect response with the session cookie
-    const response = Response.redirect(`${frontendUrl}/projects`);
-    const headers = new Headers(response.headers);
+    console.log("Sealed session length:", sealedSession.length);
+    console.log("Sealed session type:", typeof sealedSession);
 
+    // Create a redirect response with the session cookie
+    const redirectUrl = `${frontendUrl}/projects`;
+
+    // Build Set-Cookie header (WorkOS sealed sessions are already cookie-safe)
     const cookieOptions = [
       `wos-session=${sealedSession}`,
       "Path=/",
       "HttpOnly",
       process.env.NODE_ENV === "production" ? "Secure" : "",
       "SameSite=Lax",
-      `Max-Age=${7 * 24 * 60 * 60}`, // 7 days
+      `Max-Age=${7 * 24 * 60 * 60}`, // 7 days in seconds
     ]
       .filter(Boolean)
       .join("; ");
 
-    headers.append("Set-Cookie", cookieOptions);
-
-    return new Response(response.body, {
-      status: response.status,
-      statusText: response.statusText,
-      headers,
+    return new Response(null, {
+      status: 302,
+      headers: {
+        Location: redirectUrl,
+        "Set-Cookie": cookieOptions,
+      },
     });
   } catch (error) {
     console.error("Callback error:", error);
-    return Response.redirect(`${frontendUrl}/?error=callback_failed`);
+    return new Response(null, {
+      status: 302,
+      headers: {
+        Location: `${frontendUrl}/?error=callback_failed`,
+      },
+    });
   }
 }

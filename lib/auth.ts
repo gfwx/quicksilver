@@ -85,10 +85,7 @@ export async function authenticateUser(): Promise<AuthResult> {
  * Returns a JSON error response for unauthenticated requests
  */
 export function unauthorizedResponse(message?: string) {
-  return Response.json(
-    { error: message || "Unauthorized" },
-    { status: 401 }
-  );
+  return Response.json({ error: message || "Unauthorized" }, { status: 401 });
 }
 
 /**
@@ -97,6 +94,6 @@ export function unauthorizedResponse(message?: string) {
 export function serverErrorResponse(message?: string) {
   return Response.json(
     { error: message || "Internal Server Error" },
-    { status: 500 }
+    { status: 500 },
   );
 }

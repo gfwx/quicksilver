@@ -6,7 +6,6 @@ import { serverErrorResponse, unauthorizedResponse } from "@/lib/auth";
 
 const cookiePassword = process.env.WORKOS_COOKIE_PASSWORD;
 
-export const runtime = "edge";
 export async function GET() {
   console.log("Session Logout...");
 
@@ -21,7 +20,8 @@ export async function GET() {
     return unauthorizedResponse("No sealed session token found.");
   }
 
-  console.log(sessionCookie?.value);
+  console.log("Cookie value length:", sessionCookie.value.length);
+  console.log("Cookie value type:", typeof sessionCookie.value);
 
   try {
     const session = workos.userManagement.loadSealedSession({
@@ -32,20 +32,35 @@ export async function GET() {
     await session.authenticate();
     const logoutUrl = await session.getLogoutUrl();
 
-    // Create a response with redirect
-    const response = Response.redirect(logoutUrl);
+    // Clear both session cookies and redirect
+    const clearWosSession = [
+      "wos-session=",
+      "Path=/",
+      "HttpOnly",
+      process.env.NODE_ENV === "production" ? "Secure" : "",
+      "SameSite=Lax",
+      "Max-Age=0",
+    ]
+      .filter(Boolean)
+      .join("; ");
 
-    // Clear the session cookie
-    const headers = new Headers(response.headers);
-    headers.append(
-      "Set-Cookie",
-      `wos-session=; Path=/; HttpOnly; ${process.env.NODE_ENV === "production" ? "Secure;" : ""} SameSite=Lax; Max-Age=0`,
-    );
+    const clearUserData = [
+      "user-data=",
+      "Path=/",
+      "HttpOnly",
+      process.env.NODE_ENV === "production" ? "Secure" : "",
+      "SameSite=Lax",
+      "Max-Age=0",
+    ]
+      .filter(Boolean)
+      .join("; ");
 
-    return new Response(response.body, {
-      status: response.status,
-      statusText: response.statusText,
-      headers,
+    return new Response(null, {
+      status: 302,
+      headers: {
+        Location: logoutUrl,
+        "Set-Cookie": [clearWosSession, clearUserData],
+      },
     });
   } catch (error) {
     console.error("Logout error:", error);
