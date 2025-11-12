@@ -36,7 +36,7 @@ export async function GET(req: Request) {
     const { user, sealedSession } = authenticateResponse;
     await upsertUser(user);
 
-    console.log("Sealed session length:", sealedSession.length);
+    console.log("Sealed session length:", sealedSession!.length);
     console.log("Sealed session type:", typeof sealedSession);
 
     // Create a redirect response with the session cookie
