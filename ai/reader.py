@@ -1,3 +1,5 @@
+import base64
+import io
 import os
 from typing import List
 
@@ -6,31 +8,50 @@ from langchain_text_splitters import RecursiveCharacterTextSplitter
 
 
 class FileProcessor:
-    def __init__(self, filepath: str = ""):
+    def __init__(
+        self, filepath: str = "", content: bytes | None = None, filename: str = ""
+    ):
         self.filepath = filepath
+        self.content = content  # Raw bytes content
+        self.filename = filename  # Original filename for content-based processing
         self.data = None
 
     # This only works for text-based PDFs.
     def _process_pdf(self):
         try:
-            with pymupdf.open(self.filepath) as doc:
+            if self.content:
+                # Process PDF from bytes content
+                doc = pymupdf.open(stream=self.content, filetype="pdf")
                 text = chr(12).join([page.get_text() for page in doc])  # pyright: ignore
+                doc.close()
                 return text
+            else:
+                # Process PDF from filepath
+                with pymupdf.open(self.filepath) as doc:
+                    text = chr(12).join([page.get_text() for page in doc])  # pyright: ignore
+                    return text
         except Exception as e:
             print(f"Error while processing PDF file: {e}")
             return None
 
     def _process_txt(self):
         try:
-            with open(self.filepath, "r", encoding="utf-8") as file:
-                text = file.read()
+            if self.content:
+                # Process text from bytes content
+                text = self.content.decode("utf-8")
                 return text
+            else:
+                # Process text from filepath
+                with open(self.filepath, "r", encoding="utf-8") as file:
+                    text = file.read()
+                    return text
         except Exception as e:
             print(f"Error while processing TXT file: {e}")
             return None
 
     def process(self):
-        extension = os.path.splitext(self.filepath)[1]
+        # Determine extension from filename or filepath
+        extension = os.path.splitext(self.filename or self.filepath)[1]
         actions = {
             ".pdf": self._process_pdf,
             ".txt": self._process_txt,

@@ -119,25 +119,16 @@ export default function Dashboard() {
         throw new Error("Failed to create project");
       }
 
-      // Debug environment variable
-      console.log(
-        "Express server path:",
-        process.env.NEXT_PUBLIC_EXPRESS_SERVER_PATH,
-      );
-
-      const serverUrl =
-        process.env.NEXT_PUBLIC_EXPRESS_SERVER_PATH || "http://localhost:3001";
-      console.log("Using server URL:", `${serverUrl}/api/upload`);
       console.log("Project ID being sent:", project.id);
       console.log("FormData contents:");
       for (const [key, value] of formData.entries()) {
         console.log(`  ${key}:`, value);
       }
 
-      console.log("Making fetch request...");
+      console.log("Making fetch request to Next.js API...");
 
       // BUG: this needs to occur in a transaction, because a project cannot be created without adding files.
-      const response = await fetch(`${serverUrl}/api/upload`, {
+      const response = await fetch("/api/upload", {
         method: "POST",
         credentials: "include",
         headers: {
@@ -198,10 +189,10 @@ export default function Dashboard() {
 
       // Check if it's a network error
       if (error instanceof TypeError && error.message.includes("fetch")) {
-        console.error("This appears to be a network/CORS error. Check:");
-        console.error("1. Express server is running");
-        console.error("2. NEXT_PUBLIC_EXPRESS_SERVER_PATH is set correctly");
-        console.error("3. CORS is configured properly on the server");
+        console.error("This appears to be a network/API error. Check:");
+        console.error("1. Next.js API server is running");
+        console.error("2. Authentication is properly configured");
+        console.error("3. API routes are accessible");
       }
 
       setSubmitStatus("error");

@@ -57,9 +57,6 @@ export const AuthProvider = ({
   children: React.ReactNode;
   user: User | null;
 }) => {
-  const serverUrl =
-    process.env.NEXT_PUBLIC_EXPRESS_SERVER_PATH || "http://localhost:3001";
-
   const [authState, setAuthState] = useState<AuthState>({
     user: user ?? null,
     isLoading: user ? false : true,
@@ -81,9 +78,9 @@ export const AuthProvider = ({
     try {
       console.log("Fetching user data from API...");
 
-      // the /user/me endpoint uses the server-side authentication middleware to
+      // the /user endpoint uses the server-side authentication middleware to
       // get the user data (if it exists) from the session cookie and refresh it if needed
-      const response = await fetch(`${serverUrl}/api/user/me`, {
+      const response = await fetch("/api/user", {
         method: "GET",
         credentials: "include",
         headers: {
@@ -116,7 +113,7 @@ export const AuthProvider = ({
         isAuthenticated: false,
       });
     }
-  }, [serverUrl, user]);
+  }, [user]);
 
   // 2. Run auth check once when the provider mounts
   useEffect(() => {
@@ -125,19 +122,19 @@ export const AuthProvider = ({
 
   const login = useCallback(() => {
     // Memoized login callback function
-    window.location.href = `${serverUrl}/api/auth/login`;
-  }, [serverUrl]);
+    window.location.href = "/api/auth/login";
+  }, []);
 
   const logout = useCallback(async () => {
     try {
       // Mainly done to update the app auth state
       setAuthState((prev) => ({ ...prev, isLoading: true })); // Changes global loading auth state — can be used to acivate loading components
-      window.location.href = `${serverUrl}/api/auth/logout`;
+      window.location.href = "/api/auth/logout";
     } catch (error) {
       console.error("Logout failed:", error); // reaches this state if there is some indeterminate error
       setAuthState((prev) => ({ ...prev, isLoading: false }));
     }
-  }, [serverUrl]);
+  }, []);
 
   const refetchUser = useCallback(async () => {
     await checkAuthStatus();

@@ -7,7 +7,7 @@ from fastapi import FastAPI, HTTPException, status
 from ollama import AsyncClient
 
 from .db.vector import VectorStore
-from .models import FileAPIResponse, VectorAPIResponse
+from .models import FileAPIResponse
 from .reader import FileProcessor
 
 load_dotenv()
@@ -23,10 +23,16 @@ async def read_root():
     return {"message": "Quicksilver Python Microservice"}
 
 
-def _process_file_sync(filepath: str, document_id: str, project_id: str):
+def _process_file_sync(
+    document_id: str,
+    project_id: str,
+    filepath: str | None = None,
+    content: bytes | None = None,
+    filename: str | None = None,
+):
     """Synchronous file processing pipeline to be run in a thread."""
     # 1. Process the file to extract text
-    fp = FileProcessor(filepath)
+    fp = FileProcessor(filepath=filepath or "", content=content, filename=filename or "")
     fp.process()
     text_content = fp.get()
 
@@ -46,16 +52,23 @@ def _process_file_sync(filepath: str, document_id: str, project_id: str):
 
 @app.post("/api/process")
 async def read_process(jsonBody: FileAPIResponse):
-    print(f"Processing file: {jsonBody.filepath}")
-    filepath = jsonBody.filepath
+    import base64
+
+    # Support both filepath (legacy) and content (new edge-compatible)
+    if jsonBody.content:
+        print(f"Processing file from content: {jsonBody.filename}")
+    else:
+        print(f"Processing file from path: {jsonBody.filepath}")
+
     document_id = jsonBody.document_id
     project_id = jsonBody.project_id
 
-    if not filepath:
+    # Validate required fields
+    if not (jsonBody.filepath or jsonBody.content):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="File path is required.",
-            headers={"X-Error": "File path missing"},
+            detail="Either filepath or content is required.",
+            headers={"X-Error": "File path or content missing"},
         )
 
     if not document_id:
@@ -73,9 +86,19 @@ async def read_process(jsonBody: FileAPIResponse):
         )
 
     try:
+        # Decode base64 content if provided
+        content_bytes = None
+        if jsonBody.content:
+            content_bytes = base64.b64decode(jsonBody.content)
+
         # Run the synchronous pipeline in a worker thread
         document_id = await asyncio.to_thread(
-            _process_file_sync, filepath, jsonBody.document_id, jsonBody.project_id
+            _process_file_sync,
+            document_id=jsonBody.document_id,
+            project_id=jsonBody.project_id,
+            filepath=jsonBody.filepath,
+            content=content_bytes,
+            filename=jsonBody.filename,
         )
 
         return {

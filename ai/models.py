@@ -15,7 +15,10 @@ class File(BaseModel):
 
 
 class FileAPIResponse(BaseModel):
-    filepath: str
+    filepath: str | None = None  # Optional: for backward compatibility
+    content: str | None = None  # Base64-encoded file content
+    filename: str | None = None  # Original filename when using content
+    content_type: str | None = None  # MIME type when using content
     document_id: str
     project_id: str
 

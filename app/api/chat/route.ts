@@ -47,7 +47,7 @@ export async function POST(req: Request) {
 
   function getMessageText(msg: UIMessage): string {
     if (!msg.parts) return "";
-    return msg.parts.reduce((acc: string, part: any) => {
+    return msg.parts.reduce((acc: string, part) => {
       if (part.type === "text") {
         return acc + part.text;
       }
