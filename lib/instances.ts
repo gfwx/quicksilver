@@ -1,4 +1,4 @@
-import { Prisma, PrismaClient } from "./prisma-client";
+import { Prisma, PrismaClient } from "@/generated/prisma";
 import { WorkOS } from "@workos-inc/node";
 // This is done to prevent additional PrismaClient instances from being created upon mounting
 const globalForPrisma = globalThis as unknown as {

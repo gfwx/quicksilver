@@ -13,24 +13,42 @@ export async function upsertUser(user: User) {
     throw new Error("Prisma client not initialized");
   }
 
+  // Validate required fields from WorkOS
+  if (!user.email) {
+    throw new Error("WorkOS user missing email; cannot upsert without it");
+  }
+
+  // Handle potential nulls from WorkOS
+  const emailVerified = user.emailVerified ?? false;
+  const firstName = user.firstName ?? "User";
+  const lastName = user.lastName ?? "";
+  const profilePictureUrl = user.profilePictureUrl ?? null; // Already optional, but explicit
+
+  // Optional: Log for debugging (remove in production)
+  console.log("Upserting WorkOS user:", {
+    id: user.id,
+    email: user.email,
+    emailVerified,
+  });
+
   await prisma.user.upsert({
     where: { id: user.id },
     update: {
       email: user.email,
-      firstName: user.firstName ?? "User",
-      lastName: user.lastName ?? "",
-      emailVerified: user.emailVerified,
-      profilePictureUrl: user.profilePictureUrl,
+      firstName,
+      lastName,
+      emailVerified,
+      profilePictureUrl,
       lastSignInAt: new Date(),
     },
     create: {
       id: user.id,
       role: "user",
       email: user.email,
-      firstName: user.firstName ?? "User",
-      lastName: user.lastName ?? "",
-      emailVerified: user.emailVerified,
-      profilePictureUrl: user.profilePictureUrl,
+      firstName,
+      lastName,
+      emailVerified,
+      profilePictureUrl,
       lastSignInAt: new Date(),
     },
   });

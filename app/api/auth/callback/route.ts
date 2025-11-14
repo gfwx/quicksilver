@@ -1,7 +1,7 @@
 // app/api/auth/callback/route.ts
 // Edge-compatible WorkOS callback endpoint
 import { workos } from "@/lib/instances";
-import { upsertUser } from "@/lib/userCrudService";
+// import { upsertUser } from "@/lib/userCrudService";
 import { serverErrorResponse } from "@/lib/auth";
 
 const workosClientId = process.env.WORKOS_CLIENT_ID;
@@ -33,8 +33,9 @@ export async function GET(req: Request) {
         },
       });
 
-    const { user, sealedSession } = authenticateResponse;
-    await upsertUser(user);
+    const { sealedSession } = authenticateResponse;
+    // const { user } = authenticateResponse
+    // await upsertUser(user);
 
     console.log("Sealed session length:", sealedSession!.length);
     console.log("Sealed session type:", typeof sealedSession);
