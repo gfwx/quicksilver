@@ -1,13 +1,12 @@
 // app/api/upload/route.ts
 // Edge-compatible file upload endpoint that streams to FastAPI
-import {
-  authenticateUser,
-  unauthorizedResponse,
-  serverErrorResponse,
-} from "@/lib/auth";
 import { prisma } from "@/lib/instances";
 import { v4 as uuidv4 } from "uuid";
-
+import {
+  authenticateUser,
+  serverErrorResponse,
+  unauthorizedResponse,
+} from "@/lib/auth";
 const ai_endpoint = process.env.FASTAPI_ENDPOINT || "http://127.0.0.1:8000/";
 
 interface FileUploadResult {
@@ -17,17 +16,12 @@ interface FileUploadResult {
 }
 
 export async function POST(req: Request) {
-  console.log("Route fired for multiple file upload");
-
-  // Check Prisma
-  console.log("Checking prisma..");
   if (!prisma) {
     console.error("Prisma instance is not initialized");
     return serverErrorResponse("Prisma instance not initialized");
   }
 
-  // Check authentication
-  console.log("Checking user..");
+  // Check authentication; deprecated
   const authResult = await authenticateUser();
   if (!authResult.authenticated || !authResult.user) {
     return unauthorizedResponse(authResult.error);

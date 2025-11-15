@@ -5,26 +5,19 @@ export const runtime = "edge";
 const FASTAPI_ENDPOINT =
   process.env.FASTAPI_ENDPOINT || "http://127.0.0.1:8000";
 
-/**
- * Vector search query endpoint
- * Note: Changed from GET to POST since the original was using body with GET (non-standard)
- */
 export async function POST(req: Request) {
   try {
     const body = await req.json();
     const { query, project_id } = body;
 
     if (!query) {
-      return Response.json(
-        { error: "Missing / empty query" },
-        { status: 400 }
-      );
+      return Response.json({ error: "Missing / empty query" }, { status: 400 });
     }
 
     if (!project_id) {
       return Response.json(
         { error: "Missing / empty project id." },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -43,7 +36,7 @@ export async function POST(req: Request) {
     if (!aiResponse.ok) {
       console.error(
         `Vector search failed with status ${aiResponse.status}:`,
-        await aiResponse.text()
+        await aiResponse.text(),
       );
     } else {
       const data = await aiResponse.json();
@@ -54,10 +47,7 @@ export async function POST(req: Request) {
     return Response.json({ topHits }, { status: 200 });
   } catch (e) {
     console.error("Query endpoint error:", e);
-    return Response.json(
-      { error: String(e) },
-      { status: 500 }
-    );
+    return Response.json({ error: String(e) }, { status: 500 });
   }
 }
 
@@ -71,16 +61,13 @@ export async function GET(req: Request) {
     const project_id = searchParams.get("project_id");
 
     if (!query) {
-      return Response.json(
-        { error: "Missing / empty query" },
-        { status: 400 }
-      );
+      return Response.json({ error: "Missing / empty query" }, { status: 400 });
     }
 
     if (!project_id) {
       return Response.json(
         { error: "Missing / empty project id." },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -91,14 +78,14 @@ export async function GET(req: Request) {
         headers: {
           "Content-Type": "application/json",
         },
-      }
+      },
     );
 
     let topHits: string[] = [];
     if (!aiResponse.ok) {
       console.error(
         `Vector search failed with status ${aiResponse.status}:`,
-        await aiResponse.text()
+        await aiResponse.text(),
       );
     } else {
       const data = await aiResponse.json();
@@ -109,9 +96,6 @@ export async function GET(req: Request) {
     return Response.json({ topHits }, { status: 200 });
   } catch (e) {
     console.error("Query endpoint error:", e);
-    return Response.json(
-      { error: String(e) },
-      { status: 500 }
-    );
+    return Response.json({ error: String(e) }, { status: 500 });
   }
 }

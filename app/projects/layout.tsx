@@ -1,7 +1,7 @@
+import type { PrismaModels } from "@/lib/instances";
+import { ProjectProvider } from "@/lib/contexts/ProjectContext";
 import { UserNav } from "@/components/userNav";
 import { cookies, headers } from "next/headers";
-import { PrismaModels } from "@/lib/instances";
-import { ProjectProvider } from "@/lib/contexts/ProjectContext";
 
 export default async function DashboardLayout({
   children,
@@ -38,11 +38,8 @@ export default async function DashboardLayout({
 
     console.log("Fetching from full URL:", fullUrl);
 
-    const res = await fetch(fullUrl, {
+    const res = await fetch(`${fullUrl}?user=${id}`, {
       method: "GET",
-      headers: {
-        "x-user-id": id,
-      },
     });
 
     console.log("Response status:", res.status);

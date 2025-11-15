@@ -1,4 +1,5 @@
-import { NextRequest, NextResponse } from "next/server";
+import type { NextRequest } from "next/server";
+import { NextResponse } from "next/server";
 import { prisma } from "@/lib/instances";
 
 /**
@@ -9,8 +10,9 @@ import { prisma } from "@/lib/instances";
 
 export async function GET(request: NextRequest) {
   try {
-    const projectId = request.headers.get("x-project-id");
-    const userId = request.headers.get("x-user-id");
+    const params = request.nextUrl.searchParams;
+    const projectId = params.get("project");
+    const userId = params.get("user");
 
     if (!userId) {
       return NextResponse.json({ error: "Missing User ID" }, { status: 400 });

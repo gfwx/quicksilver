@@ -67,13 +67,12 @@ export const ProjectTable = ({
       setLoading(true);
       setError("");
       try {
-        const res = await fetch("/api/files", {
-          method: "GET",
-          headers: {
-            "x-project-id": projectId,
-            "x-user-id": authState.user?.id ?? "",
+        const res = await fetch(
+          `/api/files?project=${projectId}&user=${authState.user?.id ?? ""}`,
+          {
+            method: "GET",
           },
-        });
+        );
 
         if (!res.ok) {
           let errorMsg = "Failed to fetch files";
@@ -141,6 +140,7 @@ export const ProjectTable = ({
         formData.append("files", file);
       });
 
+      // fix this shit
       const res = await fetch(
         `${process.env.NEXT_PUBLIC_EXPRESS_ENDPOINT || "http://localhost:3001"}/upload`,
         {

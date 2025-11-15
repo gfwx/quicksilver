@@ -1,14 +1,16 @@
-import { NextRequest, NextResponse } from "next/server";
+import type { NextRequest } from "next/server";
+import { NextResponse } from "next/server";
 import { prisma } from "@/lib/instances";
-export async function GET(request: NextRequest) {
-  try {
-    const userId = request.headers.get("x-user-id");
 
+export async function GET(request: NextRequest) {
+  const userId = request.nextUrl.searchParams.get("user");
+  if (!userId) {
+    return NextResponse.json({ error: "Missing user ID!" }, { status: 400 });
+  }
+
+  try {
     if (!userId) {
-      return NextResponse.json(
-        { error: "Missing encrypted user ID" },
-        { status: 400 },
-      );
+      return NextResponse.json({ error: "Missing User ID" }, { status: 400 });
     }
 
     const projects = await prisma.project.findMany({
@@ -31,7 +33,7 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { projectTitle, projectContext } = body;
+    const { projectTitle, projectContext, userId } = body;
 
     if (!projectTitle) {
       return NextResponse.json(
@@ -39,8 +41,6 @@ export async function POST(request: NextRequest) {
         { status: 400 },
       );
     }
-
-    const userId = request.headers.get("x-user-id");
 
     if (!userId) {
       return NextResponse.json(

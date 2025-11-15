@@ -32,7 +32,9 @@ def _process_file_sync(
 ):
     """Synchronous file processing pipeline to be run in a thread."""
     # 1. Process the file to extract text
-    fp = FileProcessor(filepath=filepath or "", content=content, filename=filename or "")
+    fp = FileProcessor(
+        filepath=filepath or "", content=content, filename=filename or ""
+    )
     fp.process()
     text_content = fp.get()
 
