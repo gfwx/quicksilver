@@ -125,6 +125,7 @@ export const ProjectTable = ({
       alert(`Failed to delete project: ${error}`);
     } finally {
       setDeletingProjectId(null);
+      window.location.reload();
     }
   };
 
