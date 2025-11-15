@@ -1,5 +1,5 @@
 import { ChatProvider } from "@/lib/providers/chatProvider";
-import { UIMessage } from "ai";
+import type { UIMessage } from "ai";
 import { headers, cookies } from "next/headers";
 
 export default async function RootLayout({
@@ -33,12 +33,9 @@ export default async function RootLayout({
     const protocol = process.env.NODE_ENV === "development" ? "http" : "https";
     const baseUrl = `${protocol}://${host}`;
     const response = await fetch(
-      `${baseUrl}/api/db/messages?chat_id=${chatId}`,
+      `${baseUrl}/api/db/messages?chat=${chatId}&user=${id}`,
       {
         method: "GET",
-        headers: {
-          "x-user-id": id,
-        },
       },
     );
 

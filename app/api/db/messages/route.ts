@@ -1,4 +1,5 @@
-import { NextRequest, NextResponse } from "next/server";
+import type { NextRequest } from "next/server";
+import { NextResponse } from "next/server";
 import { getDb } from "@/lib/mongo";
 import { ObjectId } from "mongodb";
 export const runtime = "nodejs";
@@ -6,8 +7,8 @@ export const runtime = "nodejs";
 export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
-    const chatId = searchParams.get("chat_id");
-    const userId = req.headers.get("x-user-id");
+    const chatId = searchParams.get("chat");
+    const userId = searchParams.get("user");
 
     if (!userId) {
       return NextResponse.json(
@@ -49,9 +50,7 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
-  const { searchParams } = new URL(req.url);
-  const chatId = searchParams.get("chat_id");
-  const userId = req.headers.get("x-user-id");
+  const { chatId, userId, message } = await req.json();
 
   if (!userId) {
     return NextResponse.json(
@@ -66,8 +65,6 @@ export async function POST(req: NextRequest) {
       { status: 400 },
     );
   }
-
-  const { message, created_at } = await req.json();
   if (!message) {
     return NextResponse.json(
       { error: "message is required in request body." },
@@ -83,8 +80,8 @@ export async function POST(req: NextRequest) {
     user_id: userId,
     chat_id: chatId,
     message,
-    created_at: created_at,
-    updated_at: created_at,
+    created_at: new Date(),
+    updated_at: new Date(),
   });
 
   return NextResponse.json({ message: message, result });
@@ -92,13 +89,7 @@ export async function POST(req: NextRequest) {
 
 export async function PATCH(req: NextRequest) {
   try {
-    const { searchParams } = new URL(req.url);
-
-    const chatId = searchParams.get("chat_id");
-    const messageId = searchParams.get("message_id");
-
-    const userId = req.headers.get("x-user-id");
-
+    const { chatId, messageId, userId } = await req.json();
     const { message: update } = await req.json(); // Partial update (e.g., { parts: [...] })
 
     if (!userId) {
@@ -159,10 +150,7 @@ export async function PATCH(req: NextRequest) {
 
 export async function DELETE(req: NextRequest) {
   try {
-    const { searchParams } = new URL(req.url);
-    const chatId = searchParams.get("chat_id");
-    const messageId = searchParams.get("message_id");
-    const userId = req.headers.get("x-user-id");
+    const { chatId, messageId, userId } = await req.json();
 
     if (!chatId || !messageId) {
       return NextResponse.json(

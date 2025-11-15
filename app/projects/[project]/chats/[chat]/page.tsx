@@ -22,8 +22,6 @@ export default function Chat() {
   const { user } = authState;
   const params = useParams();
 
-  console.log(`user: ${user?.id}`);
-
   const chatId = params.chat as string;
   const projectId = params.project as string;
 
@@ -48,12 +46,11 @@ export default function Chat() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "x-user-id": user!.id,
         },
         body: JSON.stringify({
           message: assistantMessage,
-          user_id: user!.id,
-          chat_id: chatId,
+          userId: user?.id ?? "",
+          chatId,
           created_at,
           updated_at: created_at,
         }),
@@ -106,7 +103,6 @@ export default function Chat() {
   }, [isAtBottom]);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    const created_at = new Date();
     e.preventDefault();
     setError(null);
     const userInput = input;
@@ -124,12 +120,11 @@ export default function Chat() {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            "x-user-id": user!.id,
           },
           body: JSON.stringify({
             message: userMessage,
-            created_at: created_at,
-            updated_at: created_at,
+            userId: user?.id ?? "",
+            chatId,
           }),
         }).catch(console.error);
       }
