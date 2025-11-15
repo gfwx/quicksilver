@@ -1,12 +1,12 @@
-export const runtime = "nodejs";
-
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
+import type { NextRequest } from "next/server";
 import { getDb } from "@/lib/mongo";
 import { ObjectId } from "mongodb";
 
 export async function GET(req: NextRequest) {
-  const userId = req.headers.get("x-user-id");
-  const projectId = req.headers.get("x-project-id");
+  const params = req.nextUrl.searchParams;
+  const userId = params.get("user");
+  const projectId = params.get("project");
 
   if (!userId || !projectId) {
     return NextResponse.json(
@@ -41,8 +41,7 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
-  const userId = req.headers.get("x-user-id");
-  const projectId = req.headers.get("x-project-id");
+  const { userId, projectId } = await req.json();
 
   if (!projectId) {
     return NextResponse.json({ error: "Missing project id" }, { status: 400 });
@@ -77,25 +76,17 @@ export async function POST(req: NextRequest) {
 
 export async function PATCH(req: NextRequest) {
   try {
-    const { searchParams } = new URL(req.url);
-    const userId = req.headers.get("x-user-id");
-    const projectId = req.headers.get("x-project-id");
-    const chatId = searchParams.get("chat_id");
-
-    const { title } = await req.json();
+    const { title, userId, projectId, chatId } = await req.json();
 
     if (!userId || !projectId) {
       return NextResponse.json(
-        { error: "Missing encrypted user payload or project ID" },
+        { error: "Missing encrypted user ID or project ID" },
         { status: 400 },
       );
     }
 
     if (!chatId) {
-      return NextResponse.json(
-        { error: "chat_id query parameter is required" },
-        { status: 400 },
-      );
+      return NextResponse.json({ error: "Missing Chat ID." }, { status: 400 });
     }
 
     if (!title) {
@@ -140,8 +131,7 @@ export async function PATCH(req: NextRequest) {
 
 export async function DELETE(req: NextRequest) {
   try {
-    const userId = req.headers.get("x-user-id");
-    const projectId = req.headers.get("x-project-id");
+    const { userId, projectId } = await req.json();
 
     if (!userId || !projectId) {
       return NextResponse.json(
@@ -163,8 +153,8 @@ export async function DELETE(req: NextRequest) {
     const db = await getDb();
     const session = db.client.startSession();
 
-    try {
-      await session.withTransaction(async () => {
+    const txResult = await session
+      .withTransaction(async () => {
         // Delete chat
         const chatCollection = db.collection("chats");
         const chatResult = await chatCollection.deleteOne({
@@ -173,10 +163,7 @@ export async function DELETE(req: NextRequest) {
         });
 
         if (chatResult.deletedCount === 0) {
-          return NextResponse.json(
-            { error: "Chat not found" },
-            { status: 404 },
-          );
+          return Promise.reject({ error: "Chat not found!" });
         }
 
         // Cascade: Delete associated messages
@@ -186,18 +173,24 @@ export async function DELETE(req: NextRequest) {
           chat_id: chatId,
         });
 
-        return NextResponse.json({
-          deleted: true,
-          deletedChat: 1,
-          deletedMessages: messagesResult.deletedCount,
-        });
+        return Promise.resolve(messagesResult);
+      })
+      .catch((error) => {
+        console.error("Transaction failed: ", error);
+        return { error: `An error occured with deleting the chat: ${error}` };
       });
-    } catch (error) {
-      console.error("Transaction failed: ", error);
+
+    if ("error" in txResult) {
       return NextResponse.json(
-        { error: "An internal server error occured with DB transaction" },
-        { status: 500 },
+        { error: `Internal error: ${txResult.error}` },
+        { status: 401 },
       );
+    } else {
+      return NextResponse.json({
+        acknowledged: txResult.acknowledged,
+        deleted: txResult.deletedCount,
+        id: chatId,
+      });
     }
   } catch (error) {
     console.error("Failed to delete chat:", error);

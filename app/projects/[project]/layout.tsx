@@ -35,13 +35,12 @@ export default async function RootLayout({
     const host = headersList.get("host") || "localhost:3000";
     const protocol = process.env.NODE_ENV === "development" ? "http" : "https";
     const baseUrl = `${protocol}://${host}`;
-    const response = await fetch(`${baseUrl}/api/db/chats`, {
-      method: "GET",
-      headers: {
-        "x-user-id": id,
-        "x-project-id": projectId,
+    const response = await fetch(
+      `${baseUrl}/api/db/chats?user=${id}&project=${projectId}`,
+      {
+        method: "GET",
       },
-    });
+    );
 
     if (response.ok) {
       const data = await response.json();

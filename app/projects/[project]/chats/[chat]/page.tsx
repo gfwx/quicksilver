@@ -103,7 +103,7 @@ export default function Chat() {
         behavior: "smooth",
       });
     }
-  }, [messages, isAtBottom]);
+  }, [isAtBottom]);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     const created_at = new Date();

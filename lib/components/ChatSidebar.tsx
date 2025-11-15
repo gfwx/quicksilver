@@ -59,9 +59,11 @@ export function ChatSidebar({ chats, projectId, userId }: SidebarProps) {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "x-user-id": userId,
-          "x-project-id": projectId,
         },
+        body: JSON.stringify({
+          projectId,
+          userId,
+        }),
       });
 
       if (!response.ok) {
@@ -71,6 +73,7 @@ export function ChatSidebar({ chats, projectId, userId }: SidebarProps) {
       const data = await response.json();
       const newChatId = data.id;
       const newChat = { id: newChatId, title: "New Chat" };
+
       setLocalChats([newChat, ...localChats]);
       router.push(`/projects/${projectId}/chats/${newChatId}`);
     } catch (error) {
@@ -92,9 +95,11 @@ export function ChatSidebar({ chats, projectId, userId }: SidebarProps) {
         method: "DELETE",
         headers: {
           "Content-Type": "application/json",
-          "x-user-id": userId,
-          "x-project-id": projectId,
         },
+        body: JSON.stringify({
+          userId,
+          projectId,
+        }),
       });
 
       if (!response.ok) {
@@ -133,10 +138,8 @@ export function ChatSidebar({ chats, projectId, userId }: SidebarProps) {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
-          "x-user-id": userId,
-          "x-project-id": projectId,
         },
-        body: JSON.stringify({ title: newTitle }),
+        body: JSON.stringify({ title: newTitle, userId, projectId, chatId }),
       });
 
       if (!response.ok) {
