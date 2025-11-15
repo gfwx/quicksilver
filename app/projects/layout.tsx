@@ -41,7 +41,7 @@ export default async function DashboardLayout({
     const res = await fetch(fullUrl, {
       method: "GET",
       headers: {
-        "x-encrypted-user-id": id,
+        "x-user-id": id,
       },
     });
 

@@ -71,7 +71,7 @@ export const ProjectTable = ({
           method: "GET",
           headers: {
             "x-project-id": projectId,
-            "x-encrypted-user-id": authState.user?.id ?? "",
+            "x-user-id": authState.user?.id ?? "",
           },
         });
 
@@ -111,7 +111,7 @@ export const ProjectTable = ({
         },
         body: JSON.stringify({
           projectId,
-          encryptedUserID: authState.user?.id,
+          userId: authState.user?.id,
         }),
       });
 

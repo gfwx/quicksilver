@@ -37,7 +37,7 @@ export default async function RootLayout({
       {
         method: "GET",
         headers: {
-          "x-encrypted-user-id": id,
+          "x-user-id": id,
         },
       },
     );

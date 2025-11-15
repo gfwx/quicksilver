@@ -23,9 +23,9 @@ async function getCryptoKey(): Promise<CryptoKey> {
     cryptoKeyPromise = crypto.subtle.importKey(
       "raw",
       keyData,
-      { name: 'AES-GCM' },
+      { name: "AES-GCM" },
       false,
-      ["encrypt", "decrypt"]
+      ["encrypt", "decrypt"],
     );
   }
   return cryptoKeyPromise;
@@ -44,7 +44,7 @@ export async function encryptPayload(payload: Payload): Promise<string> {
   const encrypted = await crypto.subtle.encrypt(
     { name: "AES-GCM", iv },
     key,
-    plaintext
+    plaintext,
   );
 
   const encryptedUint8 = new Uint8Array(encrypted);
@@ -78,7 +78,7 @@ export async function decryptPayload(token: string): Promise<Payload> {
   const decrypted = await crypto.subtle.decrypt(
     { name: "AES-GCM", iv },
     key,
-    data
+    data,
   );
 
   const plaintext = new TextDecoder().decode(decrypted);

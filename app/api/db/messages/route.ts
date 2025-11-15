@@ -1,29 +1,18 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getDb } from "@/lib/mongo";
 import { ObjectId } from "mongodb";
-import { decryptPayload } from "@/lib/cookie-helpers";
-import { checkPayload } from "@/lib/helpers";
-
 export const runtime = "nodejs";
 
 export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
     const chatId = searchParams.get("chat_id");
-    const encryptedUserPayload = req.headers.get("x-encrypted-user-id");
+    const userId = req.headers.get("x-user-id");
 
-    if (!encryptedUserPayload) {
+    if (!userId) {
       return NextResponse.json(
         { error: "Missing encrypted user payload" },
         { status: 400 },
-      );
-    }
-
-    const payload = await decryptPayload(encryptedUserPayload);
-    if (!checkPayload(payload)) {
-      return NextResponse.json(
-        { error: "Invalid user payload object" },
-        { status: 401 },
       );
     }
 
@@ -40,7 +29,7 @@ export async function GET(req: NextRequest) {
     // Fetch messages: filter by user_id and chat_id, project only 'message', sort by message.id (sequential)
     const messagesCursor = await collection
       .find(
-        { user_id: payload.id, chat_id: chatId },
+        { user_id: userId, chat_id: chatId },
         { projection: { message: 1 } }, // Only return the UIMessage object
       )
       .sort({ created_at: 1 }) // Sort by timestamp
@@ -62,16 +51,15 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const chatId = searchParams.get("chat_id");
+  const userId = req.headers.get("x-user-id");
 
-  const encryptedUserPayload = req.headers.get("x-encrypted-user-id");
-  if (!encryptedUserPayload) {
+  if (!userId) {
     return NextResponse.json(
       { error: "Missing encrypted user payload" },
       { status: 400 },
     );
   }
 
-  const payload = await decryptPayload(encryptedUserPayload);
   if (!chatId) {
     return NextResponse.json(
       { error: "chat_id request parameter is required." },
@@ -86,19 +74,13 @@ export async function POST(req: NextRequest) {
       { status: 400 },
     );
   }
-  if (!checkPayload(payload)) {
-    return NextResponse.json(
-      { error: "Invalid user payload." },
-      { status: 401 },
-    );
-  }
 
   const db = await getDb();
   const collection = db.collection("messages");
 
   // Insert the new message into the database
   const result = await collection.insertOne({
-    user_id: payload.id,
+    user_id: userId,
     chat_id: chatId,
     message,
     created_at: created_at,
@@ -111,28 +93,25 @@ export async function POST(req: NextRequest) {
 export async function PATCH(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
+
     const chatId = searchParams.get("chat_id");
     const messageId = searchParams.get("message_id");
+
+    const userId = req.headers.get("x-user-id");
+
     const { message: update } = await req.json(); // Partial update (e.g., { parts: [...] })
 
-    const encryptedUserPayload = req.headers.get("x-encrypted-user-id");
-    if (!encryptedUserPayload) {
+    if (!userId) {
       return NextResponse.json(
         { error: "Missing user payload." },
         { status: 400 },
       );
     }
 
-    const payload = await decryptPayload(encryptedUserPayload);
-    if (!checkPayload(payload)) {
-      return NextResponse.json(
-        { error: "Invalid user payload." },
-        { status: 401 },
-      );
-    }
     if (!chatId) {
       return NextResponse.json({ error: "Missing chat_id." }, { status: 400 });
     }
+
     if (!messageId) {
       return NextResponse.json(
         { error: "Missing message_id." },
@@ -145,7 +124,6 @@ export async function PATCH(req: NextRequest) {
         { status: 400 },
       );
     }
-    const userId = payload.id;
 
     const db = await getDb();
     const collection = db.collection("messages");
@@ -184,6 +162,7 @@ export async function DELETE(req: NextRequest) {
     const { searchParams } = new URL(req.url);
     const chatId = searchParams.get("chat_id");
     const messageId = searchParams.get("message_id");
+    const userId = req.headers.get("x-user-id");
 
     if (!chatId || !messageId) {
       return NextResponse.json(
@@ -194,19 +173,12 @@ export async function DELETE(req: NextRequest) {
       );
     }
 
-    const encryptedUserPayload = req.headers.get("x-encrypted-user-id");
-    if (!encryptedUserPayload) {
+    if (!userId) {
       return NextResponse.json(
-        { error: "x-encrypted-user-id header is required" },
+        { error: "x-user-id header is required" },
         { status: 400 },
       );
     }
-    const payload = await decryptPayload(encryptedUserPayload);
-    if (!checkPayload(payload)) {
-      return NextResponse.json({ error: "Invalid payload" }, { status: 401 });
-    }
-
-    const userId = payload.id;
 
     const db = await getDb();
     const collection = db.collection("messages");

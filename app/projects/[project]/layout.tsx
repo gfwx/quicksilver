@@ -38,7 +38,7 @@ export default async function RootLayout({
     const response = await fetch(`${baseUrl}/api/db/chats`, {
       method: "GET",
       headers: {
-        "x-encrypted-user-id": id,
+        "x-user-id": id,
         "x-project-id": projectId,
       },
     });

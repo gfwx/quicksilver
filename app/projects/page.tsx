@@ -103,7 +103,7 @@ export default function Dashboard() {
         body: JSON.stringify({
           projectTitle: values.project_name,
           projectContext: values.project_context ?? "",
-          encryptedUserID: user.id,
+          userId: user.id,
         }),
       });
 

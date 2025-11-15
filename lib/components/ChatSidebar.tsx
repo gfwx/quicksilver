@@ -59,7 +59,7 @@ export function ChatSidebar({ chats, projectId, userId }: SidebarProps) {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "x-encrypted-user-id": userId,
+          "x-user-id": userId,
           "x-project-id": projectId,
         },
       });
@@ -92,7 +92,7 @@ export function ChatSidebar({ chats, projectId, userId }: SidebarProps) {
         method: "DELETE",
         headers: {
           "Content-Type": "application/json",
-          "x-encrypted-user-id": userId,
+          "x-user-id": userId,
           "x-project-id": projectId,
         },
       });
@@ -133,7 +133,7 @@ export function ChatSidebar({ chats, projectId, userId }: SidebarProps) {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
-          "x-encrypted-user-id": userId,
+          "x-user-id": userId,
           "x-project-id": projectId,
         },
         body: JSON.stringify({ title: newTitle }),

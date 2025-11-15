@@ -3,7 +3,6 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { WorkOS } from "@workos-inc/node";
-import { encryptPayload, decryptPayload } from "./lib/cookie-helpers";
 
 const workos = new WorkOS(process.env.WORKOS_API_KEY, {
   clientId: process.env.WORKOS_CLIENT_ID,
@@ -19,11 +18,10 @@ export async function middleware(request: NextRequest) {
   if (userDataCookie) {
     try {
       const userData = JSON.parse(userDataCookie);
-      const payload = await decryptPayload(userData.id);
-      const now = Math.floor(Date.now() / 1000);
+      const now = Date.now();
 
       // If token is still valid, allow the request through
-      if (payload.exp > now) {
+      if (userData && userData.expires.getTime() <= now) {
         console.log("Valid user-data found, skipping WorkOS auth");
         return NextResponse.next();
       }
@@ -63,14 +61,9 @@ export async function middleware(request: NextRequest) {
     if (authStatus.authenticated) {
       // Create response and add user data to cookie
       const response = NextResponse.next();
-      const payload = {
-        id: authStatus.user.id,
-        exp: Math.floor(Date.now() / 1000 + 3600),
-      };
-      const token = await encryptPayload(payload);
 
       const userData = {
-        id: token,
+        id: authStatus.user.id,
         email: authStatus.user.email,
         firstName: authStatus.user.firstName,
         lastName: authStatus.user.lastName,
@@ -82,7 +75,7 @@ export async function middleware(request: NextRequest) {
         httpOnly: true,
         sameSite: "lax",
         secure: process.env.NODE_ENV === "production",
-        expires: new Date(payload.exp * 1000),
+        expires: Math.floor(Date.now() / 1000 + 3600),
       });
 
       return response;
@@ -105,14 +98,8 @@ export async function middleware(request: NextRequest) {
         sameSite: "lax",
       });
 
-      const payload = {
-        id: sessionRefresh.user.id,
-        exp: Math.floor(Date.now() / 1000 + 3600),
-      };
-      const token = await encryptPayload(payload);
-
       const userData = {
-        id: token,
+        id: sessionRefresh.user.id,
         email: sessionRefresh.user.email,
         firstName: sessionRefresh.user.firstName,
         lastName: sessionRefresh.user.lastName,
@@ -124,7 +111,7 @@ export async function middleware(request: NextRequest) {
         httpOnly: true,
         sameSite: "lax",
         secure: process.env.NODE_ENV === "production",
-        expires: new Date(payload.exp * 1000),
+        expires: Math.floor(Date.now() / 1000 + 3600),
       });
 
       return response;

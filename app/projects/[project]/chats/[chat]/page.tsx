@@ -48,7 +48,7 @@ export default function Chat() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "x-encrypted-user-id": user!.id,
+          "x-user-id": user!.id,
         },
         body: JSON.stringify({
           message: assistantMessage,
@@ -124,7 +124,7 @@ export default function Chat() {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            "x-encrypted-user-id": user!.id,
+            "x-user-id": user!.id,
           },
           body: JSON.stringify({
             message: userMessage,

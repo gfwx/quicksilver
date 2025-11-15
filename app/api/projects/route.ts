@@ -1,29 +1,19 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/instances";
-import { decryptPayload } from "@/lib/cookie-helpers";
-import { checkPayload } from "@/lib/helpers";
-
-// GET - Get all projects for the authenticated user
 export async function GET(request: NextRequest) {
   try {
-    const encryptedUserId = request.headers.get("x-encrypted-user-id");
+    const userId = request.headers.get("x-user-id");
 
-    if (!encryptedUserId) {
+    if (!userId) {
       return NextResponse.json(
         { error: "Missing encrypted user ID" },
         { status: 400 },
       );
     }
 
-    const payload = await decryptPayload(encryptedUserId);
-
-    if (!checkPayload(payload)) {
-      return NextResponse.json({ error: "Invalid payload" }, { status: 401 });
-    }
-
     const projects = await prisma.project.findMany({
       where: {
-        userId: payload.id,
+        userId,
       },
     });
 
@@ -41,7 +31,7 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { projectTitle, projectContext, encryptedUserID } = body;
+    const { projectTitle, projectContext } = body;
 
     if (!projectTitle) {
       return NextResponse.json(
@@ -50,28 +40,23 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    if (!encryptedUserID) {
+    const userId = request.headers.get("x-user-id");
+
+    if (!userId) {
       return NextResponse.json(
         { error: "Missing encrypted user ID" },
         { status: 400 },
       );
     }
 
-    const payload = await decryptPayload(encryptedUserID);
+    const pid = crypto.randomUUID();
 
-    if (!checkPayload(payload)) {
-      return NextResponse.json({ error: "Invalid payload" }, { status: 401 });
-    }
-
-    if (payload.exp < Math.floor(Date.now() / 1000)) {
+    if (!userId) {
       return NextResponse.json(
-        { error: "Payload expired, please re-authenticate" },
+        { error: "No user id provided!" },
         { status: 401 },
       );
     }
-
-    const userId = payload.id;
-    const pid = crypto.randomUUID();
 
     const project = await prisma.project.create({
       data: {
@@ -80,6 +65,7 @@ export async function POST(request: NextRequest) {
         projectTitle: projectTitle,
         projectContext: projectContext ?? "",
         updatedAt: new Date(),
+        projectTags: "",
       },
     });
 
@@ -98,32 +84,23 @@ export async function POST(request: NextRequest) {
 export async function PUT(request: NextRequest) {
   try {
     const body = await request.json();
-    const { projectId, projectTitle, projectContext, encryptedUserID } = body;
+    const { projectId, projectTitle, projectContext, userId } = body;
 
-    if (!projectId || !projectTitle || !encryptedUserID) {
+    if (!projectId || !projectTitle || !userId) {
       return NextResponse.json(
         {
-          error:
-            "Missing required fields: projectId, projectTitle, encryptedUserID",
+          error: "Missing required fields: projectId, projectTitle, userId",
         },
         { status: 400 },
       );
     }
 
-    const payload = await decryptPayload(encryptedUserID);
-
-    if (!payload) {
-      return NextResponse.json({ error: "Invalid payload" }, { status: 401 });
-    }
-
-    if (payload.exp < Math.floor(Date.now() / 1000)) {
+    if (!userId) {
       return NextResponse.json(
-        { error: "Payload expired, please re-authenticate" },
+        { error: "No user id provided!" },
         { status: 401 },
       );
     }
-
-    const userId = payload.id;
 
     const project = await prisma.project.findUnique({
       where: {
@@ -167,29 +144,14 @@ export async function DELETE(request: NextRequest) {
 
   try {
     const body = await request.json();
-    const { projectId, encryptedUserID } = body;
+    const { projectId, userId } = body;
 
-    if (!projectId || !encryptedUserID) {
+    if (!projectId || !userId) {
       return NextResponse.json(
-        { error: "Missing required fields: projectId, encryptedUserID" },
+        { error: "Missing required fields: projectId, userId" },
         { status: 400 },
       );
     }
-
-    const payload = await decryptPayload(encryptedUserID);
-
-    if (!payload) {
-      return NextResponse.json({ error: "Invalid payload" }, { status: 401 });
-    }
-
-    if (payload.exp < Math.floor(Date.now() / 1000)) {
-      return NextResponse.json(
-        { error: "Payload expired, please re-authenticate" },
-        { status: 401 },
-      );
-    }
-
-    const userId = payload.id;
 
     const project = await prisma.project.findUnique({
       where: {

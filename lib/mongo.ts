@@ -13,7 +13,6 @@ if (!uri) {
   throw new Error("MONGODB_URI is not set");
 }
 
-let client: MongoClient;
 let clientPromise: Promise<MongoClient>;
 
 if (process.env.NODE_ENV === "development") {

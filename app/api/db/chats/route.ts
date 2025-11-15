@@ -1,25 +1,18 @@
+export const runtime = "nodejs";
+
 import { NextRequest, NextResponse } from "next/server";
 import { getDb } from "@/lib/mongo";
-export const runtime = "nodejs";
 import { ObjectId } from "mongodb";
-import { decryptPayload } from "@/lib/cookie-helpers";
-import { checkPayload } from "@/lib/helpers";
 
 export async function GET(req: NextRequest) {
-  const encryptedUserPayload = req.headers.get("x-encrypted-user-id");
+  const userId = req.headers.get("x-user-id");
   const projectId = req.headers.get("x-project-id");
 
-  if (!encryptedUserPayload || !projectId) {
+  if (!userId || !projectId) {
     return NextResponse.json(
       { error: "Missing encrypted user payload or project id" },
       { status: 400 },
     );
-  }
-
-  const payload = await decryptPayload(encryptedUserPayload);
-
-  if (!checkPayload(payload)) {
-    return NextResponse.json({ error: "Payload expired" }, { status: 401 });
   }
 
   try {
@@ -27,7 +20,7 @@ export async function GET(req: NextRequest) {
     const collection = db.collection("chats");
 
     const chatsCursor = await collection
-      .find({ user_id: payload.id, project_id: projectId })
+      .find({ user_id: userId, project_id: projectId })
       .sort({ updatedAt: -1 })
       .toArray();
 
@@ -48,24 +41,18 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
-  const encryptedUserPayload = req.headers.get("x-encrypted-user-id");
+  const userId = req.headers.get("x-user-id");
   const projectId = req.headers.get("x-project-id");
 
   if (!projectId) {
     return NextResponse.json({ error: "Missing project id" }, { status: 400 });
   }
 
-  if (!encryptedUserPayload) {
+  if (!userId) {
     return NextResponse.json(
       { error: "Missing encrypted user payload" },
       { status: 400 },
     );
-  }
-
-  const payload = await decryptPayload(encryptedUserPayload);
-
-  if (!checkPayload(payload)) {
-    return NextResponse.json({ error: "Payload expired" }, { status: 401 });
   }
 
   try {
@@ -73,7 +60,7 @@ export async function POST(req: NextRequest) {
     const collection = db.collection("chats");
 
     const chat = await collection.insertOne({
-      user_id: payload.id,
+      user_id: userId,
       project_id: projectId,
       title: "New Chat",
     });
@@ -91,23 +78,17 @@ export async function POST(req: NextRequest) {
 export async function PATCH(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
-    const encryptedUserPayload = req.headers.get("x-encrypted-user-id");
+    const userId = req.headers.get("x-user-id");
     const projectId = req.headers.get("x-project-id");
     const chatId = searchParams.get("chat_id");
 
     const { title } = await req.json();
 
-    if (!encryptedUserPayload || !projectId) {
+    if (!userId || !projectId) {
       return NextResponse.json(
         { error: "Missing encrypted user payload or project ID" },
         { status: 400 },
       );
-    }
-
-    const payload = await decryptPayload(encryptedUserPayload);
-
-    if (!checkPayload(payload)) {
-      return NextResponse.json({ error: "Payload expired" }, { status: 401 });
     }
 
     if (!chatId) {
@@ -130,7 +111,7 @@ export async function PATCH(req: NextRequest) {
 
     // Update chat (set updatedAt always)
     const result = await collection.findOneAndUpdate(
-      { user_id: payload.id, _id: new ObjectId(chatId) },
+      { user_id: userId, _id: new ObjectId(chatId) },
       {
         $set: {
           updatedAt: new Date(),
@@ -159,20 +140,14 @@ export async function PATCH(req: NextRequest) {
 
 export async function DELETE(req: NextRequest) {
   try {
-    const encryptedUserPayload = req.headers.get("x-encrypted-user-id");
+    const userId = req.headers.get("x-user-id");
     const projectId = req.headers.get("x-project-id");
 
-    if (!encryptedUserPayload || !projectId) {
+    if (!userId || !projectId) {
       return NextResponse.json(
         { error: "Missing encrypted user payload or project id" },
         { status: 400 },
       );
-    }
-
-    const payload = await decryptPayload(encryptedUserPayload);
-
-    if (!checkPayload(payload)) {
-      return NextResponse.json({ error: "Payload expired" }, { status: 401 });
     }
 
     const { searchParams } = new URL(req.url);
@@ -193,7 +168,7 @@ export async function DELETE(req: NextRequest) {
         // Delete chat
         const chatCollection = db.collection("chats");
         const chatResult = await chatCollection.deleteOne({
-          user_id: payload.id,
+          user_id: userId,
           _id: new ObjectId(chatId),
         });
 
@@ -207,7 +182,7 @@ export async function DELETE(req: NextRequest) {
         // Cascade: Delete associated messages
         const messagesCollection = db.collection("messages");
         const messagesResult = await messagesCollection.deleteMany({
-          user_id: payload.id,
+          user_id: userId,
           chat_id: chatId,
         });
 
