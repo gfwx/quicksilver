@@ -46,6 +46,7 @@ next-env.d.ts
 **/uploads/
 **/test.pdf
 
-**lib/prisma/migrations
+**/prisma/migrations
+**/dev.db
 
 /generated/prisma
