@@ -18,7 +18,6 @@ export default function Home() {
             <div className="text-center">
               <p className="text-sm text-muted-foreground">
                 Active Profile: {currentProfile.profileName}{" "}
-                {currentProfile.profileName}
               </p>
             </div>
           )}

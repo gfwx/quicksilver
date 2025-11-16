@@ -33,7 +33,7 @@ export default function ProfileCard({
         isActive ? "border-primary bg-primary/5" : "border-border"
       }`}
     >
-      <div className="flex items-start gap-4">
+      <div className="flex items-center gap-4">
         <Avatar className="h-12 w-12">
           <AvatarFallback>{initials}</AvatarFallback>
         </Avatar>
@@ -60,11 +60,6 @@ export default function ProfileCard({
             >
               Select
             </Button>
-          )}
-          {isActive && (
-            <span className="text-xs bg-primary text-primary-foreground px-2 rounded">
-              Active
-            </span>
           )}
           <Button
             variant="ghost"
