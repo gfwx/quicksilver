@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { cookies } from "next/headers";
 import "./globals.css";
 import { AuthProvider } from "@/lib/contexts/AuthContext";
+import { ThemeProvider } from "@/lib/components/theme-provider";
 import type { User } from "@/lib/types";
 
 export const metadata: Metadata = {
@@ -32,9 +33,16 @@ export default async function RootLayout({
 
   return (
     <>
-      <html lang="en" suppressHydrationWarning>
+      <html lang="en" suppressHydrationWarning className="bg-background">
         <body>
-          <AuthProvider user={user}>{children}</AuthProvider>
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="system"
+            enableSystem
+            disableTransitionOnChange
+          >
+            <AuthProvider user={user}>{children}</AuthProvider>
+          </ThemeProvider>
         </body>
       </html>
     </>

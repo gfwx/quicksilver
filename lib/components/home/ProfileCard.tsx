@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Trash2, Edit } from "lucide-react";
+import { Trash2 } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
 interface Profile {
@@ -26,7 +26,8 @@ export default function ProfileCard({
   onSelect,
   onDelete,
 }: ProfileCardProps) {
-  const initials = `${profile.firstName[0]}${profile.lastName[0]}`.toUpperCase();
+  const initials =
+    `${profile.firstName[0]}${profile.lastName[0]}`.toUpperCase();
 
   return (
     <div
@@ -65,7 +66,7 @@ export default function ProfileCard({
             </Button>
           )}
           {isActive && (
-            <span className="text-xs bg-primary text-primary-foreground px-2 py-1 rounded">
+            <span className="text-xs bg-primary text-primary-foreground px-2 rounded">
               Active
             </span>
           )}

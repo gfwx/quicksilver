@@ -9,13 +9,12 @@ generator client {
 }
 
 model User {
-  id                String    @id
-  createdAt         DateTime  @default(now())
-  updatedAt         DateTime  @updatedAt
-  firstName         String
-  lastName          String
-  lastOpened DateTime?
-  profilePictureUrl String?
+  id                 String    @id
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+  profileName        String
+  lastOpened         DateTime?
+  profilePictureUrl  String?
   profileDescription String?
 
   projects Project[]
