@@ -17,8 +17,8 @@ export default function Home() {
           {currentProfile && (
             <div className="text-center">
               <p className="text-sm text-muted-foreground">
-                Active Profile: {currentProfile.firstName}{" "}
-                {currentProfile.lastName}
+                Active Profile: {currentProfile.profileName}{" "}
+                {currentProfile.profileName}
               </p>
             </div>
           )}

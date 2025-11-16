@@ -6,8 +6,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
 interface Profile {
   id: string;
-  firstName: string;
-  lastName: string;
+  profileName: string;
   profilePictureUrl?: string | null;
   profileDescription?: string | null;
   lastOpened?: string | null;
@@ -26,8 +25,7 @@ export default function ProfileCard({
   onSelect,
   onDelete,
 }: ProfileCardProps) {
-  const initials =
-    `${profile.firstName[0]}${profile.lastName[0]}`.toUpperCase();
+  const initials = `${profile.profileName}`.toUpperCase();
 
   return (
     <div
@@ -40,9 +38,7 @@ export default function ProfileCard({
           <AvatarFallback>{initials}</AvatarFallback>
         </Avatar>
         <div className="flex-1 min-w-0">
-          <h3 className="font-semibold text-lg">
-            {profile.firstName} {profile.lastName}
-          </h3>
+          <h3 className="font-semibold text-lg">{profile.profileName}</h3>
           {profile.profileDescription && (
             <p className="text-sm text-muted-foreground mt-1 line-clamp-2">
               {profile.profileDescription}

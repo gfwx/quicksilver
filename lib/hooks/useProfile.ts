@@ -1,12 +1,13 @@
 "use client";
 
+// This is masterfully done. Please study this file!
+
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 
 interface Profile {
   id: string;
-  firstName: string;
-  lastName: string;
+  profileName: string;
   profilePictureUrl?: string | null;
   profileDescription?: string | null;
   createdAt: string;
@@ -27,8 +28,7 @@ interface ProfileState {
   loadProfiles: () => Promise<void>;
   switchProfile: (profileId: string) => Promise<void>;
   createProfile: (data: {
-    firstName: string;
-    lastName: string;
+    profileName: string;
     profileDescription?: string;
   }) => Promise<Profile>;
   deleteProfile: (profileId: string) => Promise<void>;

@@ -16,8 +16,7 @@ import { useProfile } from "@/lib/hooks/useProfile";
 
 export default function CreateProfileDialog() {
   const [isOpen, setIsOpen] = useState(false);
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
+  const [profileName, setProfileName] = useState("");
   const [description, setDescription] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -25,20 +24,18 @@ export default function CreateProfileDialog() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!firstName.trim() || !lastName.trim()) return;
+    if (!profileName.trim()) return;
 
     setIsSubmitting(true);
     try {
       const newProfile = await createProfile({
-        firstName: firstName.trim(),
-        lastName: lastName.trim(),
+        profileName: profileName.trim(),
         profileDescription: description.trim() || undefined,
       });
 
       await switchProfile(newProfile.id);
 
-      setFirstName("");
-      setLastName("");
+      setProfileName("");
       setDescription("");
       setIsOpen(false);
     } catch (error) {
@@ -62,27 +59,19 @@ export default function CreateProfileDialog() {
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="text-sm font-medium">First Name</label>
+            <label className="text-sm font-medium">Profile Name</label>
             <Input
-              value={firstName}
-              onChange={(e) => setFirstName(e.target.value)}
+              value={profileName}
+              onChange={(e) => setProfileName(e.target.value)}
               placeholder="Enter first name"
               required
               disabled={isSubmitting}
             />
           </div>
           <div>
-            <label className="text-sm font-medium">Last Name</label>
-            <Input
-              value={lastName}
-              onChange={(e) => setLastName(e.target.value)}
-              placeholder="Enter last name"
-              required
-              disabled={isSubmitting}
-            />
-          </div>
-          <div>
-            <label className="text-sm font-medium">Description (Optional)</label>
+            <label className="text-sm font-medium">
+              Description (Preferable)
+            </label>
             <Textarea
               value={description}
               onChange={(e) => setDescription(e.target.value)}
@@ -100,8 +89,14 @@ export default function CreateProfileDialog() {
             >
               Cancel
             </Button>
-            <Button type="submit" disabled={isSubmitting} className="hover:cursor-pointer">
-              {isSubmitting && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+            <Button
+              type="submit"
+              disabled={isSubmitting}
+              className="hover:cursor-pointer"
+            >
+              {isSubmitting && (
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+              )}
               Create Profile
             </Button>
           </div>
