@@ -170,7 +170,7 @@ async def get_vector(query, project_id):
         )
 
 
-@app.delete("/api/purge")
+@app.delete("/api/vector")
 async def delete_vector_embeddings(project_id: str):
     if not project_id:
         raise HTTPException(
