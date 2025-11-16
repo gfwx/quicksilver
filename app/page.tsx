@@ -1,11 +1,8 @@
 "use client";
 // app/page.tsx
-import Image from "next/image";
-// import { Footer } from '@/components/Footer';
+import { Header } from "@/lib/components/home";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/lib/hooks/useAuth";
-import logoMark from "@/public/logomark.svg";
-import wordMark from "@/public/wordmark.svg";
 import Link from "next/link";
 
 export default function Home() {
@@ -13,14 +10,7 @@ export default function Home() {
   return (
     <div className="flex flex-col h-screen">
       <section className="flex flex-col w-full h-full items-center justify-center p-4 gap-9">
-        <Image src={logoMark} alt="Quicksilver Logomark" />
-        <div className="flex flex-col gap-4 items-center">
-          <Image src={wordMark} alt="Quicksilver Wordmark" />
-          <p className="text-foreground text-lg font-serif tracking-tight">
-            <b>Self-Hosted</b> AI Document Inference
-          </p>
-        </div>
-
+        <Header />
         <div className="flex gap-4">
           {authState.isLoading ? (
             <Button variant="default" disabled>
@@ -35,13 +25,11 @@ export default function Home() {
                 </p>
               </div>
               <div className="flex gap-4">
-                <Button
-                  variant="default"
-                  className="hover:cursor-pointer"
-                  onClick={() => (window.location.href = "/projects")}
-                >
-                  Go to Dashboard
-                </Button>
+                <Link href="/projects">
+                  <Button variant="default" className="hover:cursor-pointer">
+                    Go to Dashboard
+                  </Button>
+                </Link>
                 <Button
                   variant="destructive"
                   onClick={logout}
@@ -64,7 +52,7 @@ export default function Home() {
                 className="hover:cursor-pointer"
                 onClick={login}
               >
-                Sign Up
+                Sign Ip
               </Button>
               <Link href="/onboarding">
                 <Button variant="secondary" className="hover:cursor-pointer">
@@ -75,7 +63,6 @@ export default function Home() {
           )}
         </div>
       </section>
-      {/*<Footer />*/}
     </div>
   );
 }

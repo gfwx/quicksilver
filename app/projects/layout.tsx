@@ -1,7 +1,7 @@
-import type { PrismaModels } from "@/lib/instances";
+import { cookies, headers } from "next/headers";
 import { ProjectProvider } from "@/lib/contexts/ProjectContext";
 import { UserNav } from "@/components/userNav";
-import { cookies, headers } from "next/headers";
+import type { PrismaModels } from "@/lib/instances";
 
 export default async function DashboardLayout({
   children,
@@ -11,7 +11,6 @@ export default async function DashboardLayout({
   let projects: PrismaModels["Project"][] = [];
 
   try {
-    // Get user data from the cookie set by middleware
     const cookieStore = await cookies();
     const userData = cookieStore.get("user-data")?.value;
 
@@ -30,7 +29,6 @@ export default async function DashboardLayout({
     const { id } = JSON.parse(userData);
     console.log("Fetching projects with encrypted user ID:", id);
 
-    // Construct full URL for server-side fetch
     const h = await headers();
     const protocol = h.get("x-forwarded-proto") ?? "http";
     const host = h.get("host") ?? "localhost:3000";
