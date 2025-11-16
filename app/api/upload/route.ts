@@ -1,12 +1,7 @@
-// app/api/upload/route.ts
-// Edge-compatible file upload endpoint that streams to FastAPI
 import { prisma } from "@/lib/instances";
 import { v4 as uuidv4 } from "uuid";
-import {
-  authenticateUser,
-  serverErrorResponse,
-  unauthorizedResponse,
-} from "@/lib/auth";
+import { cookies } from "next/headers";
+
 const ai_endpoint = process.env.FASTAPI_ENDPOINT || "http://127.0.0.1:8000/";
 
 interface FileUploadResult {
@@ -18,19 +13,22 @@ interface FileUploadResult {
 export async function POST(req: Request) {
   if (!prisma) {
     console.error("Prisma instance is not initialized");
-    return serverErrorResponse("Prisma instance not initialized");
+    return Response.json(
+      { error: "Prisma instance not initialized" },
+      { status: 500 }
+    );
   }
 
-  // Check authentication; deprecated
-  const authResult = await authenticateUser();
-  if (!authResult.authenticated || !authResult.user) {
-    return unauthorizedResponse(authResult.error);
+  const cookieStore = await cookies();
+  const profileId = cookieStore.get("x-user-data")?.value;
+
+  if (!profileId) {
+    return Response.json(
+      { error: "No active profile found" },
+      { status: 401 }
+    );
   }
 
-  const userId = authResult.user.id;
-
-  // Read project information from headers
-  console.log("Checking request headers:");
   const projectId = req.headers.get("x-project-id");
 
   if (!projectId) {
@@ -42,7 +40,6 @@ export async function POST(req: Request) {
 
   console.log("Completed checking project headers");
 
-  // Verify project exists
   const project = await prisma.project.findUnique({
     where: { id: projectId },
   });
@@ -55,7 +52,6 @@ export async function POST(req: Request) {
   }
 
   try {
-    // Parse multipart form data
     const formData = await req.formData();
     const files = formData.getAll("files") as File[];
 
@@ -68,7 +64,6 @@ export async function POST(req: Request) {
 
     const processedFiles: FileUploadResult[] = [];
 
-    // Process each file
     for (const file of files) {
       console.log(
         `Processing file: ${file.name}, size: ${file.size}, type: ${file.type}`,
@@ -79,28 +74,25 @@ export async function POST(req: Request) {
       const randomSuffix = Math.round(Math.random() * 1e9);
       const fileName = `file-${timestamp}-${randomSuffix}-${file.name}`;
 
-      // Create file metadata in database
       const fileData = {
         id: fileId,
         status: "Pending",
         filename: fileName,
         originalname: file.name,
         size: file.size,
-        encoding: "binary", // Edge doesn't provide encoding, default to binary
-        userId: userId,
+        encoding: "binary",
+        userId: profileId,
         projectId: project.id,
       };
 
       const createdFile = await prisma.file.create({ data: fileData });
       console.log(
-        `File metadata stored for user ${userId} with filename ${createdFile.filename}`,
+        `File metadata stored for user ${profileId} with filename ${createdFile.filename}`,
       );
 
-      // Convert File to ArrayBuffer and then to base64 for transmission
       const arrayBuffer = await file.arrayBuffer();
       const buffer = new Uint8Array(arrayBuffer);
 
-      // Convert to base64 for JSON transmission
       let base64File = "";
       const chunkSize = 8192;
       for (let i = 0; i < buffer.length; i += chunkSize) {
@@ -109,7 +101,6 @@ export async function POST(req: Request) {
       }
       base64File = btoa(base64File);
 
-      // Send to FastAPI for processing with base64-encoded content
       const payloadToFastAPI = {
         filename: file.name,
         content: base64File,
@@ -139,7 +130,6 @@ export async function POST(req: Request) {
       const fastAPIResponse = await response.json();
       console.log(`Processed by FastAPI: ${JSON.stringify(fastAPIResponse)}`);
 
-      // Update file status
       await prisma.file.update({
         where: { id: fileId },
         data: { status: "Processed" },
@@ -152,7 +142,6 @@ export async function POST(req: Request) {
       });
     }
 
-    // Update project with file count
     await prisma.project.update({
       where: { id: project.id },
       data: {

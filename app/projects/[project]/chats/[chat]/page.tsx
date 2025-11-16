@@ -5,13 +5,12 @@ import { useEffect, useState, useRef } from "react";
 import { useParams } from "next/navigation";
 import { v4 as uuidv4 } from "uuid";
 import { useMessages } from "@/lib/providers/chatProvider";
-import { useAuth } from "@/lib/contexts/AuthContext";
+import { useProfile } from "@/lib/hooks/useProfile";
 import { DefaultChatTransport } from "ai";
 import { MessagesSection, ChatInputForm } from "@/lib/components/chat";
 
 export default function Chat() {
-  const { authState } = useAuth();
-  const { user } = authState;
+  const { currentProfile } = useProfile();
   const params = useParams();
 
   const chatId = params.chat as string;
@@ -41,7 +40,7 @@ export default function Chat() {
         },
         body: JSON.stringify({
           message: assistantMessage,
-          userId: user?.id ?? "",
+          userId: currentProfile?.id ?? "",
           chatId,
           created_at,
           updated_at: created_at,
@@ -105,7 +104,7 @@ export default function Chat() {
           },
           body: JSON.stringify({
             message: userMessage,
-            userId: user?.id ?? "",
+            userId: currentProfile?.id ?? "",
             chatId,
           }),
         }).catch(console.error);

@@ -18,38 +18,26 @@ export async function upsertUser(user: User) {
     throw new Error("WorkOS user missing email; cannot upsert without it");
   }
 
-  // Handle potential nulls from WorkOS
-  const emailVerified = user.emailVerified ?? false;
   const firstName = user.firstName ?? "User";
   const lastName = user.lastName ?? "";
   const profilePictureUrl = user.profilePictureUrl ?? null; // Already optional, but explicit
 
   // Optional: Log for debugging (remove in production)
-  console.log("Upserting WorkOS user:", {
-    id: user.id,
-    email: user.email,
-    emailVerified,
-  });
 
   await prisma.user.upsert({
     where: { id: user.id },
     update: {
-      email: user.email,
       firstName,
       lastName,
-      emailVerified,
       profilePictureUrl,
-      lastSignInAt: new Date(),
+      updatedAt: new Date(),
     },
     create: {
       id: user.id,
-      role: "user",
-      email: user.email,
       firstName,
       lastName,
-      emailVerified,
       profilePictureUrl,
-      lastSignInAt: new Date(),
+      updatedAt: new Date(),
     },
   });
 }

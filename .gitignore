@@ -50,3 +50,6 @@ next-env.d.ts
 **/dev.db
 
 /generated/prisma
+
+*storybook.log
+storybook-static

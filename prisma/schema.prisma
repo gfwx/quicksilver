@@ -12,13 +12,11 @@ model User {
   id                String    @id
   createdAt         DateTime  @default(now())
   updatedAt         DateTime  @updatedAt
-  email             String    @unique
-  role              String
-  emailVerified     Boolean
   firstName         String
   lastName          String
-  lastSignInAt      DateTime?
+  lastOpened DateTime?
   profilePictureUrl String?
+  profileDescription String?
 
   projects Project[]
   File     File[]
