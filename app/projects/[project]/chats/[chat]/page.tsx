@@ -5,19 +5,11 @@ import { useEffect, useState, useRef } from "react";
 import { useParams } from "next/navigation";
 import { v4 as uuidv4 } from "uuid";
 import { useMessages } from "@/lib/providers/chatProvider";
-import { TextBoxButton } from "@/lib/components/TextboxBtn";
-import { ChatBubble } from "@/lib/components/ChatBubble";
 import { useAuth } from "@/lib/contexts/AuthContext";
 import { DefaultChatTransport } from "ai";
+import { MessagesSection, ChatInputForm } from "@/lib/components/chat";
 
 export default function Chat() {
-  /**
-   * Because the state of the component depends on message size (which changes dynamically),
-   * the UI is updated a LOT on load.
-   * Results in loading lag despite chats being a client UI.
-   * I'm not sure there's a way to fix this.
-   */
-
   const { authState } = useAuth();
   const { user } = authState;
   const params = useParams();
@@ -61,12 +53,10 @@ export default function Chat() {
 
   const messagesRef = useRef<HTMLDivElement>(null);
 
-  // Message history is passed from the layout component and stored as state here.
   useEffect(() => {
     setMessages(history);
   }, [history, setMessages]);
 
-  // Attach the scroll event listener to a specified element (via useRef)
   useEffect(() => {
     const section = messagesRef.current;
     if (!section) return;
@@ -74,15 +64,11 @@ export default function Chat() {
     const handleScroll = () => {
       const { scrollTop, scrollHeight, clientHeight } = section;
 
-      // If the user is actively (even slightly) scrolling down (down gesture, not UI), it must stop automatically scrolling down
       const isScrollingDown = scrollTop >= previousScrollTop;
       setIsAtBottom(
-        // scrollTop + clientHeight -> refers to the current scroll position plus the height of the element
-        // scrollHeight - 100 -> adds a buffer to prevent the chat from immediately scrolling up when the user scrolls down
         scrollTop + clientHeight >= scrollHeight - 100 && isScrollingDown,
       );
 
-      // Reset the previous scrollTop.
       setPreviousScrollTop(scrollTop);
     };
 
@@ -90,10 +76,7 @@ export default function Chat() {
     return () => section.removeEventListener("scroll", handleScroll);
   }, [previousScrollTop]);
 
-  //Whenever messages updates
-  // (ie. when the user is typing a message or the AI is generating a response, fire this function)
   useEffect(() => {
-    // messagesRef.current ensures that the current ref isn't null (ie. the element exists)
     if (isAtBottom && messagesRef.current) {
       messagesRef.current.scrollTo({
         top: messagesRef.current.scrollHeight,
@@ -107,7 +90,6 @@ export default function Chat() {
     setError(null);
     const userInput = input;
     try {
-      // Prevent sending the message if there's no text. For some reason this just causes the model to freeze up.
       if (userInput.trim() !== "") {
         await sendMessage({ text: userInput });
         const userMessageId = uuidv4();
@@ -144,52 +126,17 @@ export default function Chat() {
 
   return (
     <div className="flex items-center flex-col w-full max-w-4xl pt-4 mx-auto stretch gap-8">
-      {/*The main scroll section that contains chats.*/}
-      <section
-        ref={messagesRef}
-        className="messages w-full flex-1 overflow-y-auto flex flex-col gap-8 max-h-full no-scrollbar pb-24"
-      >
-        {messages.map((message) => (
-          <div
-            key={message.id}
-            className={`flex w-full ${
-              message.role === "user" ? "justify-end" : "justify-start"
-            }`}
-          >
-            <ChatBubble message={message} />
-          </div>
-        ))}
-
-        {/*Shows this part when the AI response is in the loading state*/}
-        {status !== "ready" &&
-          (!messages.length ||
-            messages[messages.length - 1]?.role !== "assistant") && (
-            <div className="flex w-full justify-start">
-              <div className="text-blue-500">Loading AI Response</div>
-            </div>
-          )}
-      </section>
+      <MessagesSection ref={messagesRef} messages={messages} status={status} />
 
       {error && <p style={{ color: "red" }}>{error}</p>}
 
-      <form
-        onSubmit={handleSubmit}
-        className="bg-white overflow-clip flex items-center justify-between fixed bottom-4 w-full max-w-4xl p-4 border border-zinc-300 dark:border-zinc-800 rounded-full shadow-xl"
-      >
-        <input
-          className="max-w-4xl bottom-0 w-full p-2 focus:outline-none"
-          value={input}
-          placeholder="Say something..."
-          disabled={status !== "ready"}
-          onChange={(e) => setInput(e.currentTarget.value)}
-        />
-
-        <TextBoxButton
-          status={status}
-          active_handler={handleSubmit}
-          disabled_handler={handleStop}
-        />
-      </form>
+      <ChatInputForm
+        input={input}
+        setInput={setInput}
+        status={status}
+        handleSubmit={handleSubmit}
+        handleStop={handleStop}
+      />
     </div>
   );
 }
