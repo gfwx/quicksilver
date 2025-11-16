@@ -12,7 +12,7 @@ model User {
   id                 String    @id
   createdAt          DateTime  @default(now())
   updatedAt          DateTime  @updatedAt
-  profileName        String
+  profileName        String    @default("New Profile")
   lastOpened         DateTime?
   profilePictureUrl  String?
   profileDescription String?

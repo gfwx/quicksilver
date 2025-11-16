@@ -13,30 +13,19 @@ export async function GET() {
     return Response.json({ users });
   } catch (error) {
     console.error("Error fetching users:", error);
-    return Response.json(
-      { error: "Failed to fetch users" },
-      { status: 500 }
-    );
+    return Response.json({ error: "Failed to fetch users" }, { status: 500 });
   }
 }
 
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { firstName, lastName, profileDescription } = body;
-
-    if (!firstName || !lastName) {
-      return Response.json(
-        { error: "firstName and lastName are required" },
-        { status: 400 }
-      );
-    }
+    const { profileName, profileDescription } = body;
 
     const newUser = await prisma.user.create({
       data: {
         id: uuidv4(),
-        firstName,
-        lastName,
+        profileName: profileName || null,
         profileDescription: profileDescription || null,
         lastOpened: new Date(),
       },
@@ -45,29 +34,23 @@ export async function POST(request: Request) {
     return Response.json(newUser, { status: 201 });
   } catch (error) {
     console.error("Error creating user:", error);
-    return Response.json(
-      { error: "Failed to create user" },
-      { status: 500 }
-    );
+    return Response.json({ error: "Failed to create user" }, { status: 500 });
   }
 }
 
 export async function PATCH(request: Request) {
   try {
     const body = await request.json();
-    const { id, firstName, lastName, profileDescription, lastOpened } = body;
+    const { id, profileName, profileDescription, lastOpened } = body;
 
     if (!id) {
-      return Response.json(
-        { error: "User ID is required" },
-        { status: 400 }
-      );
+      return Response.json({ error: "User ID is required" }, { status: 400 });
     }
 
     const updateData: any = {};
-    if (firstName !== undefined) updateData.firstName = firstName;
-    if (lastName !== undefined) updateData.lastName = lastName;
-    if (profileDescription !== undefined) updateData.profileDescription = profileDescription;
+    if (profileName !== undefined) updateData.profileName = profileName;
+    if (profileDescription !== undefined)
+      updateData.profileDescription = profileDescription;
     if (lastOpened !== undefined) updateData.lastOpened = new Date(lastOpened);
 
     const updatedUser = await prisma.user.update({
@@ -78,10 +61,7 @@ export async function PATCH(request: Request) {
     return Response.json(updatedUser);
   } catch (error) {
     console.error("Error updating user:", error);
-    return Response.json(
-      { error: "Failed to update user" },
-      { status: 500 }
-    );
+    return Response.json({ error: "Failed to update user" }, { status: 500 });
   }
 }
 
@@ -93,10 +73,7 @@ export async function DELETE(request: Request) {
     const { id } = body;
 
     if (!id) {
-      return Response.json(
-        { error: "User ID is required" },
-        { status: 400 }
-      );
+      return Response.json({ error: "User ID is required" }, { status: 400 });
     }
 
     const cookieStore = await cookies();
@@ -105,7 +82,7 @@ export async function DELETE(request: Request) {
     if (currentProfileId === id) {
       return Response.json(
         { error: "Cannot delete currently active profile" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -156,13 +133,10 @@ export async function DELETE(request: Request) {
     return Response.json({
       success: true,
       message: "User deleted successfully",
-      projectsDeleted: projects.length
+      projectsDeleted: projects.length,
     });
   } catch (error) {
     console.error("Error deleting user:", error);
-    return Response.json(
-      { error: "Failed to delete user" },
-      { status: 500 }
-    );
+    return Response.json({ error: "Failed to delete user" }, { status: 500 });
   }
 }

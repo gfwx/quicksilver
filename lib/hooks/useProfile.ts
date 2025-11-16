@@ -26,7 +26,11 @@ interface ProfileState {
   setLoading: (loading: boolean) => void;
   loadProfiles: () => Promise<void>;
   switchProfile: (profileId: string) => Promise<void>;
-  createProfile: (data: { firstName: string; lastName: string; profileDescription?: string }) => Promise<Profile>;
+  createProfile: (data: {
+    firstName: string;
+    lastName: string;
+    profileDescription?: string;
+  }) => Promise<Profile>;
   deleteProfile: (profileId: string) => Promise<void>;
 }
 
@@ -54,7 +58,7 @@ export const useProfile = create<ProfileState>()(
       updateProfile: (id, updates) =>
         set((state) => ({
           profiles: state.profiles.map((p) =>
-            p.id === id ? { ...p, ...updates } : p
+            p.id === id ? { ...p, ...updates } : p,
           ),
           currentProfile:
             state.currentProfile?.id === id
@@ -88,7 +92,7 @@ export const useProfile = create<ProfileState>()(
 
             if (profileIdFromCookie) {
               const profile = data.users.find(
-                (p: Profile) => p.id === profileIdFromCookie
+                (p: Profile) => p.id === profileIdFromCookie,
               );
               if (profile) {
                 set({ currentProfile: profile });
@@ -164,6 +168,6 @@ export const useProfile = create<ProfileState>()(
       partialize: (state) => ({
         currentProfile: state.currentProfile,
       }),
-    }
-  )
+    },
+  ),
 );

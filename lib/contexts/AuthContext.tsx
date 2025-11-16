@@ -1,4 +1,7 @@
 "use client";
+
+// Whole thing is deprecated
+// TO BE DELETED
 import React, {
   createContext,
   useContext,
