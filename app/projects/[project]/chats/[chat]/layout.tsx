@@ -14,9 +14,9 @@ export default async function RootLayout({
   let messages: UIMessage[] = [];
 
   const cookieStore = await cookies();
-  const userData = cookieStore.get("user-data")?.value;
+  const id = cookieStore.get("x-current-user-id")?.value;
 
-  if (!userData) {
+  if (!id) {
     console.log("No user found!");
     return (
       <ChatProvider chatHistory={[]}>
@@ -24,8 +24,6 @@ export default async function RootLayout({
       </ChatProvider>
     );
   }
-
-  const { id } = JSON.parse(userData);
 
   try {
     const headersList = await headers();

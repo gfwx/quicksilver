@@ -77,7 +77,7 @@ export async function DELETE(request: Request) {
     }
 
     const cookieStore = await cookies();
-    const currentProfileId = cookieStore.get("x-user-data")?.value;
+    const currentProfileId = cookieStore.get("x-current-user-id")?.value;
 
     if (currentProfileId === id) {
       return Response.json(

@@ -16,9 +16,9 @@ export default async function RootLayout({
     [];
 
   const cookieStore = await cookies();
-  const userData = cookieStore.get("user-data")?.value;
+  const id = cookieStore.get("x-current-user-id")?.value;
 
-  if (!userData) {
+  if (!id) {
     console.log("No user found!");
     return (
       <SidebarProvider>
@@ -27,8 +27,6 @@ export default async function RootLayout({
       </SidebarProvider>
     );
   }
-
-  const { id } = JSON.parse(userData);
 
   try {
     const headersList = await headers();

@@ -3,7 +3,7 @@ import { prisma } from "./instances";
 
 export async function getCurrentProfile() {
   const cookieStore = await cookies();
-  const profileId = cookieStore.get("x-user-data")?.value;
+  const profileId = cookieStore.get("x-current-user-id")?.value;
 
   if (!profileId) {
     return null;

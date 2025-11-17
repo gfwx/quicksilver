@@ -1,9 +1,6 @@
 import type { Metadata } from "next";
-import { cookies } from "next/headers";
 import "./globals.css";
-import { AuthProvider } from "@/lib/contexts/AuthContext";
 import { ThemeProvider } from "@/lib/components/theme-provider";
-import type { User } from "@/lib/types";
 
 export const metadata: Metadata = {
   title: "Quicksilver",
@@ -15,22 +12,6 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  let user = null;
-
-  try {
-    // Get user data from the cookie set by middleware
-    const cookieStore = await cookies();
-    const userData = cookieStore.get("user-data")?.value;
-
-    if (userData) {
-      user = JSON.parse(userData) as User;
-      console.log(`User found: ${user.firstName}`);
-    }
-  } catch (error) {
-    console.error("Failed to parse user data from cookie:", error);
-    // user remains null, which is handled gracefully
-  }
-
   return (
     <>
       <html lang="en" suppressHydrationWarning className="bg-background">
@@ -41,7 +22,7 @@ export default async function RootLayout({
             enableSystem
             disableTransitionOnChange
           >
-            <AuthProvider user={user}>{children}</AuthProvider>
+            {children}
           </ThemeProvider>
         </body>
       </html>
