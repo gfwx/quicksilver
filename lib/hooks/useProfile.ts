@@ -1,6 +1,6 @@
 "use client";
 
-// This is masterfully done. Please study this file!
+// study this
 
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";

@@ -15,17 +15,17 @@ interface Profile {
 interface ProfileCardProps {
   profile: Profile;
   isActive: boolean;
-  onSelect: () => void;
-  onDelete: () => void;
+  onSelectAction: () => void;
+  onDeleteAction: () => void;
 }
 
 export default function ProfileCard({
   profile,
   isActive,
-  onSelect,
-  onDelete,
+  onSelectAction,
+  onDeleteAction,
 }: ProfileCardProps) {
-  const initials = `${profile.profileName}`.toUpperCase();
+  const initials = `${profile.profileName[0]}`.toUpperCase();
 
   return (
     <div
@@ -55,7 +55,7 @@ export default function ProfileCard({
             <Button
               variant="outline"
               size="sm"
-              onClick={onSelect}
+              onClick={onSelectAction}
               className="hover:cursor-pointer"
             >
               Select
@@ -64,7 +64,7 @@ export default function ProfileCard({
           <Button
             variant="ghost"
             size="icon"
-            onClick={onDelete}
+            onClick={onDeleteAction}
             className="hover:cursor-pointer hover:bg-destructive hover:text-destructive-foreground"
             disabled={isActive}
           >

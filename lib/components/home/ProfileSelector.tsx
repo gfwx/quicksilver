@@ -22,13 +22,12 @@ export default function ProfileSelector() {
 
   const handleSelectProfile = async (profileId: string) => {
     await switchProfile(profileId);
-    window.location.reload();
   };
 
   const handleDeleteProfile = async (profileId: string) => {
     if (
       confirm(
-        "Are you sure you want to delete this profile? This action cannot be undone and all associated data will be lost."
+        "Are you sure you want to delete this profile? This action cannot be undone and all associated data will be lost.",
       )
     ) {
       await deleteProfile(profileId);
@@ -64,8 +63,8 @@ export default function ProfileSelector() {
               key={profile.id}
               profile={profile}
               isActive={currentProfile?.id === profile.id}
-              onSelect={() => handleSelectProfile(profile.id)}
-              onDelete={() => handleDeleteProfile(profile.id)}
+              onSelectAction={() => handleSelectProfile(profile.id)}
+              onDeleteAction={() => handleDeleteProfile(profile.id)}
             />
           ))}
         </div>

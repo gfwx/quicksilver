@@ -6,7 +6,7 @@ export async function GET() {
   try {
     const users = await prisma.user.findMany({
       orderBy: {
-        lastOpened: "desc",
+        createdAt: "asc",
       },
     });
 
