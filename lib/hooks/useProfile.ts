@@ -5,7 +5,7 @@
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 
-export interface Profile {
+interface Profile {
   id: string;
   profileName: string;
   profilePictureUrl?: string | null;
@@ -19,7 +19,7 @@ interface ProfileState {
   currentProfile: Profile | null;
   profiles: Profile[];
   isLoading: boolean;
-  setCurrentProfile: (profile: Profile | null) => Promise<void>;
+  setCurrentProfile: (profile: Profile | null) => void;
   setProfiles: (profiles: Profile[]) => void;
   addProfile: (profile: Profile) => void;
   updateProfile: (id: string, updates: Partial<Profile>) => void;
@@ -41,30 +41,12 @@ export const useProfile = create<ProfileState>()(
       profiles: [],
       isLoading: false,
 
-      setCurrentProfile: async (profile) => {
-        console.log(`Set current profile to: ${profile?.profileName}`);
+      setCurrentProfile: (profile) => {
         set({ currentProfile: profile });
         if (profile) {
-          const response = await fetch("/api/set-user-cookie", {
-            method: "POST",
-            body: JSON.stringify({ token: profile.id }),
-          });
-
-          if (response.ok) {
-            console.log("Current profile successfuly set");
-          } else {
-            console.error("Failed to set current profile");
-          }
+          document.cookie = `x-user-data=${profile.id}; path=/; max-age=${60 * 60 * 24 * 30}`;
         } else {
-          const response = await fetch("/api/set-user-cookie", {
-            method: "DELETE",
-          });
-
-          if (response.ok) {
-            console.log("Current profile successfuly unset (set to null)");
-          } else {
-            console.error("Failed to unset current profile");
-          }
+          document.cookie = "x-user-data=; path=/; max-age=0";
         }
       },
 
@@ -105,9 +87,7 @@ export const useProfile = create<ProfileState>()(
             const data = await response.json();
             set({ profiles: data.users || [] });
 
-            const cookieMatch = document.cookie.match(
-              /x-current-user-id=([^;]+)/,
-            );
+            const cookieMatch = document.cookie.match(/x-user-data=([^;]+)/);
             const profileIdFromCookie = cookieMatch ? cookieMatch[1] : null;
 
             if (profileIdFromCookie) {
@@ -129,7 +109,8 @@ export const useProfile = create<ProfileState>()(
       switchProfile: async (profileId) => {
         const profile = get().profiles.find((p) => p.id === profileId);
         if (profile) {
-          await get().setCurrentProfile(profile);
+          get().setCurrentProfile(profile);
+
           await fetch("/api/user", {
             method: "PATCH",
             headers: { "Content-Type": "application/json" },

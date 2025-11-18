@@ -45,7 +45,7 @@ export async function GET() {
       .join("; ");
 
     const clearUserData = [
-      "x-current-user-id=",
+      "user-data=",
       "Path=/",
       "HttpOnly",
       process.env.NODE_ENV === "production" ? "Secure" : "",

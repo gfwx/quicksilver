@@ -1,60 +1,48 @@
-"use client";
+"use client"
 
-import logoMark from "@/public/logomark.svg";
-import Image from "next/image";
+import logoMark from "@/public/logomark.svg"
+import Image from 'next/image';
 import Link from "next/link";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
+import { useAuth } from "@/lib/hooks/useAuth";
 import {
   ContextMenu,
   ContextMenuTrigger,
   ContextMenuContent,
-  ContextMenuItem,
+  ContextMenuItem
 } from "./ui/context-menu";
-import { useProfile } from "@/lib/hooks/useProfile";
 
 export const UserNav = () => {
-  const { currentProfile } = useProfile();
-
-  const handleClick = () => {
-    console.log("to implement...");
-  };
-
-  if (!currentProfile) return null;
+  const { authState, logout } = useAuth();
+  const { user } = authState
+  if (!user) return null;
   return (
     <div className="flex justify-between w-full">
       <ContextMenu>
         <ContextMenuTrigger asChild>
           <div className="flex gap-4 w-fit items-center cursor-context-menu">
             <Avatar>
-              <AvatarImage height={32} width={32} />
-              <AvatarFallback>
-                {currentProfile.profileName.charAt(0)}
-              </AvatarFallback>
+              <AvatarImage height={32} width={32} src={user?.profilePictureUrl} />
+              <AvatarFallback>{user?.firstName?.charAt(0)}</AvatarFallback>
             </Avatar>
             <div>
-              <p>
-                Active Profile:
-                <span className="text-md font-bold">
-                  {currentProfile.profileName}
-                </span>
-              </p>
+              <p className="text-md font-bold">{user?.firstName}</p>
+              <p className="text-sm">{user?.email}</p>
             </div>
           </div>
         </ContextMenuTrigger>
         <ContextMenuContent>
-          <ContextMenuItem variant="destructive" onClick={handleClick}>
-            Switch Account
+          <ContextMenuItem
+            variant="destructive"
+            onClick={logout}
+          >
+            Log Out
           </ContextMenuItem>
         </ContextMenuContent>
       </ContextMenu>
       <Link href="/">
-        <Image
-          width={32}
-          height={32}
-          src={logoMark}
-          alt="Quicksilver Logomark"
-        />
+        <Image width={32} height={32} src={logoMark} alt="Quicksilver Logomark" />
       </Link>
     </div>
   );
-};
+}
