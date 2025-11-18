@@ -1,9 +1,10 @@
 import { TextBoxButton } from "@/lib/components/TextboxBtn";
+import { ChatStatus } from "ai";
 
 interface ChatInputFormProps {
   input: string;
   setInput: (value: string) => void;
-  status: string;
+  status: ChatStatus;
   handleSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
   handleStop: (e: React.FormEvent<HTMLFormElement>) => void;
 }

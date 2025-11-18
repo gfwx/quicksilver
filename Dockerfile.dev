@@ -1,0 +1,28 @@
+# Development Dockerfile for Next.js with hot-reload
+FROM oven/bun:1
+
+WORKDIR /app
+
+# Install Node.js (for Prisma and some Next.js tooling)
+RUN apt-get update && apt-get install -y \
+    nodejs \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy package files
+COPY package.json bun.lock* ./
+
+# Install dependencies
+RUN bun install
+
+# Copy Prisma schema
+COPY prisma ./prisma
+
+# Generate Prisma client
+RUN bunx prisma generate
+
+# Expose port
+EXPOSE 3000
+
+# Note: Source code is mounted via volume in docker-compose.dev.yml
+# Command is overridden in docker-compose.dev.yml to regenerate Prisma and run dev
+CMD ["bun", "run", "dev"]

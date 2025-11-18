@@ -1,10 +1,11 @@
 import { forwardRef } from "react";
 import { ChatBubble } from "@/lib/components/ChatBubble";
-import type { Message } from "@ai-sdk/react";
+import type { UIMessage } from "@ai-sdk/react";
+import type { ChatStatus } from "ai";
 
 interface MessagesSectionProps {
-  messages: Message[];
-  status: string;
+  messages: UIMessage[];
+  status: ChatStatus;
 }
 
 const MessagesSection = forwardRef<HTMLDivElement, MessagesSectionProps>(

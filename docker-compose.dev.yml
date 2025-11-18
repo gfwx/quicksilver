@@ -1,0 +1,91 @@
+version: '3.8'
+
+services:
+  # MongoDB Database
+  mongodb:
+    image: mongo:8.0
+    container_name: quicksilver-mongodb-dev
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_DATABASE: quicksilver
+    ports:
+      - "27017:27017"  # Expose for local access
+    volumes:
+      - mongodb_data_dev:/data/db
+    networks:
+      - quicksilver-network-dev
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
+  # FastAPI Backend (Development with hot-reload)
+  fastapi:
+    build:
+      context: ./ai
+      dockerfile: Dockerfile.dev
+    container_name: quicksilver-fastapi-dev
+    restart: unless-stopped
+    environment:
+      OLLAMA_ENDPOINT: http://host.docker.internal:11434
+    ports:
+      - "8000:8000"  # Expose for local access
+    volumes:
+      - ./ai:/app  # Mount source code for hot-reload
+      - lancedb_data_dev:/app/data
+      - /app/__pycache__  # Exclude pycache
+    networks:
+      - quicksilver-network-dev
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+    depends_on:
+      mongodb:
+        condition: service_healthy
+
+  # Next.js Frontend (Development with hot-reload)
+  nextjs:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    container_name: quicksilver-nextjs-dev
+    restart: unless-stopped
+    environment:
+      NODE_ENV: development
+      DATABASE_URL: file:/app/prisma/dev.db
+      MONGODB_URI: mongodb://mongodb:27017/?directConnection=true
+      MONGODB_DB_NAME: quicksilver
+      FASTAPI_ENDPOINT: http://fastapi:8000
+      FRONTEND_URL: http://localhost:3000
+      OLLAMA_ENDPOINT: http://host.docker.internal:11434
+    ports:
+      - "3000:3000"  # Expose directly for development
+    volumes:
+      - ./:/app  # Mount entire source
+      - /app/node_modules  # Exclude node_modules
+      - /app/.next  # Exclude .next build
+      - prisma_data_dev:/app/prisma
+    networks:
+      - quicksilver-network-dev
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    command: sh -c "bunx prisma generate && bun run dev"
+    depends_on:
+      fastapi:
+        condition: service_started
+      mongodb:
+        condition: service_healthy
+
+networks:
+  quicksilver-network-dev:
+    driver: bridge
+
+volumes:
+  mongodb_data_dev:
+    driver: local
+  prisma_data_dev:
+    driver: local
+  lancedb_data_dev:
+    driver: local

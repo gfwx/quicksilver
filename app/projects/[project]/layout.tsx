@@ -7,7 +7,7 @@ export default async function RootLayout({
   params,
 }: Readonly<{
   children: React.ReactNode;
-  params: { project: string };
+  params: Promise<{ project: string }>;
 }>) {
   const p = await params;
   const projectId = p.project;

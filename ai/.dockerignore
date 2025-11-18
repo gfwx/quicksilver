@@ -1,0 +1,54 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# Virtual environments
+venv/
+env/
+ENV/
+.venv
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Local data (will use volumes)
+data/
+*.db
+*.sqlite
+
+# Docker
+Dockerfile*
+docker-compose*
+.dockerignore
+
+# Git
+.git
+.gitignore
+
+# Logs
+*.log
+logs/
+
+# Documentation
+README.md
+*.md
+
+# UV lock file (use requirements.txt instead)
+uv.lock
+pyproject.toml

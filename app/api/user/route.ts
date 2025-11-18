@@ -47,7 +47,15 @@ export async function PATCH(request: Request) {
       return Response.json({ error: "User ID is required" }, { status: 400 });
     }
 
-    const updateData: any = {};
+    const updateData: {
+      profileName: string | undefined;
+      profileDescription: string | undefined;
+      lastOpened: Date | undefined;
+    } = {
+      profileName: undefined,
+      profileDescription: undefined,
+      lastOpened: undefined,
+    };
     if (profileName !== undefined) updateData.profileName = profileName;
     if (profileDescription !== undefined)
       updateData.profileDescription = profileDescription;

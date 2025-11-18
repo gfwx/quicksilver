@@ -1,4 +1,4 @@
-import { Prisma, PrismaClient } from "@/generated/prisma";
+import { Prisma, PrismaClient } from "@prisma/client";
 import { WorkOS } from "@workos-inc/node";
 // This is done to prevent additional PrismaClient instances from being created upon mounting
 const globalForPrisma = globalThis as unknown as {
@@ -6,9 +6,6 @@ const globalForPrisma = globalThis as unknown as {
 };
 
 export const prisma = globalForPrisma.prisma ?? new PrismaClient();
-
-// Insane hack i found on github
-// ALSO move this to types.d.ts
 type ModelNames = Prisma.ModelName;
 export type PrismaModels = {
   [M in ModelNames]: Exclude<

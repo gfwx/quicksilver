@@ -1,5 +1,3 @@
-import { Button } from "@/components/ui/button";
-import { Plus, Settings } from "lucide-react";
 import { CreateProjectDialog } from "./CreateProjectDialog";
 import { ConfigureModelsDrawer } from "./ConfigureModelsDrawer";
 

@@ -7,7 +7,7 @@ const ai_endpoint = process.env.FASTAPI_ENDPOINT || "http://127.0.0.1:8000/";
 interface FileUploadResult {
   fileName: string;
   originalName: string;
-  fastApiResult: any;
+  fastApiResult: { message: string };
 }
 
 export async function POST(req: Request) {
@@ -135,7 +135,7 @@ export async function POST(req: Request) {
       processedFiles.push({
         fileName: createdFile.filename,
         originalName: file.name,
-        fastApiResult: fastAPIResponse,
+        fastApiResult: fastAPIResponse.message,
       });
     }
 

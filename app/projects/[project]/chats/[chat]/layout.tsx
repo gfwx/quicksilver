@@ -3,11 +3,11 @@ import type { UIMessage } from "ai";
 import { headers, cookies } from "next/headers";
 
 export default async function RootLayout({
-  params,
   children,
+  params,
 }: {
-  params: { chat: string };
   children: React.ReactNode;
+  params: Promise<{ chat: string }>;
 }) {
   const { chat: chatId } = await params;
 
