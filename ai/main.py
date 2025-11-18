@@ -162,6 +162,7 @@ async def get_vector(query, project_id):
 
     try:
         data = await asyncio.to_thread(_vector_query_sync, query, project_id)
+        print(data)
         return {"text": data}
     except ValueError as e:
         raise HTTPException(

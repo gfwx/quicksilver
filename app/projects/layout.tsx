@@ -12,10 +12,10 @@ export default async function DashboardLayout({
 
   try {
     const cookieStore = await cookies();
-    const userData = cookieStore.get("user-data")?.value;
+    const userId = cookieStore.get("x-current-user-id")?.value;
 
-    if (!userData) {
-      console.log("No user-data cookie found");
+    if (!userId) {
+      console.log("No x-current-user-id cookie found");
       return (
         <ProjectProvider initialProjects={[]}>
           <main className="p-8 flex flex-col gap-9">
@@ -25,9 +25,7 @@ export default async function DashboardLayout({
         </ProjectProvider>
       );
     }
-
-    const { id } = JSON.parse(userData);
-    console.log("Fetching projects with encrypted user ID:", id);
+    console.log("Fetching user object from API: ", userId);
 
     const h = await headers();
     const protocol = h.get("x-forwarded-proto") ?? "http";
@@ -36,19 +34,19 @@ export default async function DashboardLayout({
 
     console.log("Fetching from full URL:", fullUrl);
 
-    const res = await fetch(`${fullUrl}?user=${id}`, {
+    const projectResponse = await fetch(`${fullUrl}?user=${userId}`, {
       method: "GET",
     });
 
-    console.log("Response status:", res.status);
+    console.log("Response status:", projectResponse.status);
 
-    if (res.ok) {
-      const data = await res.json();
+    if (projectResponse.ok) {
+      const data = await projectResponse.json();
       console.log("Fetched projects data:", data);
       projects = data;
     } else {
       console.error(
-        `Fetch failed with status: ${res.status} ${res.statusText}`,
+        `Fetch failed with status: ${projectResponse.status} ${projectResponse.statusText}`,
       );
     }
   } catch (error) {

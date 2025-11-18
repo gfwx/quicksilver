@@ -4,19 +4,20 @@ import { ProjectTable } from "@/components/dashboard/project-table";
 import { useProjects } from "@/lib/contexts/ProjectContext";
 import type { PrismaModels } from "@/lib/instances";
 import { useProfile } from "@/lib/hooks/useProfile";
-import { redirect } from "next/navigation";
+// import { redirect } from "next/navigation";
 import { ProjectsHeader } from "@/lib/components/projects";
 
 export default function Dashboard() {
   const { projects } = useProjects();
   const { currentProfile } = useProfile();
 
-  if (!currentProfile) {
-    console.error("[/projects] No active profile found!");
-    redirect("/");
-  }
+  // something wrong with my useProfile hook.
+  // if (!currentProfile) {
+  //   console.error("[/projects] No active profile found!");
+  //   redirect("/");
+  // }
 
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState<
     "idle" | "loading" | "success" | "error"
   >("idle");
@@ -30,9 +31,12 @@ export default function Dashboard() {
         isSubmitting={isSubmitting}
         submitStatus={submitStatus}
         setSubmitStatus={setSubmitStatus}
-        userId={currentProfile.id}
+        userId={currentProfile?.id ?? ""}
       />
-      <ProjectTable projects={projects as PrismaModels["Project"][]} />
+      <ProjectTable
+        profileId={currentProfile?.id ?? ""}
+        projects={projects as PrismaModels["Project"][]}
+      />
     </section>
   );
 }

@@ -26,21 +26,21 @@ import {
 import { ProjectFilesDisplay } from "./ProjectFilesDisplay";
 import type { PrismaModels } from "@/lib/instances";
 import { useState, useCallback } from "react";
-import { useAuth } from "@/lib/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 
 interface ProjectTableProps {
   projects: PrismaModels["Project"][];
   onProjectDeleted?: (projectId: string) => void;
   onFilesUploaded?: (projectId: string) => void;
+  profileId: string;
 }
 
 export const ProjectTable = ({
   projects,
   onProjectDeleted,
   onFilesUploaded,
+  profileId,
 }: ProjectTableProps) => {
-  const { authState } = useAuth(); // I can get away with this because it's a client component.
   const [projectFileData, setProjectFileData] = useState<{
     [key: string]: PrismaModels["File"][];
   }>({});
@@ -68,7 +68,7 @@ export const ProjectTable = ({
       setError("");
       try {
         const res = await fetch(
-          `/api/files?project=${projectId}&user=${authState.user?.id ?? ""}`,
+          `/api/files?project=${projectId}&user=${profileId}`,
           {
             method: "GET",
           },
@@ -110,7 +110,7 @@ export const ProjectTable = ({
         },
         body: JSON.stringify({
           projectId,
-          userId: authState.user?.id,
+          userId: profileId,
         }),
       });
 

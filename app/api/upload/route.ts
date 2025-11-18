@@ -15,18 +15,15 @@ export async function POST(req: Request) {
     console.error("Prisma instance is not initialized");
     return Response.json(
       { error: "Prisma instance not initialized" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 
   const cookieStore = await cookies();
-  const profileId = cookieStore.get("x-user-data")?.value;
+  const profileId = cookieStore.get("x-current-user-id")?.value;
 
   if (!profileId) {
-    return Response.json(
-      { error: "No active profile found" },
-      { status: 401 }
-    );
+    return Response.json({ error: "No active profile found" }, { status: 401 });
   }
 
   const projectId = req.headers.get("x-project-id");
