@@ -67,6 +67,7 @@ export const ProjectTable = ({
       setLoading(true);
       setError("");
       try {
+        // Client-side fetch uses relative URL
         const res = await fetch(
           `/api/files?project=${projectId}&user=${profileId}`,
           {
@@ -103,6 +104,7 @@ export const ProjectTable = ({
 
     setDeletingProjectId(projectId);
     try {
+      // Client-side fetch uses relative URL
       const res = await fetch("/api/projects", {
         method: "DELETE",
         headers: {
@@ -140,18 +142,15 @@ export const ProjectTable = ({
         formData.append("files", file);
       });
 
-      // fix this shit
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_EXPRESS_ENDPOINT || "http://localhost:3001"}/upload`,
-        {
-          method: "POST",
-          headers: {
-            "x-project-id": projectId,
-          },
-          body: formData,
-          credentials: "include",
+      // Client-side fetch uses relative URL to Next.js API
+      const res = await fetch("/api/upload", {
+        method: "POST",
+        headers: {
+          "x-project-id": projectId,
         },
-      );
+        body: formData,
+        credentials: "include",
+      });
 
       if (!res.ok) {
         const error = await res.json();

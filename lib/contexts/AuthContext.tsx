@@ -81,6 +81,8 @@ export const AuthProvider = ({
 
       // the /user endpoint uses the server-side authentication middleware to
       // get the user data (if it exists) from the session cookie and refresh it if needed
+      //
+
       const response = await fetch("/api/user", {
         method: "GET",
         credentials: "include",

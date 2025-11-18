@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/instances";
 import { cookies } from "next/headers";
 import { v4 as uuidv4 } from "uuid";
+import { FASTAPI_ENDPOINT } from "@/lib/config/api";
 
 export async function GET() {
   try {
@@ -74,8 +75,6 @@ export async function PATCH(request: Request) {
 }
 
 export async function DELETE(request: Request) {
-  const ai_endpoint = process.env.FASTAPI_ENDPOINT || "http://127.0.0.1:8000/";
-
   try {
     const body = await request.json();
     const { id } = body;
@@ -105,7 +104,7 @@ export async function DELETE(request: Request) {
 
       try {
         const vectorDeleteResponse = await fetch(
-          `${ai_endpoint}/api/vector?project_id=${encodeURIComponent(project.id)}`,
+          `${FASTAPI_ENDPOINT}/api/vector?project_id=${encodeURIComponent(project.id)}`,
           {
             method: "DELETE",
           },

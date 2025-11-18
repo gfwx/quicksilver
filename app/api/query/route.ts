@@ -1,9 +1,8 @@
 // app/api/query/route.ts
 // Edge-compatible vector search endpoint
-export const runtime = "edge";
+import { FASTAPI_ENDPOINT } from "@/lib/config/api";
 
-const FASTAPI_ENDPOINT =
-  process.env.FASTAPI_ENDPOINT || "http://127.0.0.1:8000";
+export const runtime = "edge";
 
 export async function POST(req: Request) {
   try {

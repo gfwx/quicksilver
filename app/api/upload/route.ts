@@ -1,8 +1,7 @@
 import { prisma } from "@/lib/instances";
 import { v4 as uuidv4 } from "uuid";
 import { cookies } from "next/headers";
-
-const ai_endpoint = process.env.FASTAPI_ENDPOINT || "http://127.0.0.1:8000/";
+import { FASTAPI_ENDPOINT } from "@/lib/config/api";
 
 interface FileUploadResult {
   fileName: string;
@@ -107,7 +106,7 @@ export async function POST(req: Request) {
       };
 
       console.log(`Sending file to FastAPI: ${file.name}`);
-      const response = await fetch(`${ai_endpoint}/api/process`, {
+      const response = await fetch(`${FASTAPI_ENDPOINT}/api/process`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

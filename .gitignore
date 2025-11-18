@@ -41,13 +41,13 @@ yarn-error.log*
 next-env.d.ts
 
 **/app/generated/
+**/*/dev.db
 
 
 **/uploads/
 **/test.pdf
 
 **/prisma/migrations
-**/dev.db
 
 /generated/prisma
 

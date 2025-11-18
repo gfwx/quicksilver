@@ -44,14 +44,20 @@ export const useProfile = create<ProfileState>()(
       setCurrentProfile: async (profile) => {
         console.log(`Set current profile to: ${profile?.profileName}`);
         set({ currentProfile: profile });
+        // Client-side fetch uses relative URL
         if (profile) {
           const response = await fetch("/api/set-user-cookie", {
             method: "POST",
+            headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ token: profile.id }),
           });
 
           if (response.ok) {
             console.log("Current profile successfuly set");
+            // Also set the cookie client-side as a fallback
+            // This ensures immediate availability for subsequent requests
+            const maxAge = 60 * 60 * 24 * 365 * 20;
+            document.cookie = `x-current-user-id=${profile.id}; path=/; max-age=${maxAge}; SameSite=Lax${process.env.NODE_ENV === "production" ? "; Secure" : ""}`;
           } else {
             console.error("Failed to set current profile");
           }
@@ -62,6 +68,9 @@ export const useProfile = create<ProfileState>()(
 
           if (response.ok) {
             console.log("Current profile successfuly unset (set to null)");
+            // Clear cookie client-side as well
+            document.cookie =
+              "x-current-user-id=; path=/; max-age=0; SameSite=Lax";
           } else {
             console.error("Failed to unset current profile");
           }
@@ -95,6 +104,7 @@ export const useProfile = create<ProfileState>()(
 
       loadProfiles: async () => {
         set({ isLoading: true });
+        // Client-side fetch uses relative URL
         try {
           const response = await fetch("/api/user", {
             method: "GET",
@@ -128,6 +138,7 @@ export const useProfile = create<ProfileState>()(
 
       switchProfile: async (profileId) => {
         const profile = get().profiles.find((p) => p.id === profileId);
+        // Client-side fetch uses relative URL
         if (profile) {
           await get().setCurrentProfile(profile);
           await fetch("/api/user", {
@@ -143,6 +154,7 @@ export const useProfile = create<ProfileState>()(
 
       createProfile: async (data) => {
         set({ isLoading: true });
+        // Client-side fetch uses relative URL
         try {
           const response = await fetch("/api/user", {
             method: "POST",
@@ -164,6 +176,7 @@ export const useProfile = create<ProfileState>()(
 
       deleteProfile: async (profileId) => {
         set({ isLoading: true });
+        // Client-side fetch uses relative URL
         try {
           const response = await fetch("/api/user", {
             method: "DELETE",

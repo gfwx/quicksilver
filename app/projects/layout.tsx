@@ -1,4 +1,4 @@
-import { cookies, headers } from "next/headers";
+import { cookies } from "next/headers";
 import { ProjectProvider } from "@/lib/contexts/ProjectContext";
 import { UserNav } from "@/components/userNav";
 import type { PrismaModels } from "@/lib/instances";
@@ -26,11 +26,11 @@ export default async function DashboardLayout({
       );
     }
     console.log("Fetching user object from API: ", userId);
-
-    const h = await headers();
-    const protocol = h.get("x-forwarded-proto") ?? "http";
-    const host = h.get("host") ?? "localhost:3000";
-    const fullUrl = `${protocol}://${host}/api/projects`;
+    // Use internal API URL for server-side fetches in Docker
+    // This ensures the fetch goes directly to the Next.js container, not through nginx
+    const internalApiUrl =
+      process.env.INTERNAL_API_URL || "http://localhost:3000";
+    const fullUrl = `${internalApiUrl}/api/projects`;
 
     console.log("Fetching from full URL:", fullUrl);
 

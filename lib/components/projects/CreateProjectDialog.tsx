@@ -67,6 +67,7 @@ export function CreateProjectDialog({
         console.log(`File ${index}:`, file.name, file.type, file.size);
       });
 
+      // Client-side fetch uses relative URL
       const res = await fetch("/api/projects", {
         method: "POST",
         headers: {
@@ -98,7 +99,7 @@ export function CreateProjectDialog({
       }
 
       console.log("Making fetch request to Next.js API...");
-
+      // Client-side fetch uses relative URL
       const response = await fetch("/api/upload", {
         method: "POST",
         credentials: "include",

@@ -33,6 +33,7 @@ export default function Chat() {
     }),
     onFinish: async ({ message: assistantMessage }) => {
       const created_at = new Date();
+      // Client-side fetch uses relative URL
       await fetch(`/api/db/messages?chat_id=${chatId}`, {
         method: "POST",
         headers: {

@@ -1,4 +1,4 @@
-import { headers, cookies } from "next/headers";
+import { cookies } from "next/headers";
 import { ChatSidebar } from "@/lib/components/ChatSidebar";
 import { SidebarProvider } from "@/components/ui/sidebar";
 
@@ -29,16 +29,12 @@ export default async function RootLayout({
   }
 
   try {
-    const headersList = await headers();
-    const host = headersList.get("host") || "localhost:3000";
-    const protocol = process.env.NODE_ENV === "development" ? "http" : "https";
-    const baseUrl = `${protocol}://${host}`;
-    const response = await fetch(
-      `${baseUrl}/api/db/chats?user=${id}&project=${projectId}`,
-      {
-        method: "GET",
-      },
-    );
+    const internalApiUrl =
+      process.env.INTERNAL_API_URL || "http://localhost:3000";
+    const fullUrl = `${internalApiUrl}/api/db/chats`;
+    const response = await fetch(`${fullUrl}?user=${id}&project=${projectId}`, {
+      method: "GET",
+    });
 
     if (response.ok) {
       const data = await response.json();

@@ -14,9 +14,15 @@ FROM oven/bun:1 AS builder
 
 WORKDIR /app
 
-# Accept build argument for DATABASE_URL
+# Accept build arguments
 ARG DATABASE_URL
+ARG FASTAPI_ENDPOINT
+ARG OLLAMA_ENDPOINT
+
+# Set environment variables for build time
 ENV DATABASE_URL=$DATABASE_URL
+ENV FASTAPI_ENDPOINT=$FASTAPI_ENDPOINT
+ENV OLLAMA_ENDPOINT=$OLLAMA_ENDPOINT
 
 # Copy dependencies from deps stage
 COPY --from=deps /app/node_modules ./node_modules
@@ -27,6 +33,8 @@ ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
 
 # Copy Prisma schema and generate client
+RUN apt-get update -y && apt-get install -y openssl
+
 COPY prisma ./prisma
 RUN bunx prisma generate
 
@@ -40,6 +48,9 @@ WORKDIR /app
 
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
+
+# Install OpenSSL for Prisma
+RUN apk add --no-cache openssl
 
 # Create a non-root user
 RUN addgroup --system --gid 1001 nodejs && \

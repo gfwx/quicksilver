@@ -1,6 +1,7 @@
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/instances";
+import { FASTAPI_ENDPOINT } from "@/lib/config/api";
 
 export async function GET(request: NextRequest) {
   const userId = request.nextUrl.searchParams.get("user");
@@ -140,8 +141,6 @@ export async function PUT(request: NextRequest) {
 
 // DELETE - Delete a project
 export async function DELETE(request: NextRequest) {
-  const ai_endpoint = process.env.FASTAPI_ENDPOINT || "http://127.0.0.1:8000/";
-
   try {
     const body = await request.json();
     const { projectId, userId } = body;
@@ -170,7 +169,7 @@ export async function DELETE(request: NextRequest) {
     // Delete vector embeddings from FastAPI
     try {
       const vectorDeleteResponse = await fetch(
-        `${ai_endpoint}/api/vector?project_id=${encodeURIComponent(projectId)}`,
+        `${FASTAPI_ENDPOINT}/api/vector?project_id=${encodeURIComponent(projectId)}`,
         {
           method: "DELETE",
         },

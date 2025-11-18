@@ -1,10 +1,8 @@
 import { createOllama } from "ollama-ai-provider-v2";
 import { streamText, UIMessage, convertToModelMessages } from "ai";
+import { FASTAPI_ENDPOINT, OLLAMA_ENDPOINT } from "@/lib/config/api";
 
 export const maxDuration = 30;
-
-const FASTAPI_BACKEND_URL =
-  process.env.FASTAPI_ENDPOINT || "http://127.0.0.1:8000";
 
 async function fetchVectorEmbeddings(
   query: string,
@@ -12,7 +10,7 @@ async function fetchVectorEmbeddings(
 ): Promise<string[]> {
   try {
     const response = await fetch(
-      `${FASTAPI_BACKEND_URL}/api/vector?query=${query}&project_id=${projectId}`,
+      `${FASTAPI_ENDPOINT}/api/vector?query=${query}&project_id=${projectId}`,
       {
         method: "GET",
         headers: {
@@ -79,7 +77,7 @@ export async function POST(req: Request) {
   }
 
   const ollama = createOllama({
-    baseURL: "http://127.0.0.1:11434/api",
+    baseURL: `${OLLAMA_ENDPOINT}/api`,
   });
 
   // this is hard-coded. needs to be fixed later.

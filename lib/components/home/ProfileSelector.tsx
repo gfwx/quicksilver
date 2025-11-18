@@ -1,14 +1,12 @@
 "use client";
 
 import { useEffect } from "react";
-import { useRouter } from "next/navigation";
 import { useProfile } from "@/lib/hooks/useProfile";
 import ProfileCard from "./ProfileCard";
 import CreateProfileDialog from "./CreateProfileDialog";
 import { Loader2 } from "lucide-react";
 
 export default function ProfileSelector() {
-  const router = useRouter();
   const {
     profiles,
     currentProfile,
@@ -24,7 +22,9 @@ export default function ProfileSelector() {
 
   const handleSelectProfile = async (profileId: string) => {
     await switchProfile(profileId);
-    router.push("/projects");
+    // Force a full page reload instead of client-side navigation
+    // This ensures the cookie is set before the server renders the page
+    window.location.href = "/projects";
   };
 
   const handleDeleteProfile = async (profileId: string) => {
