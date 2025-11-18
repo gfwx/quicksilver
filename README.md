@@ -2,7 +2,7 @@
 
 > AI-powered document chat platform with RAG capabilities built on Next.js and FastAPI
 
-Quicksilver is a modern document intelligence platform that enables users to chat with their documents using AI. Upload files, organize them into projects, and have natural conversations powered by retrieval-augmented generation (RAG) and local language models.
+quicksilver is a modern document intelligence platform that enables users to chat with their documents using AI. Upload files, organize them into projects, and have natural conversations powered by retrieval-augmented generation (RAG) and local language models.
 
 ## Table of Contents
 
@@ -17,9 +17,7 @@ Quicksilver is a modern document intelligence platform that enables users to cha
 
 ## Background
 
-Quicksilver was built to provide a privacy-focused, locally-hosted alternative to cloud-based document chat services. By leveraging Ollama for local LLM inference and vector embeddings for semantic search, users can interact with their documents without sending sensitive data to external APIs.
-
-The platform uses a hybrid architecture combining Next.js for the frontend and API routes, with a FastAPI microservice handling document processing and vector search operations. This separation allows for optimized performance in document-heavy operations while maintaining a seamless user experience.
+built this thing for fun. fully customisable backend file processing and fully local architecture
 
 ## Install
 
