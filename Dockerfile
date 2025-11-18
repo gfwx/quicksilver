@@ -14,8 +14,8 @@ FROM oven/bun:1 AS builder
 
 WORKDIR /app
 
-# Accept build arguments
-ARG DATABASE_URL
+# Accept build arguments with defaults for build-time
+ARG DATABASE_URL="file:/app/prisma/dev.db"
 ARG FASTAPI_ENDPOINT
 ARG OLLAMA_ENDPOINT
 
@@ -38,7 +38,11 @@ ENV NEXT_TELEMETRY_DISABLED=1
 # Copy Prisma schema and generate client
 RUN apt-get update -y && apt-get install -y openssl
 
-COPY prisma ./prisma
+# Debug: Verify prisma schema exists and DATABASE_URL
+RUN ls -la prisma/ || echo "Prisma directory not found"
+RUN echo "DATABASE_URL is: $DATABASE_URL"
+
+# Generate Prisma client (schema already copied with COPY . .)
 RUN bunx prisma generate
 
 # Build Next.js application
