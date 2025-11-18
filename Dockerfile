@@ -24,6 +24,9 @@ ENV DATABASE_URL=$DATABASE_URL
 ENV FASTAPI_ENDPOINT=$FASTAPI_ENDPOINT
 ENV OLLAMA_ENDPOINT=$OLLAMA_ENDPOINT
 
+# Thank you Cloudflare!
+ENV PRISMA_ENGINES_CHECKSUM_IGNORE_MISSING=1
+
 # Copy dependencies from deps stage
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
