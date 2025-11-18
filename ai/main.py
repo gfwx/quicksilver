@@ -6,9 +6,9 @@ from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException, status
 from ollama import AsyncClient
 
-from .db.vector import VectorStore
-from .models import FileAPIResponse
-from .reader import FileProcessor
+from db.vector import VectorStore
+from models import FileAPIResponse
+from reader import FileProcessor
 
 load_dotenv()
 vs = VectorStore()
