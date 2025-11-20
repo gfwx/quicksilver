@@ -7,7 +7,8 @@ on:
     branches: ["dev"]
 
 jobs:
-  build-nextjs:
+
+  build-nginx:
     runs-on: ubuntu-latest
 
     steps:
@@ -23,5 +24,10 @@ jobs:
 
       - name: build custom nginx image
         run: docker build ./nginx --file nginx/Dockerfile --tag gfwx/quicksilver-nginx
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PAT }} 
       - name: push custom nginx image to docker hub
         run: docker push gfwx/quicksilver-nginx:latest
