@@ -2,19 +2,22 @@ name: Docker Image CI
 
 on:
   push:
-    branches: [ "dev" ]
+    branches: ["dev"]
   pull_request:
-    branches: [ "dev" ]
+    branches: ["dev"]
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v4
-    - name: build nextjs image
-      run: docker build . --file Dockerfile --tag gfwx/quicksilver-app:$(date +%s)
-    - name: build fastapi image
-      run: docker build ./ai --file Dockerfile --tag gfwx/quicksilver-ai:$(date +%s)
-    - name: build custom nginx image
-      run: docker build ./nginx --file Dockerfile --tag gfwx/quicksilver-nginx:$(date +%s)
+      - uses: actions/checkout@v4
+
+      - name: build nextjs image
+        run: docker build . --file Dockerfile --tag gfwx/quicksilver-app:$(date +%s)
+
+      - name: build fastapi image
+        run: docker build ./ai --file ai/Dockerfile --tag gfwx/quicksilver-ai:$(date +%s)
+
+      - name: build custom nginx image
+        run: docker build ./nginx --file nginx/Dockerfile --tag gfwx/quicksilver-nginx:$(date +%s)
