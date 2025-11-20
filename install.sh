@@ -1,7 +1,7 @@
 #!/bin/bash
 
-APP_NAME="yourapp"
-INSTALL_DIR="$HOME/.yourapp"
+APP_NAME="quicksilver"
+INSTALL_DIR="$HOME/.quicksilver"
 COMPOSE_URL="http://raw.githubusercontent.com/gfwx/quicksilver/release/docker-compose.yml"
 
 echo "Installing $APP_NAME..."
