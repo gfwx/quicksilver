@@ -21,3 +21,17 @@ jobs:
 
       - name: build custom nginx image
         run: docker build ./nginx --file nginx/Dockerfile --tag gfwx/quicksilver-nginx:$(date +%s)
+  push:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: push nextjs image
+        run: docker push gfwx/quicksilver-app:$(date +%s)
+
+      - name: push fastapi image
+        run: docker push gfwx/quicksilver-ai:$(date +%s)
+
+      - name: push custom nginx image
+        run: docker push gfwx/quicksilver-nginx:$(date +%s)
