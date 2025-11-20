@@ -13,13 +13,15 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: build nextjs image
-        run: docker build . --file Dockerfile --tag gfwx/quicksilver-app:$(date +%s)
-      - name: push nextjs image to docker hub
-        run: docker push gfwx/quicksilver-app:$(date +%s)
+      # - name: build nextjs image
+      #   run: docker build . --file Dockerfile --tag gfwx/quicksilver-app:latest
+      # - name: push nextjs image to docker hub
+      #   run: docker push gfwx/quicksilver-app:latest
 
       # - name: build fastapi image
       #   run: docker build ./ai --file ai/Dockerfile --tag gfwx/quicksilver-ai:$(date +%s)
 
-      # - name: build custom nginx image
-      #   run: docker build ./nginx --file nginx/Dockerfile --tag gfwx/quicksilver-nginx:$(date +%s)
+      - name: build custom nginx image
+        run: docker build ./nginx --file nginx/Dockerfile --tag gfwx/quicksilver-nginx
+      - name: push custom nginx image to docker hub
+        run: docker push gfwx/quicksilver-nginx:latest
