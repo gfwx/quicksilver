@@ -25,9 +25,20 @@ built this thing for fun. fully customisable backend file processing and fully l
 
 Before installing Quicksilver, ensure you have the following prerequisites:
 
+- **Ollama** installed and running locally or accessible via network
+
+To install Quicksilver, run:
+
+```bash
+curl https://raw.githubusercontent.com/gfwx/quicksilver/release/install.sh | bash
+```
+
+### Manual Installation
+
+Alternatively, you can install manually:
+
 - **Node.js** 20+ and **Bun** runtime installed
 - **Docker** and **Docker Compose** (for containerized deployment)
-- **Ollama** running locally or accessible via network
 - **Python** 3.11+ (if running FastAPI service separately)
 
 Clone the repository:
