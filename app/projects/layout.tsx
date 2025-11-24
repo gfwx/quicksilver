@@ -1,6 +1,5 @@
 import { cookies } from "next/headers";
 import { ProjectProvider } from "@/lib/contexts/ProjectContext";
-import { UserNav } from "@/lib/components/global";
 import type { PrismaModels } from "@/lib/instances";
 
 export default async function DashboardLayout({
@@ -18,10 +17,7 @@ export default async function DashboardLayout({
       console.log("No x-current-user-id cookie found");
       return (
         <ProjectProvider initialProjects={[]}>
-          <main className="p-8 flex flex-col gap-9">
-            <UserNav />
-            {children}
-          </main>
+          <main className="p-8 flex flex-col gap-9">{children}</main>
         </ProjectProvider>
       );
     }
@@ -57,10 +53,7 @@ export default async function DashboardLayout({
 
   return (
     <ProjectProvider initialProjects={projects}>
-      <main className="p-8 flex flex-col gap-9">
-        <UserNav />
-        {children}
-      </main>
+      <main className="p-8 flex flex-col gap-9">{children}</main>
     </ProjectProvider>
   );
 }
