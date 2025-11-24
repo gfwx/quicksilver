@@ -9,12 +9,12 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
+} from "@/lib/components/ui/table";
 
 import { Trash2, Upload, BookOpen } from "lucide-react";
 
 import type { PrismaModels } from "@/lib/instances";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/lib/components/ui/button";
 import { useProjects } from "@/lib/hooks/useProjects";
 
 interface ProjectTableProps {

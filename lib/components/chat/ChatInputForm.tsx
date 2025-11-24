@@ -1,4 +1,4 @@
-import { TextBoxButton } from "@/lib/components/TextboxBtn";
+import { TextBoxButton } from "@/lib/components/chat/TextboxBtn";
 import { ChatStatus } from "ai";
 
 interface ChatInputFormProps {

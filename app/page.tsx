@@ -1,7 +1,7 @@
 "use client";
 
 import { Header, ProfileSelector } from "@/lib/components/home";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/lib/components/ui/button";
 import { useProfile } from "@/lib/hooks/useProfile";
 import Link from "next/link";
 

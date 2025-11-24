@@ -1,8 +1,8 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import { useRouter, usePathname } from "next/navigation";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { Button } from "@/lib/components/ui/button";
+import { Input } from "@/lib/components/ui/input";
 import { Plus } from "lucide-react";
 import Link from "next/link";
 import {
@@ -17,14 +17,14 @@ import {
   SidebarGroupContent,
   SidebarFooter,
   SidebarTrigger,
-} from "@/components/ui/sidebar";
+} from "@/lib/components/ui/sidebar";
 
 import {
   ContextMenu,
   ContextMenuContent,
   ContextMenuItem,
   ContextMenuTrigger,
-} from "@/components/ui/context-menu";
+} from "@/lib/components/ui/context-menu";
 
 interface Chat {
   id: string;
@@ -68,7 +68,10 @@ export function ChatSidebar({ chats, projectId, userId }: SidebarProps) {
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
-        console.error(`[ChatSidebar] Failed to create chat. Status: ${response.status}`, errorData);
+        console.error(
+          `[ChatSidebar] Failed to create chat. Status: ${response.status}`,
+          errorData,
+        );
         throw new Error("Failed to create chat");
       }
 
@@ -106,7 +109,10 @@ export function ChatSidebar({ chats, projectId, userId }: SidebarProps) {
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
-        console.error(`[ChatSidebar] Failed to delete chat ${chatId}. Status: ${response.status}`, errorData);
+        console.error(
+          `[ChatSidebar] Failed to delete chat ${chatId}. Status: ${response.status}`,
+          errorData,
+        );
         throw new Error("Failed to delete chat");
       }
 
@@ -147,8 +153,13 @@ export function ChatSidebar({ chats, projectId, userId }: SidebarProps) {
       });
 
       if (!response.ok) {
-        const errorResponse = await response.json().catch(() => ({ error: "Unknown error" }));
-        console.error(`[ChatSidebar] Failed to rename chat ${chatId}. Status: ${response.status}`, errorResponse);
+        const errorResponse = await response
+          .json()
+          .catch(() => ({ error: "Unknown error" }));
+        console.error(
+          `[ChatSidebar] Failed to rename chat ${chatId}. Status: ${response.status}`,
+          errorResponse,
+        );
         throw new Error(`Failed to rename chat: ${errorResponse.error}`);
       }
 

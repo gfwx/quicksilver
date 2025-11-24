@@ -3,13 +3,17 @@
 import logoMark from "@/public/logomark.svg";
 import Image from "next/image";
 import Link from "next/link";
-import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
+import {
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+} from "@/lib/components/ui/avatar";
 import {
   ContextMenu,
   ContextMenuTrigger,
   ContextMenuContent,
   ContextMenuItem,
-} from "./ui/context-menu";
+} from "@/lib/components/ui/context-menu";
 import { useProfile } from "@/lib/hooks/useProfile";
 
 export const UserNav = () => {

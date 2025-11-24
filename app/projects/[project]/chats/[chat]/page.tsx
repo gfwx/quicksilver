@@ -47,7 +47,10 @@ export default function Chat() {
 
         if (!response.ok) {
           const errorData = await response.json().catch(() => ({}));
-          console.error(`[onFinish] Failed to save assistant message to DB. Status: ${response.status}`, errorData);
+          console.error(
+            `[onFinish] Failed to save assistant message to DB. Status: ${response.status}`,
+            errorData,
+          );
         }
       } catch (error) {
         console.error("[onFinish] Error saving assistant message:", error);
@@ -116,9 +119,15 @@ export default function Chat() {
         })
           .then((response) => {
             if (!response.ok) {
-              return response.json().catch(() => ({})).then((errorData) => {
-                console.error(`[handleSubmit] Failed to save user message to DB. Status: ${response.status}`, errorData);
-              });
+              return response
+                .json()
+                .catch(() => ({}))
+                .then((errorData) => {
+                  console.error(
+                    `[handleSubmit] Failed to save user message to DB. Status: ${response.status}`,
+                    errorData,
+                  );
+                });
             }
           })
           .catch((error) => {

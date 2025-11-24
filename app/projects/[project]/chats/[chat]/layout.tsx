@@ -37,7 +37,9 @@ export default async function RootLayout({
       const data = await response.json();
       messages = data.messages;
     } else {
-      console.error(`[ChatLayout] Failed to fetch messages. Status: ${response.status}`);
+      console.error(
+        `[ChatLayout] Failed to fetch messages. Status: ${response.status}`,
+      );
       const errorData = await response.json().catch(() => ({}));
       console.error("[ChatLayout] Error response:", errorData);
     }

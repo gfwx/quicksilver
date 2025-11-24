@@ -1,6 +1,6 @@
 import { cookies } from "next/headers";
 import { ProjectProvider } from "@/lib/contexts/ProjectContext";
-import { UserNav } from "@/components/userNav";
+import { UserNav } from "@/lib/components/global";
 import type { PrismaModels } from "@/lib/instances";
 
 export default async function DashboardLayout({
