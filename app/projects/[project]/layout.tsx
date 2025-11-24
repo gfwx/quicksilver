@@ -39,9 +39,13 @@ export default async function RootLayout({
     if (response.ok) {
       const data = await response.json();
       chats = data.chats;
+    } else {
+      console.error(`[ProjectLayout] Failed to fetch chats. Status: ${response.status}`);
+      const errorData = await response.json().catch(() => ({}));
+      console.error("[ProjectLayout] Error response:", errorData);
     }
   } catch (error) {
-    console.error("Failed to fetch chats:", error);
+    console.error("[ProjectLayout] Error fetching chats:", error);
     chats = [];
   }
 

@@ -41,7 +41,7 @@ export default function Header() {
         src={isDark ? wordMarkDark : wordMark}
         alt="Quicksilver Wordmark"
       />
-      <p className="text-foreground text-lg font-serif tracking-tight">
+      <p className="text-foreground text-lg font-sans tracking-tight">
         <b>Self-Hosted</b> AI Document Inference
       </p>
     </div>

@@ -1,10 +1,8 @@
 import asyncio
-from os import getenv
 from typing import List
 
 from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException, status
-from ollama import AsyncClient
 
 from db.vector import VectorStore
 from models import FileAPIResponse
@@ -13,9 +11,6 @@ from reader import FileProcessor
 load_dotenv()
 vs = VectorStore()
 app = FastAPI()
-host = getenv("OLLAMA_ENDPOINT", "http://localhost:11434")
-
-client = AsyncClient(host=host)
 
 
 @app.get("/api")

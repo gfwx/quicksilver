@@ -32,21 +32,26 @@ export default function Chat() {
       },
     }),
     onFinish: async ({ message: assistantMessage }) => {
-      const created_at = new Date();
-      // Client-side fetch uses relative URL
-      await fetch(`/api/db/messages?chat_id=${chatId}`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          message: assistantMessage,
-          userId: currentProfile?.id ?? "",
-          chatId,
-          created_at,
-          updated_at: created_at,
-        }),
-      }).catch(console.error);
+      try {
+        const response = await fetch(`/api/db/messages?chat_id=${chatId}`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            message: assistantMessage,
+            userId: currentProfile?.id ?? "",
+            chatId,
+          }),
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => ({}));
+          console.error(`[onFinish] Failed to save assistant message to DB. Status: ${response.status}`, errorData);
+        }
+      } catch (error) {
+        console.error("[onFinish] Error saving assistant message:", error);
+      }
     },
   });
   const { history } = useMessages();
@@ -108,9 +113,20 @@ export default function Chat() {
             userId: currentProfile?.id ?? "",
             chatId,
           }),
-        }).catch(console.error);
+        })
+          .then((response) => {
+            if (!response.ok) {
+              return response.json().catch(() => ({})).then((errorData) => {
+                console.error(`[handleSubmit] Failed to save user message to DB. Status: ${response.status}`, errorData);
+              });
+            }
+          })
+          .catch((error) => {
+            console.error("[handleSubmit] Error saving user message:", error);
+          });
       }
     } catch (err) {
+      console.error("[handleSubmit] Error during message submission:", err);
       setError(err instanceof Error ? err.message : "An error occurred");
     } finally {
       setInput("");

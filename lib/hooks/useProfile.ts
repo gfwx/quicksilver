@@ -59,7 +59,12 @@ export const useProfile = create<ProfileState>()(
             const maxAge = 60 * 60 * 24 * 365 * 20;
             document.cookie = `x-current-user-id=${profile.id}; path=/; max-age=${maxAge}; SameSite=Lax${process.env.NODE_ENV === "production" ? "; Secure" : ""}`;
           } else {
-            console.error("Failed to set current profile");
+            const errorData = await response.json().catch(() => ({}));
+            console.error(
+              "[useProfile] Failed to set current profile. Status:",
+              response.status,
+              errorData,
+            );
           }
         } else {
           const response = await fetch("/api/set-user-cookie", {
@@ -72,7 +77,12 @@ export const useProfile = create<ProfileState>()(
             document.cookie =
               "x-current-user-id=; path=/; max-age=0; SameSite=Lax";
           } else {
-            console.error("Failed to unset current profile");
+            const errorData = await response.json().catch(() => ({}));
+            console.error(
+              "[useProfile] Failed to unset current profile. Status:",
+              response.status,
+              errorData,
+            );
           }
         }
       },
@@ -130,7 +140,7 @@ export const useProfile = create<ProfileState>()(
             }
           }
         } catch (error) {
-          console.error("Failed to load profiles:", error);
+          console.error("[useProfile] Failed to load profiles:", error);
         } finally {
           set({ isLoading: false });
         }
@@ -148,7 +158,12 @@ export const useProfile = create<ProfileState>()(
               id: profileId,
               lastOpened: new Date().toISOString(),
             }),
-          }).catch(console.error);
+          }).catch((error) => {
+            console.error(
+              "[useProfile] Error updating profile lastOpened:",
+              error,
+            );
+          });
         }
       },
 
@@ -163,12 +178,21 @@ export const useProfile = create<ProfileState>()(
           });
 
           if (!response.ok) {
+            const errorData = await response.json().catch(() => ({}));
+            console.error(
+              "[useProfile] Failed to create profile. Status:",
+              response.status,
+              errorData,
+            );
             throw new Error("Failed to create profile");
           }
 
           const newProfile = await response.json();
           get().addProfile(newProfile);
           return newProfile;
+        } catch (error) {
+          console.error("[useProfile] Error creating profile:", error);
+          throw error;
         } finally {
           set({ isLoading: false });
         }
@@ -185,10 +209,19 @@ export const useProfile = create<ProfileState>()(
           });
 
           if (!response.ok) {
+            const errorData = await response.json().catch(() => ({}));
+            console.error(
+              "[useProfile] Failed to delete profile. Status:",
+              response.status,
+              errorData,
+            );
             throw new Error("Failed to delete profile");
           }
 
           get().removeProfile(profileId);
+        } catch (error) {
+          console.error("[useProfile] Error deleting profile:", error);
+          throw error;
         } finally {
           set({ isLoading: false });
         }

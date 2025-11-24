@@ -67,6 +67,8 @@ export function ChatSidebar({ chats, projectId, userId }: SidebarProps) {
       });
 
       if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        console.error(`[ChatSidebar] Failed to create chat. Status: ${response.status}`, errorData);
         throw new Error("Failed to create chat");
       }
 
@@ -77,7 +79,7 @@ export function ChatSidebar({ chats, projectId, userId }: SidebarProps) {
       setLocalChats([newChat, ...localChats]);
       router.push(`/projects/${projectId}/chats/${newChatId}`);
     } catch (error) {
-      console.error("Error creating new chat:", error);
+      console.error("[ChatSidebar] Error creating new chat:", error);
     }
   };
 
@@ -103,6 +105,8 @@ export function ChatSidebar({ chats, projectId, userId }: SidebarProps) {
       });
 
       if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        console.error(`[ChatSidebar] Failed to delete chat ${chatId}. Status: ${response.status}`, errorData);
         throw new Error("Failed to delete chat");
       }
 
@@ -114,7 +118,7 @@ export function ChatSidebar({ chats, projectId, userId }: SidebarProps) {
         router.push("/");
       }
     } catch (error) {
-      console.error("Error deleting chat:", error);
+      console.error("[ChatSidebar] Error deleting chat:", error);
       alert("Failed to delete chat");
     }
   };
@@ -143,8 +147,9 @@ export function ChatSidebar({ chats, projectId, userId }: SidebarProps) {
       });
 
       if (!response.ok) {
-        const { error } = await response.json();
-        throw new Error(`Failed to rename chat: ${error}`);
+        const errorResponse = await response.json().catch(() => ({ error: "Unknown error" }));
+        console.error(`[ChatSidebar] Failed to rename chat ${chatId}. Status: ${response.status}`, errorResponse);
+        throw new Error(`Failed to rename chat: ${errorResponse.error}`);
       }
 
       setLocalChats(
@@ -154,7 +159,7 @@ export function ChatSidebar({ chats, projectId, userId }: SidebarProps) {
       );
       setEditingId(null);
     } catch (error) {
-      console.error("Error renaming chat:", error);
+      console.error("[ChatSidebar] Error renaming chat:", error);
       alert("Failed to rename chat");
     }
   };

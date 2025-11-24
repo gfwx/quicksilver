@@ -50,41 +50,49 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
-  const { chatId, userId, message } = await req.json();
+  try {
+    const { chatId, userId, message } = await req.json();
 
-  if (!userId) {
+    if (!userId) {
+      return NextResponse.json(
+        { error: "Missing encrypted user payload" },
+        { status: 400 },
+      );
+    }
+
+    if (!chatId) {
+      return NextResponse.json(
+        { error: "chat_id request parameter is required." },
+        { status: 400 },
+      );
+    }
+    if (!message) {
+      return NextResponse.json(
+        { error: "message is required in request body." },
+        { status: 400 },
+      );
+    }
+
+    const db = await getDb();
+    const collection = db.collection("messages");
+
+    // Insert the new message into the database
+    const result = await collection.insertOne({
+      user_id: userId,
+      chat_id: chatId,
+      message,
+      created_at: new Date(),
+      updated_at: new Date(),
+    });
+
+    return NextResponse.json({ message: message, result });
+  } catch (error) {
+    console.error("Failed to create message:", error);
     return NextResponse.json(
-      { error: "Missing encrypted user payload" },
-      { status: 400 },
+      { error: "Internal server error while creating message" },
+      { status: 500 },
     );
   }
-
-  if (!chatId) {
-    return NextResponse.json(
-      { error: "chat_id request parameter is required." },
-      { status: 400 },
-    );
-  }
-  if (!message) {
-    return NextResponse.json(
-      { error: "message is required in request body." },
-      { status: 400 },
-    );
-  }
-
-  const db = await getDb();
-  const collection = db.collection("messages");
-
-  // Insert the new message into the database
-  const result = await collection.insertOne({
-    user_id: userId,
-    chat_id: chatId,
-    message,
-    created_at: new Date(),
-    updated_at: new Date(),
-  });
-
-  return NextResponse.json({ message: message, result });
 }
 
 export async function PATCH(req: NextRequest) {

@@ -32,7 +32,7 @@ export async function GET(req: NextRequest) {
 
     return NextResponse.json({ chats });
   } catch (error) {
-    console.error(error);
+    console.error("[GET /api/db/chats] Error fetching chats:", error);
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 },
@@ -66,7 +66,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ id: chat.insertedId.toString() });
   } catch (error) {
-    console.error(error);
+    console.error("[POST /api/db/chats] Error creating chat:", error);
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 },

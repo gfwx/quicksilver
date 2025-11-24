@@ -14,14 +14,6 @@ export default function Home() {
         <Header />
 
         <div className="flex flex-col items-center gap-6 w-full">
-          {currentProfile && (
-            <div className="text-center">
-              <p className="text-sm text-muted-foreground">
-                Active Profile: {currentProfile.profileName}{" "}
-              </p>
-            </div>
-          )}
-
           <ProfileSelector />
 
           <div className="flex gap-4 mt-4">
