@@ -39,7 +39,7 @@ ENV NEXT_TELEMETRY_DISABLED=1
 RUN apt-get update -y && apt-get install -y openssl
 
 # Debug: Verify prisma schema exists and DATABASE_URL
-RUN ls -la prisma/ || echo "Prisma directory not found"
+RUN ls -la lib/generated/prisma/ || echo "Prisma directory not found"
 RUN echo "DATABASE_URL is: $DATABASE_URL"
 
 # Generate Prisma client (schema already copied with COPY . .)
@@ -69,12 +69,12 @@ COPY --from=builder /app/.next/standalone ./
 COPY --from=builder /app/.next/static ./.next/static
 
 # Copy Prisma files for runtime
-COPY --from=builder /app/prisma ./prisma
-COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
-COPY --from=builder /app/node_modules/@prisma ./node_modules/@prisma
+COPY --from=builder /app/lib/generated/prisma ./lib/generated/prisma
+# COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
+# COPY --from=builder /app/node_modules/@prisma ./node_modules/@prisma
 
 # Create Prisma data directory
-RUN mkdir -p /app/prisma && chown -R nextjs:nodejs /app
+RUN mkdir -p /app/lib/generated/prisma && chown -R nextjs:nodejs /app
 
 USER nextjs
 
