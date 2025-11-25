@@ -23,6 +23,7 @@ services:
 
   # FastAPI Backend (Development with hot-reload)
   fastapi:
+    platform: linux/arm64
     build:
       context: ./ai
       dockerfile: Dockerfile.dev
@@ -47,6 +48,7 @@ services:
 
   # Next.js Frontend (Development with hot-reload)
   nextjs:
+    platform: linux/arm64
     build:
       context: .
       dockerfile: Dockerfile.dev
