@@ -18,31 +18,48 @@ RUN apt-get update && apt-get install -y \
 # Copy requirements first for better caching
 COPY requirements.txt .
 
-# Install CPU-only PyTorch (much smaller than CUDA version)
+# Create requirements without torch to prevent reinstallation
+RUN grep -v "^torch==" requirements.txt > requirements-no-torch.txt
+
+# Install PyTorch using extra-index-url to prioritize CPU builds
+# This works for both amd64 and arm64 platforms
 RUN pip install --no-cache-dir \
-    torch==2.8.0+cpu \
-    --index-url https://download.pytorch.org/whl/cpu
+    torch==2.8.0 \
+    --extra-index-url https://download.pytorch.org/whl/cpu
 
-# Install other dependencies, skipping torch since we installed it above
-RUN grep -v "^torch==" requirements.txt > requirements-no-torch.txt && \
-    pip install --no-cache-dir -r requirements-no-torch.txt && \
-    rm requirements-no-torch.txt
+# Install other dependencies (torch already excluded)
+RUN pip install --no-cache-dir -r requirements-no-torch.txt
 
-# Download sentence transformer model at build time
-RUN python -c "from sentence_transformers import SentenceTransformer; SentenceTransformer('sentence-transformers/all-MiniLM-L6-v2')"
+# Verify torch installation and print info
+RUN python -c "import torch; print(f'PyTorch {torch.__version__}'); print(f'CUDA available: {torch.cuda.is_available()}'); import sys; print(f'Platform: {sys.platform}')" && \
+    du -sh /usr/local/lib/python3.11/site-packages/torch 2>/dev/null || true
+
+# Set HuggingFace cache to a specific location
+ENV HF_HOME=/app/.cache/huggingface
+
+# Download sentence transformer model at build time to HF_HOME
+RUN mkdir -p /app/.cache/huggingface && \
+    python -c "from sentence_transformers import SentenceTransformer; SentenceTransformer('sentence-transformers/all-MiniLM-L6-v2')"
+
+# Clean up pip cache and other unnecessary files in builder
+RUN rm -rf /root/.cache/pip && \
+    find /usr/local/lib/python3.11/site-packages -type d -name __pycache__ -exec rm -rf {} + 2>/dev/null || true
 
 # Final stage - minimal runtime image
 FROM python:3.11-slim
 
 ENV PYTHONUNBUFFERED=1 \
-    PYTHONDONTWRITEBYTECODE=1
+    PYTHONDONTWRITEBYTECODE=1 \
+    HF_HOME=/app/.cache/huggingface
 
 WORKDIR /app
 
-# Copy Python packages and model cache from builder
+# Copy Python packages from builder (no cache!)
 COPY --from=builder /usr/local/lib/python3.11/site-packages /usr/local/lib/python3.11/site-packages
 COPY --from=builder /usr/local/bin/uvicorn /usr/local/bin/uvicorn
-COPY --from=builder /root/.cache /root/.cache
+
+# Copy only the HuggingFace model cache (not pip cache or other junk)
+COPY --from=builder /app/.cache/huggingface /app/.cache/huggingface
 
 # Copy application code
 COPY . .
