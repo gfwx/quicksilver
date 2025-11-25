@@ -3,9 +3,11 @@ datasource db {
 }
 
 generator client {
-  provider      = "prisma-client"
-  binaryTargets = ["linux-musl-openssl", "linux-musl-arm64-openssl-3.0.x", "native"]
-  engineType    = "client"
+  provider               = "prisma-client"
+  output                 = "../lib/generated/prisma/"
+  engineType             = "client"
+  generatedFileExtension = "ts"
+  importFileExtension    = "ts"
 }
 
 model User {
