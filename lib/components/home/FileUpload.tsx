@@ -1,10 +1,15 @@
-'use client';
+"use client";
 
-import { useCallback } from 'react';
-import { useDropzone } from 'react-dropzone';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { UploadCloud, X } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { useCallback } from "react";
+import { useDropzone } from "react-dropzone";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/lib/components/ui/card";
+import { UploadCloud, X } from "lucide-react";
+import { Button } from "@/lib/components/ui/button";
 
 interface FileUploadProps {
   value?: File[];
@@ -13,24 +18,30 @@ interface FileUploadProps {
 }
 
 export function FileUpload({ value = [], onChange, error }: FileUploadProps) {
-  const onDrop = useCallback((acceptedFiles: File[]) => {
-    if (onChange) {
-      onChange([...value, ...acceptedFiles]);
-    }
-  }, [value, onChange]);
+  const onDrop = useCallback(
+    (acceptedFiles: File[]) => {
+      if (onChange) {
+        onChange([...value, ...acceptedFiles]);
+      }
+    },
+    [value, onChange],
+  );
 
-  const removeFile = useCallback((index: number) => {
-    if (onChange) {
-      const newFiles = value.filter((_, i) => i !== index);
-      onChange(newFiles);
-    }
-  }, [value, onChange]);
+  const removeFile = useCallback(
+    (index: number) => {
+      if (onChange) {
+        const newFiles = value.filter((_, i) => i !== index);
+        onChange(newFiles);
+      }
+    },
+    [value, onChange],
+  );
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
     accept: {
-      'application/pdf': ['.pdf'],
-      'text/plain': ['.txt'],
+      "application/pdf": [".pdf"],
+      "text/plain": [".txt"],
     },
   });
 
@@ -42,12 +53,13 @@ export function FileUpload({ value = [], onChange, error }: FileUploadProps) {
       <CardContent>
         <div
           {...getRootProps()}
-          className={`flex flex-col items-center justify-center p-10 border-2 border-dashed rounded-md cursor-pointer transition-colors ${isDragActive
-              ? 'border-primary bg-primary/10'
+          className={`flex flex-col items-center justify-center p-10 border-2 border-dashed rounded-md cursor-pointer transition-colors ${
+            isDragActive
+              ? "border-primary bg-primary/10"
               : error
-                ? 'border-destructive bg-destructive/10'
-                : 'border-border'
-            }`}
+                ? "border-destructive bg-destructive/10"
+                : "border-border"
+          }`}
         >
           <input {...getInputProps()} />
           <UploadCloud className="w-12 h-12 text-muted-foreground" />
@@ -60,16 +72,17 @@ export function FileUpload({ value = [], onChange, error }: FileUploadProps) {
           )}
         </div>
 
-        {error && (
-          <p className="text-sm text-destructive mt-2">{error}</p>
-        )}
+        {error && <p className="text-sm text-destructive mt-2">{error}</p>}
 
         {value.length > 0 && (
           <div className="mt-4">
             <h4 className="font-semibold mb-2">Uploaded Files:</h4>
             <div className="space-y-2">
               {value.map((file, index) => (
-                <div key={index} className="flex items-center justify-between p-2 bg-muted rounded-md">
+                <div
+                  key={index}
+                  className="flex items-center justify-between p-2 bg-muted rounded-md"
+                >
                   <span className="text-sm text-muted-foreground truncate">
                     {file.name}
                   </span>

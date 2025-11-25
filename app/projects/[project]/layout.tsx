@@ -1,6 +1,6 @@
 import { cookies } from "next/headers";
-import { ChatSidebar } from "@/lib/components/ChatSidebar";
-import { SidebarProvider } from "@/components/ui/sidebar";
+import { ChatSidebar } from "@/lib/components/chat";
+import { SidebarProvider } from "@/lib/components/ui/sidebar";
 
 export default async function RootLayout({
   children,
@@ -39,16 +39,22 @@ export default async function RootLayout({
     if (response.ok) {
       const data = await response.json();
       chats = data.chats;
+    } else {
+      console.error(
+        `[ProjectLayout] Failed to fetch chats. Status: ${response.status}`,
+      );
+      const errorData = await response.json().catch(() => ({}));
+      console.error("[ProjectLayout] Error response:", errorData);
     }
   } catch (error) {
-    console.error("Failed to fetch chats:", error);
+    console.error("[ProjectLayout] Error fetching chats:", error);
     chats = [];
   }
 
   return (
     <SidebarProvider>
       <ChatSidebar chats={chats} projectId={projectId} userId={id} />
-      <main className="flex-1 mx-auto overflow-auto">{children}</main>
+      {children}
     </SidebarProvider>
   );
 }

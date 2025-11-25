@@ -5,8 +5,8 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
+} from "@/lib/components/ui/dialog";
+import { Button } from "@/lib/components/ui/button";
 import { Plus, X, Loader2, Check, AlertCircle } from "lucide-react";
 import { CreateProjectSchema } from "@/lib/schemas";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -19,26 +19,28 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { FileUpload } from "@/components/file-upload";
+} from "@/lib/components/ui/form";
+import { Input } from "@/lib/components/ui/input";
+import { Textarea } from "@/lib/components/ui/textarea";
+import { FileUpload } from "@/lib/components/home/FileUpload";
 
 interface CreateProjectDialogProps {
   dialogOpen: boolean;
-  setDialogOpen: (open: boolean) => void;
+  setDialogOpenAction: (open: boolean) => void;
   isSubmitting: boolean;
   submitStatus: "idle" | "loading" | "success" | "error";
-  setSubmitStatus: (status: "idle" | "loading" | "success" | "error") => void;
+  setSubmitStatusAction: (
+    status: "idle" | "loading" | "success" | "error",
+  ) => void;
   userId: string;
 }
 
 export function CreateProjectDialog({
   dialogOpen,
-  setDialogOpen,
+  setDialogOpenAction,
   isSubmitting,
   submitStatus,
-  setSubmitStatus,
+  setSubmitStatusAction,
   userId,
 }: CreateProjectDialogProps) {
   const form = useForm<z.infer<typeof CreateProjectSchema>>({
@@ -51,7 +53,7 @@ export function CreateProjectDialog({
   });
 
   const onSubmit = async (values: z.infer<typeof CreateProjectSchema>) => {
-    setSubmitStatus("loading");
+    setSubmitStatusAction("loading");
 
     try {
       const formData = new FormData();
@@ -138,12 +140,12 @@ export function CreateProjectDialog({
       const responseData = await response.json();
       console.log("Upload successful:", responseData);
 
-      setSubmitStatus("success");
+      setSubmitStatusAction("success");
       form.reset();
 
       setTimeout(() => {
-        setDialogOpen(false);
-        setSubmitStatus("idle");
+        setDialogOpenAction(false);
+        setSubmitStatusAction("idle");
       }, 1500);
 
       window.location.reload();
@@ -162,16 +164,16 @@ export function CreateProjectDialog({
         console.error("3. API routes are accessible");
       }
 
-      setSubmitStatus("error");
+      setSubmitStatusAction("error");
 
       setTimeout(() => {
-        setSubmitStatus("idle");
+        setSubmitStatusAction("idle");
       }, 3000);
     }
   };
 
   return (
-    <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+    <Dialog open={dialogOpen} onOpenChange={setDialogOpenAction}>
       <DialogTrigger asChild>
         <Button className="hover:cursor-pointer" variant="default">
           <Plus /> Create a project
@@ -263,7 +265,7 @@ export function CreateProjectDialog({
                 </Button>
                 <Button
                   type="button"
-                  onClick={() => setDialogOpen(false)}
+                  onClick={() => setDialogOpenAction(false)}
                   className="hover:cursor-pointer"
                   variant="destructive"
                   disabled={isSubmitting}

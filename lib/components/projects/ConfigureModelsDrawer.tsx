@@ -7,8 +7,8 @@ import {
   DrawerHeader,
   DrawerTitle,
   DrawerTrigger,
-} from "@/components/ui/drawer";
-import { Button } from "@/components/ui/button";
+} from "@/lib/components/ui/drawer";
+import { Button } from "@/lib/components/ui/button";
 import { Settings } from "lucide-react";
 
 export function ConfigureModelsDrawer() {

@@ -19,6 +19,7 @@ interface ChatBubbleProps {
  * @param Object: ChatBubbleProps
  * @returns React.FC<ChatBubbleProps>
  */
+
 export const ChatBubble: React.FC<ChatBubbleProps> = ({ message }) => {
   const content = message.parts
     .filter(

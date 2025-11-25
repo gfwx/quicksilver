@@ -10,14 +10,14 @@ interface ProjectsHeaderProps {
   userId: string;
 }
 
-export default function ProjectsHeader({
+export const ProjectsHeader = ({
   dialogOpen,
   setDialogOpen,
   isSubmitting,
   submitStatus,
   setSubmitStatus,
   userId,
-}: ProjectsHeaderProps) {
+}: ProjectsHeaderProps) => {
   return (
     <div className="flex w-full justify-between">
       <h1 className="text-4xl font-bold text-foreground tracking-tighter">
@@ -26,14 +26,14 @@ export default function ProjectsHeader({
       <div className="flex gap-2 justify-center">
         <CreateProjectDialog
           dialogOpen={dialogOpen}
-          setDialogOpen={setDialogOpen}
+          setDialogOpenAction={setDialogOpen}
           isSubmitting={isSubmitting}
           submitStatus={submitStatus}
-          setSubmitStatus={setSubmitStatus}
+          setSubmitStatusAction={setSubmitStatus}
           userId={userId}
         />
         <ConfigureModelsDrawer />
       </div>
     </div>
   );
-}
+};

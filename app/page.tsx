@@ -1,7 +1,7 @@
 "use client";
 
 import { Header, ProfileSelector } from "@/lib/components/home";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/lib/components/ui/button";
 import { useProfile } from "@/lib/hooks/useProfile";
 import Link from "next/link";
 
@@ -14,14 +14,6 @@ export default function Home() {
         <Header />
 
         <div className="flex flex-col items-center gap-6 w-full">
-          {currentProfile && (
-            <div className="text-center">
-              <p className="text-sm text-muted-foreground">
-                Active Profile: {currentProfile.profileName}{" "}
-              </p>
-            </div>
-          )}
-
           <ProfileSelector />
 
           <div className="flex gap-4 mt-4">

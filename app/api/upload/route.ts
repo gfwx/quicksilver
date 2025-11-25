@@ -36,9 +36,18 @@ export async function POST(req: Request) {
 
   console.log("Completed checking project headers");
 
-  const project = await prisma.project.findUnique({
-    where: { id: projectId },
-  });
+  let project;
+  try {
+    project = await prisma.project.findUnique({
+      where: { id: projectId },
+    });
+  } catch (dbError) {
+    console.error(`[Upload] Database error finding project ${projectId}:`, dbError);
+    return Response.json(
+      { error: "Database error while finding project" },
+      { status: 500 },
+    );
+  }
 
   if (!project) {
     return Response.json(
@@ -81,10 +90,16 @@ export async function POST(req: Request) {
         projectId: project.id,
       };
 
-      const createdFile = await prisma.file.create({ data: fileData });
-      console.log(
-        `File metadata stored for user ${profileId} with filename ${createdFile.filename}`,
-      );
+      let createdFile;
+      try {
+        createdFile = await prisma.file.create({ data: fileData });
+        console.log(
+          `File metadata stored for user ${profileId} with filename ${createdFile.filename}`,
+        );
+      } catch (dbError) {
+        console.error(`[Upload] Failed to create file record for ${file.name}:`, dbError);
+        throw new Error(`Database error creating file record: ${file.name}`);
+      }
 
       const arrayBuffer = await file.arrayBuffer();
       const buffer = new Uint8Array(arrayBuffer);
@@ -106,30 +121,47 @@ export async function POST(req: Request) {
       };
 
       console.log(`Sending file to FastAPI: ${file.name}`);
-      const response = await fetch(`${FASTAPI_ENDPOINT}/api/process`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json",
-        },
-        body: JSON.stringify(payloadToFastAPI),
-      });
+      let response;
+      try {
+        response = await fetch(`${FASTAPI_ENDPOINT}/api/process`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json",
+          },
+          body: JSON.stringify(payloadToFastAPI),
+        });
+      } catch (fetchError) {
+        console.error(`[Upload] Network error calling FastAPI for ${file.name}:`, fetchError);
+        throw new Error(`Network error calling FastAPI for file ${file.name}`);
+      }
 
       if (!response.ok) {
         const errorText = await response.text();
-        console.error(`FastAPI error: ${response.status} - ${errorText}`);
+        console.error(`[Upload] FastAPI error for ${file.name}: ${response.status} - ${errorText}`);
         throw new Error(
           `FastAPI failed to process file ${file.name} with status: ${response.status}`,
         );
       }
 
-      const fastAPIResponse = await response.json();
-      console.log(`Processed by FastAPI: ${JSON.stringify(fastAPIResponse)}`);
+      let fastAPIResponse;
+      try {
+        fastAPIResponse = await response.json();
+        console.log(`Processed by FastAPI: ${JSON.stringify(fastAPIResponse)}`);
+      } catch (jsonError) {
+        console.error(`[Upload] Failed to parse FastAPI response for ${file.name}:`, jsonError);
+        throw new Error(`Invalid JSON response from FastAPI for file ${file.name}`);
+      }
 
-      await prisma.file.update({
-        where: { id: fileId },
-        data: { status: "Processed" },
-      });
+      try {
+        await prisma.file.update({
+          where: { id: fileId },
+          data: { status: "Processed" },
+        });
+      } catch (updateError) {
+        console.error(`[Upload] Failed to update file status for ${file.name}:`, updateError);
+        // Continue processing even if status update fails
+      }
 
       processedFiles.push({
         fileName: createdFile.filename,
@@ -138,15 +170,20 @@ export async function POST(req: Request) {
       });
     }
 
-    await prisma.project.update({
-      where: { id: project.id },
-      data: {
-        updatedAt: new Date(),
-        fileCount: {
-          increment: processedFiles.length,
+    try {
+      await prisma.project.update({
+        where: { id: project.id },
+        data: {
+          updatedAt: new Date(),
+          fileCount: {
+            increment: processedFiles.length,
+          },
         },
-      },
-    });
+      });
+    } catch (projectUpdateError) {
+      console.error(`[Upload] Failed to update project file count for ${project.id}:`, projectUpdateError);
+      // Continue and return success even if project update fails
+    }
 
     return Response.json({
       message: "Files processed and uploaded securely.",
@@ -155,9 +192,14 @@ export async function POST(req: Request) {
       projectId: project.id,
     });
   } catch (error) {
-    console.error("Error processing project and files:", error);
+    console.error("[Upload] Error processing project and files:", error);
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    const errorStack = error instanceof Error ? error.stack : undefined;
+    if (errorStack) {
+      console.error("[Upload] Stack trace:", errorStack);
+    }
     return Response.json(
-      { message: "Error processing files", error: String(error) },
+      { message: "Error processing files", error: errorMessage },
       { status: 500 },
     );
   }

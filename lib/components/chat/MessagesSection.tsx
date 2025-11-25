@@ -1,5 +1,5 @@
 import { forwardRef } from "react";
-import { ChatBubble } from "@/lib/components/ChatBubble";
+import { ChatBubble } from "@/lib/components/chat/ChatBubble";
 import type { UIMessage } from "@ai-sdk/react";
 import type { ChatStatus } from "ai";
 

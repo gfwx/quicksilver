@@ -1,22 +1,14 @@
 "use client";
 import { useState } from "react";
-import { ProjectTable } from "@/components/dashboard/project-table";
+import { ProjectTable, ProjectsHeader } from "@/lib/components/projects";
 import { useProjects } from "@/lib/contexts/ProjectContext";
 import type { PrismaModels } from "@/lib/instances";
 import { useProfile } from "@/lib/hooks/useProfile";
-// import { redirect } from "next/navigation";
-import { ProjectsHeader } from "@/lib/components/projects";
+import { UserNav } from "@/lib/components/global";
 
 export default function Dashboard() {
   const { projects } = useProjects();
   const { currentProfile } = useProfile();
-
-  // something wrong with my useProfile hook.
-  // if (!currentProfile) {
-  //   console.error("[/projects] No active profile found!");
-  //   redirect("/");
-  // }
-
   const [isSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState<
     "idle" | "loading" | "success" | "error"
@@ -25,6 +17,7 @@ export default function Dashboard() {
 
   return (
     <section className="flex flex-col gap-9 text-foreground">
+      <UserNav />
       <ProjectsHeader
         dialogOpen={dialogOpen}
         setDialogOpen={setDialogOpen}
