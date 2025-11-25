@@ -51,10 +51,6 @@ next-env.d.ts
 
 /generated/prisma
 
-*storybook.log
-storybook-static
-*stories
-
 *package-lock.json
 *spec.md
 
