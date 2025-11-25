@@ -1,6 +1,7 @@
 "use client";
 
 import logoMark from "@/public/logomark.svg";
+import logoMarkDark from "@/public/logomark_dark.svg";
 import Image from "next/image";
 import Link from "next/link";
 import {
@@ -15,13 +16,17 @@ import {
   ContextMenuItem,
 } from "@/lib/components/ui/context-menu";
 import { useProfile } from "@/lib/hooks/useProfile";
+import { useTheme } from "next-themes";
 
 export const UserNav = () => {
   const { currentProfile } = useProfile();
+  const { resolvedTheme } = useTheme();
 
   const handleClick = () => {
     console.log("to implement...");
   };
+
+  const isDark = resolvedTheme === "dark";
 
   if (!currentProfile) return null;
   return (
@@ -39,7 +44,7 @@ export const UserNav = () => {
               <p>
                 Active Profile:
                 <span className="text-md font-bold">
-                  {currentProfile.profileName}
+                  {" " + currentProfile.profileName}
                 </span>
               </p>
             </div>
@@ -47,7 +52,7 @@ export const UserNav = () => {
         </ContextMenuTrigger>
         <ContextMenuContent>
           <ContextMenuItem variant="destructive" onClick={handleClick}>
-            Switch Account
+            Switch Profile
           </ContextMenuItem>
         </ContextMenuContent>
       </ContextMenu>
@@ -55,7 +60,7 @@ export const UserNav = () => {
         <Image
           width={32}
           height={32}
-          src={logoMark}
+          src={isDark ? logoMarkDark : logoMark}
           alt="Quicksilver Logomark"
         />
       </Link>

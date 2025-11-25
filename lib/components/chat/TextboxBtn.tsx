@@ -1,13 +1,9 @@
 "use client";
-
-/**
- * This is primarily used with the client-side textbox only.
- * Since it takes event handlers as input, it is not suitable for SSR
- */
-
 import { ArrowUp, StopCircle } from "lucide-react";
 import * as ai from "ai";
 import { useEffect, useState } from "react";
+import { useTheme } from "next-themes";
+import { cn } from "@/lib/utils";
 
 export const TextBoxButton = ({
   status,
@@ -18,21 +14,43 @@ export const TextBoxButton = ({
   active_handler: React.FormEventHandler<HTMLFormElement>;
   disabled_handler: React.FormEventHandler<HTMLFormElement>;
 }) => {
-  const [ready_state, set_ready_state] = useState(status === "ready");
-  useEffect(() => {
-    set_ready_state(status === "ready");
-  }, [status]);
+  const { resolvedTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+  const readyState = status === "ready";
 
-  if (ready_state) {
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) {
+    return (
+      <button
+        type="submit"
+        disabled
+        className="w-[48px] h-[48px] rounded-full flex justify-center items-center bg-gray-400"
+      >
+        <ArrowUp color="white" width={28} height={28} />
+      </button>
+    );
+  }
+
+  if (readyState) {
     return (
       <button
         type="submit"
         onClick={(e) =>
           active_handler(e as unknown as React.FormEvent<HTMLFormElement>)
         }
-        className="bg-blue-500 w-[48px] h-[48px] rounded-full flex justify-center items-center"
+        className={cn(
+          "w-[48px] h-[48px] rounded-full flex justify-center items-center",
+          resolvedTheme === "dark" ? "bg-white" : "bg-blue-500",
+        )}
       >
-        <ArrowUp color="white" width={28} height={28} />
+        <ArrowUp
+          color={resolvedTheme === "dark" ? "black" : "white"}
+          width={28}
+          height={28}
+        />
       </button>
     );
   } else {
@@ -41,9 +59,12 @@ export const TextBoxButton = ({
         onClick={(e) =>
           disabled_handler(e as unknown as React.FormEvent<HTMLFormElement>)
         }
-        className="bg-black w-[48px] h-[48px] rounded-full flex justify-center items-center"
+        className={cn(
+          "w-[48px] h-[48px] rounded-full flex justify-center items-center",
+          resolvedTheme === "dark" ? "bg-red-500" : "bg-black",
+        )}
       >
-        <StopCircle color="white" width={28} height={28} />
+        <StopCircle color={"white"} width={28} height={28} />
       </button>
     );
   }

@@ -15,15 +15,9 @@ export default async function DashboardLayout({
 
     if (!userId) {
       console.log("No x-current-user-id cookie found");
-      return (
-        <ProjectProvider initialProjects={[]}>
-          <main className="p-8 flex flex-col gap-9">{children}</main>
-        </ProjectProvider>
-      );
+      return <ProjectProvider initialProjects={[]}>{children}</ProjectProvider>;
     }
     console.log("Fetching user object from API: ", userId);
-    // Use internal API URL for server-side fetches in Docker
-    // This ensures the fetch goes directly to the Next.js container, not through nginx
     const internalApiUrl =
       process.env.INTERNAL_API_URL || "http://localhost:3000";
     const fullUrl = `${internalApiUrl}/api/projects`;
@@ -52,8 +46,6 @@ export default async function DashboardLayout({
   console.log("Final projects array length:", projects.length);
 
   return (
-    <ProjectProvider initialProjects={projects}>
-      <main className="p-8 flex flex-col gap-9">{children}</main>
-    </ProjectProvider>
+    <ProjectProvider initialProjects={projects}>{children}</ProjectProvider>
   );
 }

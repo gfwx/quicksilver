@@ -150,7 +150,7 @@ export default function Chat() {
   console.log(messages);
 
   return (
-    <div className="flex items-center flex-col w-full max-w-4xl pt-4 mx-auto stretch gap-8">
+    <div className="flex items-center flex-col h-full w-full max-w-4xl pt-4 mx-auto stretch gap-8">
       <MessagesSection ref={messagesRef} messages={messages} status={status} />
 
       {error && <p style={{ color: "red" }}>{error}</p>}

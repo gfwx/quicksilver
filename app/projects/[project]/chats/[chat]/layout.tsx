@@ -48,9 +48,5 @@ export default async function RootLayout({
     messages = [];
   }
 
-  return (
-    <ChatProvider chatHistory={messages}>
-      <div>{children}</div>
-    </ChatProvider>
-  );
+  return <ChatProvider chatHistory={messages}>{children}</ChatProvider>;
 }

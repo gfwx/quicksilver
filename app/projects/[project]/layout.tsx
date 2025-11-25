@@ -54,7 +54,7 @@ export default async function RootLayout({
   return (
     <SidebarProvider>
       <ChatSidebar chats={chats} projectId={projectId} userId={id} />
-      <main className="flex-1 mx-auto overflow-auto">{children}</main>
+      {children}
     </SidebarProvider>
   );
 }
