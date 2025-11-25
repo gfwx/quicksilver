@@ -19,11 +19,14 @@ RUN apt-get update && apt-get install -y \
 COPY requirements.txt .
 
 # Install CPU-only PyTorch (much smaller than CUDA version)
-# Then install other dependencies
 RUN pip install --no-cache-dir \
     torch==2.8.0+cpu \
-    --index-url https://download.pytorch.org/whl/cpu && \
-    pip install --no-cache-dir -r requirements.txt
+    --index-url https://download.pytorch.org/whl/cpu
+
+# Install other dependencies, skipping torch since we installed it above
+RUN grep -v "^torch==" requirements.txt > requirements-no-torch.txt && \
+    pip install --no-cache-dir -r requirements-no-torch.txt && \
+    rm requirements-no-torch.txt
 
 # Download sentence transformer model at build time
 RUN python -c "from sentence_transformers import SentenceTransformer; SentenceTransformer('sentence-transformers/all-MiniLM-L6-v2')"
@@ -36,9 +39,15 @@ ENV PYTHONUNBUFFERED=1 \
 
 WORKDIR /app
 
-# Copy Python packages and model from builder
+# Install only runtime dependencies (for requests in healthcheck)
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy Python packages and model cache from builder
 COPY --from=builder /usr/local/lib/python3.11/site-packages /usr/local/lib/python3.11/site-packages
-COPY --from=builder /root/.cache /root/.cache
+COPY --from=builder /usr/local/bin/uvicorn /usr/local/bin/uvicorn
+COPY --from=builder /root/.cache/torch /root/.cache/torch
+COPY --from=builder /root/.cache/huggingface /root/.cache/huggingface
 
 # Copy application code
 COPY . .
