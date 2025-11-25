@@ -39,15 +39,10 @@ ENV PYTHONUNBUFFERED=1 \
 
 WORKDIR /app
 
-# Install only runtime dependencies (for requests in healthcheck)
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    && rm -rf /var/lib/apt/lists/*
-
 # Copy Python packages and model cache from builder
 COPY --from=builder /usr/local/lib/python3.11/site-packages /usr/local/lib/python3.11/site-packages
 COPY --from=builder /usr/local/bin/uvicorn /usr/local/bin/uvicorn
-COPY --from=builder /root/.cache/torch /root/.cache/torch
-COPY --from=builder /root/.cache/huggingface /root/.cache/huggingface
+COPY --from=builder /root/.cache /root/.cache
 
 # Copy application code
 COPY . .
