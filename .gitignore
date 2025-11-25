@@ -57,3 +57,5 @@ storybook-static
 
 *package-lock.json
 *spec.md
+
+**/*/generated

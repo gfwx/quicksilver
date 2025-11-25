@@ -32,6 +32,23 @@ yarn-error.log*
 .env
 .env*.local
 
+# Database files
+*.db
+*.db-journal
+*.db-shm
+*.db-wal
+dev.db
+prisma/*.db
+prisma/*.db-journal
+mongodb_data/
+mongo_data/
+data/
+*.sqlite
+*.sqlite3
+
+# Generated files (will be regenerated in build)
+lib/generated/
+
 # Vercel
 .vercel
 
