@@ -14,7 +14,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: build custom nginx image
+      - name: build custom fastapi image
         run: docker build ./ai --file ai/Dockerfile --tag gfwx/quicksilver-ai:latest
 
       - name: Login to Docker Hub
