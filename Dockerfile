@@ -54,8 +54,8 @@ WORKDIR /app
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
 
-# Install OpenSSL for Prisma
-RUN apk add --no-cache openssl
+# Install OpenSSL for Prisma and other build tools
+RUN apk add --no-cache openssl npm
 
 # Create a non-root user
 RUN addgroup --system --gid 1001 nodejs && \
@@ -66,19 +66,15 @@ COPY --from=builder /app/public ./public
 COPY --from=builder /app/.next/standalone ./
 COPY --from=builder /app/.next/static ./.next/static
 
-# Copy Prisma files for runtime
+# Copy Prisma files for runtime (custom output location)
 COPY --from=builder /app/lib/generated/prisma ./lib/generated/prisma
-COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
+
+# Copy Prisma runtime dependencies
 COPY --from=builder /app/node_modules/@prisma ./node_modules/@prisma
 
 # Copy libsql dependencies (required for @prisma/adapter-libsql)
 COPY --from=builder /app/node_modules/@libsql ./node_modules/@libsql
 COPY --from=builder /app/node_modules/libsql ./node_modules/libsql
-
-# Copy platform-specific libsql native binaries for Alpine Linux (musl)
-# This is critical for libsql to work in Alpine containers
-COPY --from=builder /app/node_modules/@libsql/linux-arm64-musl ./node_modules/@libsql/linux-arm64-musl
-COPY --from=builder /app/node_modules/@libsql/linux-x64-musl ./node_modules/@libsql/linux-x64-musl
 
 # Copy additional dependencies for libsql and node-fetch
 COPY --from=builder /app/node_modules/js-base64 ./node_modules/js-base64
@@ -94,7 +90,13 @@ COPY --from=builder /app/node_modules/web-streams-polyfill ./node_modules/web-st
 # Copy ws module for @libsql/isomorphic-ws runtime dependency
 COPY --from=builder /app/node_modules/ws ./node_modules/ws
 
-# Create Prisma data directory
+# Install platform-specific libsql native binaries for Alpine Linux
+# These are optional dependencies that aren't installed on macOS during build
+RUN npm install --no-save --omit=dev \
+    @libsql/linux-arm64-musl@0.3.19 \
+    @libsql/linux-x64-musl@0.5.22 || true
+
+# Create Prisma data directory and set ownership
 RUN mkdir -p /app/lib/generated/prisma && chown -R nextjs:nodejs /app
 
 USER nextjs
