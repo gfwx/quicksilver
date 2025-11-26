@@ -6,7 +6,7 @@ WORKDIR /app
 # Copy package files
 COPY package.json bun.lock* ./
 
-# Install dependencies
+# Install dependencies with optional dependencies
 RUN bun install --frozen-lockfile
 
 # Builder stage
@@ -30,6 +30,9 @@ ENV OLLAMA_ENDPOINT=$OLLAMA_ENDPOINT
 # Copy dependencies from deps stage
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
+
+# Ensure platform-specific libsql binaries are installed for Alpine Linux
+RUN bun add --optional @libsql/linux-arm64-musl@0.3.19 || true
 
 # Set production environment
 ENV NODE_ENV=production
@@ -70,11 +73,36 @@ COPY --from=builder /app/.next/static ./.next/static
 
 # Copy Prisma files for runtime
 COPY --from=builder /app/lib/generated/prisma ./lib/generated/prisma
-# COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
-# COPY --from=builder /app/node_modules/@prisma ./node_modules/@prisma
+COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
+COPY --from=builder /app/node_modules/@prisma ./node_modules/@prisma
+
+# Copy libsql dependencies (required for @prisma/adapter-libsql)
+COPY --from=builder /app/node_modules/@libsql ./node_modules/@libsql
+COPY --from=builder /app/node_modules/libsql ./node_modules/libsql
+
+# Copy platform-specific libsql native binaries for Alpine Linux (musl)
+# This is critical for libsql to work in Alpine containers
+COPY --from=builder /app/node_modules/@libsql/linux-arm64-musl ./node_modules/@libsql/linux-arm64-musl
+COPY --from=builder /app/node_modules/@libsql/linux-x64-musl ./node_modules/@libsql/linux-x64-musl
+
+# Copy additional dependencies for libsql and node-fetch
+COPY --from=builder /app/node_modules/js-base64 ./node_modules/js-base64
+COPY --from=builder /app/node_modules/promise-limit ./node_modules/promise-limit
+COPY --from=builder /app/node_modules/node-fetch ./node_modules/node-fetch
+COPY --from=builder /app/node_modules/detect-libc ./node_modules/detect-libc
+COPY --from=builder /app/node_modules/data-uri-to-buffer ./node_modules/data-uri-to-buffer
+COPY --from=builder /app/node_modules/fetch-blob ./node_modules/fetch-blob
+COPY --from=builder /app/node_modules/formdata-polyfill ./node_modules/formdata-polyfill
+COPY --from=builder /app/node_modules/node-domexception ./node_modules/node-domexception
+COPY --from=builder /app/node_modules/web-streams-polyfill ./node_modules/web-streams-polyfill
 
 # Copy ws module for @libsql/isomorphic-ws runtime dependency
 COPY --from=builder /app/node_modules/ws ./node_modules/ws
+
+# Copy better-sqlite3 if needed (for @prisma/adapter-better-sqlite3)
+COPY --from=builder /app/node_modules/better-sqlite3 ./node_modules/better-sqlite3
+COPY --from=builder /app/node_modules/bindings ./node_modules/bindings
+COPY --from=builder /app/node_modules/prebuild-install ./node_modules/prebuild-install
 
 # Create Prisma data directory
 RUN mkdir -p /app/lib/generated/prisma && chown -R nextjs:nodejs /app
