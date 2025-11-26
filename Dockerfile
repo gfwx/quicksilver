@@ -68,9 +68,15 @@ COPY --from=builder /app/.next/static ./.next/static
 
 # Copy Prisma files for runtime (custom output location)
 COPY --from=builder /app/lib/generated/prisma ./lib/generated/prisma
+COPY --from=builder /app/prisma ./prisma
+
+# Copy entrypoint script
+COPY docker-entrypoint.sh /app/docker-entrypoint.sh
+RUN chmod +x /app/docker-entrypoint.sh
 
 # Copy Prisma runtime dependencies
 COPY --from=builder /app/node_modules/@prisma ./node_modules/@prisma
+COPY --from=builder /app/node_modules/prisma ./node_modules/prisma
 
 # Copy libsql dependencies (required for @prisma/adapter-libsql)
 COPY --from=builder /app/node_modules/@libsql ./node_modules/@libsql
@@ -96,8 +102,10 @@ RUN npm install --no-save --omit=dev \
     @libsql/linux-arm64-musl@0.3.19 \
     @libsql/linux-x64-musl@0.5.22 || true
 
-# Create Prisma data directory and set ownership
-RUN mkdir -p /app/lib/generated/prisma && chown -R nextjs:nodejs /app
+# Create Prisma data directory and ensure database directory exists with proper permissions
+RUN mkdir -p /app/lib/generated/prisma /app/prisma && \
+    touch /app/prisma/dev.db || true && \
+    chown -R nextjs:nodejs /app
 
 USER nextjs
 
@@ -110,4 +118,4 @@ ENV HOSTNAME="0.0.0.0"
 HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
     CMD node -e "require('http').get('http://localhost:3000/api/health', (r) => process.exit(r.statusCode === 200 ? 0 : 1))"
 
-CMD ["node", "server.js"]
+CMD ["/app/docker-entrypoint.sh"]
