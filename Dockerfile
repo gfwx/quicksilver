@@ -65,9 +65,6 @@ COPY --from=builder /app/.next/static ./.next/static
 COPY --from=builder /app/lib/generated/prisma ./lib/generated/prisma
 COPY --from=builder /app/prisma ./prisma
 
-# Copy migrations folder for prisma migrate deploy
-COPY --from=builder /app/prisma/migrations ./prisma/migrations
-
 # Copy entrypoint script
 COPY docker-entrypoint.sh /app/docker-entrypoint.sh
 RUN chmod +x /app/docker-entrypoint.sh
