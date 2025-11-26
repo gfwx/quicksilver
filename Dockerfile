@@ -1,5 +1,5 @@
 # Multi-stage build for Next.js production
-FROM oven/bun:1-alpine AS deps
+FROM oven/bun:1-debian AS deps
 
 WORKDIR /app
 
@@ -10,7 +10,7 @@ COPY package.json bun.lock ./
 RUN bun install --frozen-lockfile
 
 # Builder stage
-FROM oven/bun:1-alpine AS builder
+FROM oven/bun:1-debian AS builder
 
 WORKDIR /app
 
@@ -33,7 +33,7 @@ ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
 
 # Install OpenSSL for Prisma
-RUN apk add --no-cache openssl
+RUN apt-get update && apt-get install -y openssl && rm -rf /var/lib/apt/lists/*
 
 # Generate Prisma client (schema already copied with COPY . .)
 RUN bunx prisma generate
@@ -42,15 +42,15 @@ RUN bunx prisma generate
 RUN bun run build
 
 # Production runner stage
-FROM node:20-alpine AS runner
+FROM node:20-slim AS runner
 
 WORKDIR /app
 
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
 
-# Install only OpenSSL for Prisma (npm is included in node:20-alpine)
-RUN apk add --no-cache openssl
+# Install only OpenSSL for Prisma (npm is included in node:20-slim)
+RUN apt-get update && apt-get install -y openssl && rm -rf /var/lib/apt/lists/*
 
 # Create a non-root user
 RUN addgroup --system --gid 1001 nodejs && \
