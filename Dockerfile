@@ -73,6 +73,9 @@ COPY --from=builder /app/lib/generated/prisma ./lib/generated/prisma
 # COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
 # COPY --from=builder /app/node_modules/@prisma ./node_modules/@prisma
 
+# Copy ws module for @libsql/isomorphic-ws runtime dependency
+COPY --from=builder /app/node_modules/ws ./node_modules/ws
+
 # Create Prisma data directory
 RUN mkdir -p /app/lib/generated/prisma && chown -R nextjs:nodejs /app
 
