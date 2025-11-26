@@ -73,7 +73,7 @@ docker run -d \
   --cleanup
 
 # Create launcher script
-cat <<'EOF' | sudo tee /usr/local/bin/$APP_NAME >/dev/null
+cat <<EOF | sudo tee /usr/local/bin/$APP_NAME >/dev/null
 #!/bin/bash
 cd "$INSTALL_DIR"
 
@@ -112,7 +112,7 @@ monitor_pull() {
 # Pull updates if available (manual/app triggered update)
 monitor_pull "Checking for updates..."
 
-echo "Starting $APP_NAME..."
+echo "Starting \$APP_NAME..."
 docker compose up -d
 
 # Attach logs until user exits
