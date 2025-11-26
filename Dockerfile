@@ -3,11 +3,14 @@ FROM oven/bun:1-debian AS deps
 
 WORKDIR /app
 
+# Install Python and build tools for native dependencies
+RUN apt-get update && apt-get install -y python3 make g++ && rm -rf /var/lib/apt/lists/*
+
 # Copy package files
 COPY package.json bun.lock ./
 
-# Install dependencies - use frozen lockfile for reproducibility
-RUN bun install --frozen-lockfile
+# Install dependencies
+RUN bun install --no-save
 
 # Builder stage
 FROM oven/bun:1-debian AS builder
@@ -69,12 +72,9 @@ COPY --from=builder /app/prisma ./prisma
 COPY docker-entrypoint.sh /app/docker-entrypoint.sh
 RUN chmod +x /app/docker-entrypoint.sh
 
-# The standalone output already includes all necessary dependencies
-# Copy Prisma CLI for migrations and libsql dependencies
-COPY --from=builder /app/node_modules/prisma ./node_modules/prisma
-COPY --from=builder /app/node_modules/@prisma ./node_modules/@prisma
+# The standalone output already includes all necessary dependencies (including Prisma now)
+# Copy libsql dependencies for Prisma runtime
 COPY --from=builder /app/node_modules/@libsql ./node_modules/@libsql
-COPY --from=builder /app/node_modules/ws ./node_modules/ws
 
 # Create Prisma data directory with proper permissions
 RUN mkdir -p /app/lib/generated/prisma /app/prisma && \
