@@ -25,9 +25,6 @@ ENV DATABASE_URL=$DATABASE_URL
 ENV FASTAPI_ENDPOINT=$FASTAPI_ENDPOINT
 ENV OLLAMA_ENDPOINT=$OLLAMA_ENDPOINT
 
-# Thank you Cloudflare!
-# ENV PRISMA_ENGINES_CHECKSUM_IGNORE_MISSING=1
-
 # Copy dependencies from deps stage
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
@@ -96,11 +93,6 @@ COPY --from=builder /app/node_modules/web-streams-polyfill ./node_modules/web-st
 
 # Copy ws module for @libsql/isomorphic-ws runtime dependency
 COPY --from=builder /app/node_modules/ws ./node_modules/ws
-
-# Copy better-sqlite3 if needed (for @prisma/adapter-better-sqlite3)
-COPY --from=builder /app/node_modules/better-sqlite3 ./node_modules/better-sqlite3
-COPY --from=builder /app/node_modules/bindings ./node_modules/bindings
-COPY --from=builder /app/node_modules/prebuild-install ./node_modules/prebuild-install
 
 # Create Prisma data directory
 RUN mkdir -p /app/lib/generated/prisma && chown -R nextjs:nodejs /app
