@@ -70,9 +70,11 @@ COPY docker-entrypoint.sh /app/docker-entrypoint.sh
 RUN chmod +x /app/docker-entrypoint.sh
 
 # The standalone output already includes all necessary dependencies
-# Only copy Prisma CLI for migrations
+# Copy Prisma CLI for migrations and libsql dependencies
 COPY --from=builder /app/node_modules/prisma ./node_modules/prisma
 COPY --from=builder /app/node_modules/@prisma ./node_modules/@prisma
+COPY --from=builder /app/node_modules/@libsql ./node_modules/@libsql
+COPY --from=builder /app/node_modules/ws ./node_modules/ws
 
 # Create Prisma data directory with proper permissions
 RUN mkdir -p /app/lib/generated/prisma /app/prisma && \
