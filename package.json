@@ -74,5 +74,11 @@
     "tw-animate-css": "^1.3.4",
     "typescript": "^5",
     "vitest": "^4.0.9"
+  },
+  "optionalDependencies": {
+    "@libsql/darwin-arm64": "0.5.22",
+    "@libsql/linux-arm64-gnu": "0.5.22",
+    "@libsql/linux-x64-gnu": "0.5.22",
+    "@libsql/linux-x64-musl": "0.5.22"
   }
 }
