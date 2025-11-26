@@ -1,17 +1,16 @@
 # Multi-stage build for Next.js production
-FROM oven/bun:1 AS deps
+FROM oven/bun:1-alpine AS deps
 
 WORKDIR /app
 
 # Copy package files
 COPY package.json bun.lock ./
 
-# Install dependencies (including optional dependencies for platform-specific binaries)
-# Using --frozen-lockfile to ensure reproducible builds
-RUN bun install --frozen-lockfile || (echo "Frozen lockfile failed, trying without..." && bun install)
+# Install dependencies - use frozen lockfile for reproducibility
+RUN bun install --frozen-lockfile
 
 # Builder stage
-FROM oven/bun:1 AS builder
+FROM oven/bun:1-alpine AS builder
 
 WORKDIR /app
 
@@ -33,12 +32,8 @@ COPY . .
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
 
-# Copy Prisma schema and generate client
-RUN apt-get update -y && apt-get install -y openssl
-
-# Debug: Verify prisma schema exists and DATABASE_URL
-RUN ls -la lib/generated/prisma/ || echo "Prisma directory not found"
-RUN echo "DATABASE_URL is: $DATABASE_URL"
+# Install OpenSSL for Prisma
+RUN apk add --no-cache openssl
 
 # Generate Prisma client (schema already copied with COPY . .)
 RUN bunx prisma generate
@@ -54,14 +49,14 @@ WORKDIR /app
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
 
-# Install OpenSSL for Prisma and other build tools
-RUN apk add --no-cache openssl npm
+# Install only OpenSSL for Prisma (npm is included in node:20-alpine)
+RUN apk add --no-cache openssl
 
 # Create a non-root user
 RUN addgroup --system --gid 1001 nodejs && \
     adduser --system --uid 1001 nextjs
 
-# Copy built application
+# Copy built application from standalone output
 COPY --from=builder /app/public ./public
 COPY --from=builder /app/.next/standalone ./
 COPY --from=builder /app/.next/static ./.next/static
@@ -70,39 +65,19 @@ COPY --from=builder /app/.next/static ./.next/static
 COPY --from=builder /app/lib/generated/prisma ./lib/generated/prisma
 COPY --from=builder /app/prisma ./prisma
 
+# Copy migrations folder for prisma migrate deploy
+COPY --from=builder /app/prisma/migrations ./prisma/migrations
+
 # Copy entrypoint script
 COPY docker-entrypoint.sh /app/docker-entrypoint.sh
 RUN chmod +x /app/docker-entrypoint.sh
 
-# Copy Prisma runtime dependencies
-COPY --from=builder /app/node_modules/@prisma ./node_modules/@prisma
+# The standalone output already includes all necessary dependencies
+# Only copy Prisma CLI for migrations
 COPY --from=builder /app/node_modules/prisma ./node_modules/prisma
+COPY --from=builder /app/node_modules/@prisma ./node_modules/@prisma
 
-# Copy libsql dependencies (required for @prisma/adapter-libsql)
-COPY --from=builder /app/node_modules/@libsql ./node_modules/@libsql
-COPY --from=builder /app/node_modules/libsql ./node_modules/libsql
-
-# Copy additional dependencies for libsql and node-fetch
-COPY --from=builder /app/node_modules/js-base64 ./node_modules/js-base64
-COPY --from=builder /app/node_modules/promise-limit ./node_modules/promise-limit
-COPY --from=builder /app/node_modules/node-fetch ./node_modules/node-fetch
-COPY --from=builder /app/node_modules/detect-libc ./node_modules/detect-libc
-COPY --from=builder /app/node_modules/data-uri-to-buffer ./node_modules/data-uri-to-buffer
-COPY --from=builder /app/node_modules/fetch-blob ./node_modules/fetch-blob
-COPY --from=builder /app/node_modules/formdata-polyfill ./node_modules/formdata-polyfill
-COPY --from=builder /app/node_modules/node-domexception ./node_modules/node-domexception
-COPY --from=builder /app/node_modules/web-streams-polyfill ./node_modules/web-streams-polyfill
-
-# Copy ws module for @libsql/isomorphic-ws runtime dependency
-COPY --from=builder /app/node_modules/ws ./node_modules/ws
-
-# Install platform-specific libsql native binaries for Alpine Linux
-# These are optional dependencies that aren't installed on macOS during build
-RUN npm install --no-save --omit=dev \
-    @libsql/linux-arm64-musl@0.3.19 \
-    @libsql/linux-x64-musl@0.5.22 || true
-
-# Create Prisma data directory and ensure database directory exists with proper permissions
+# Create Prisma data directory with proper permissions
 RUN mkdir -p /app/lib/generated/prisma /app/prisma && \
     touch /app/prisma/dev.db || true && \
     chown -R nextjs:nodejs /app

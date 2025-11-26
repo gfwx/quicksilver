@@ -48,6 +48,8 @@ data/
 
 # Generated files (will be regenerated in build)
 lib/generated/
+# But keep migrations
+!prisma/migrations/
 
 # Vercel
 .vercel

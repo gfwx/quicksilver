@@ -12,10 +12,13 @@ if [ -n "$DATABASE_URL" ] && echo "$DATABASE_URL" | grep -q "^file:"; then
 
   # Check if database needs initialization
   if [ ! -f "/app/prisma/dev.db" ] || [ ! -s "/app/prisma/dev.db" ]; then
-    echo "Database not found or empty, initializing..."
+    echo "Database not found or empty, running migrations..."
 
-    # Try to push the schema to create the database
-    npx prisma db push --skip-generate || echo "Warning: Could not initialize database"
+    # Run migrations to create the database and tables
+    npx prisma migrate deploy || echo "Warning: Could not run migrations"
+  else
+    echo "Database exists, ensuring migrations are up to date..."
+    npx prisma migrate deploy || echo "Warning: Could not run migrations"
   fi
 else
   echo "Using remote database URL"
