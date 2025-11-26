@@ -6,6 +6,7 @@ on:
     paths:
       - "ai/**"
       - "docker-compose.yml"
+  workflow_dispatch:
 
 jobs:
   build-fastapi:
