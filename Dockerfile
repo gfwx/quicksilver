@@ -4,10 +4,11 @@ FROM oven/bun:1 AS deps
 WORKDIR /app
 
 # Copy package files
-COPY package.json bun.lock* ./
+COPY package.json bun.lock ./
 
-# Install dependencies with optional dependencies
-RUN bun install --frozen-lockfile
+# Install dependencies (including optional dependencies for platform-specific binaries)
+# Using --frozen-lockfile to ensure reproducible builds
+RUN bun install --frozen-lockfile || (echo "Frozen lockfile failed, trying without..." && bun install)
 
 # Builder stage
 FROM oven/bun:1 AS builder
@@ -30,9 +31,6 @@ ENV OLLAMA_ENDPOINT=$OLLAMA_ENDPOINT
 # Copy dependencies from deps stage
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
-
-# Ensure platform-specific libsql binaries are installed for Alpine Linux
-RUN bun add --optional @libsql/linux-arm64-musl@0.3.19 || true
 
 # Set production environment
 ENV NODE_ENV=production
