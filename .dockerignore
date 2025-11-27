@@ -32,13 +32,13 @@ yarn-error.log*
 .env
 .env*.local
 
-# Database files
+# Database files (exclude in root and specific locations, but not in subdirectories)
 *.db
 *.db-journal
 *.db-shm
 *.db-wal
 dev.db
-prisma/*.db
+prisma/dev.db
 prisma/*.db-journal
 mongodb_data/
 mongo_data/
@@ -48,8 +48,6 @@ data/
 
 # Generated files (will be regenerated in build)
 lib/generated/
-# But keep migrations
-!prisma/migrations/
 
 # Vercel
 .vercel
