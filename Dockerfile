@@ -55,9 +55,9 @@ ENV NEXT_TELEMETRY_DISABLED=1
 # Install only OpenSSL for Prisma (npm is included in node:20-slim)
 RUN apt-get update && apt-get install -y openssl && rm -rf /var/lib/apt/lists/*
 
-# Create a non-root user
+# Create a non-root user with home directory
 RUN addgroup --system --gid 1001 nodejs && \
-    adduser --system --uid 1001 nextjs
+    adduser --system --uid 1001 --home /home/nextjs nextjs
 
 # Copy built application from standalone output
 COPY --from=builder /app/public ./public
@@ -73,15 +73,19 @@ COPY docker-entrypoint.sh /app/docker-entrypoint.sh
 RUN chmod +x /app/docker-entrypoint.sh
 
 # The standalone output already includes all necessary dependencies (including Prisma now)
-# Copy libsql dependencies for Prisma runtime
+# Copy libsql dependencies and ws package for Prisma runtime
 COPY --from=builder /app/node_modules/@libsql ./node_modules/@libsql
+COPY --from=builder /app/node_modules/ws ./node_modules/ws
 
-# Create Prisma data directory with proper permissions
-RUN mkdir -p /app/lib/generated/prisma /app/prisma && \
+# Create Prisma data directory and home directory with proper permissions
+RUN mkdir -p /app/lib/generated/prisma /app/prisma /home/nextjs && \
     touch /app/prisma/dev.db || true && \
-    chown -R nextjs:nodejs /app
+    chown -R nextjs:nodejs /app /home/nextjs
 
 USER nextjs
+
+# Set HOME environment variable for the nextjs user
+ENV HOME=/home/nextjs
 
 EXPOSE 3000
 
