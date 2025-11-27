@@ -47,8 +47,6 @@ next-env.d.ts
 **/uploads/
 **/test.pdf
 
-**/prisma/migrations
-
 /generated/prisma
 
 *package-lock.json
