@@ -1,5 +1,4 @@
-version: '3.8'
-
+version: "3.8"
 services:
   # MongoDB Database
   mongodb:
@@ -9,7 +8,7 @@ services:
     environment:
       MONGO_INITDB_DATABASE: quicksilver
     ports:
-      - "27017:27017"  # Expose for local access
+      - "27017:27017" # Expose for local access
     volumes:
       - mongodb_data_dev:/data/db
     networks:
@@ -32,11 +31,11 @@ services:
     environment:
       OLLAMA_ENDPOINT: http://host.docker.internal:11434
     ports:
-      - "8000:8000"  # Expose for local access
+      - "8000:8000" # Expose for local access
     volumes:
-      - ./ai:/app  # Mount source code for hot-reload
+      - ./ai:/app # Mount source code for hot-reload
       - lancedb_data_dev:/app/data
-      - /app/__pycache__  # Exclude pycache
+      - /app/__pycache__ # Exclude pycache
     networks:
       - quicksilver-network-dev
     extra_hosts:
@@ -63,11 +62,11 @@ services:
       FRONTEND_URL: http://localhost:3000
       OLLAMA_ENDPOINT: http://host.docker.internal:11434
     ports:
-      - "3000:3000"  # Expose directly for development
+      - "3000:3000" # Expose directly for development
     volumes:
-      - ./:/app  # Mount entire source
-      - /app/node_modules  # Exclude node_modules
-      - /app/.next  # Exclude .next build
+      - ./:/app # Mount entire source
+      - /app/node_modules # Exclude node_modules
+      - /app/.next # Exclude .next build
       - prisma_data_dev:/app/prisma
     networks:
       - quicksilver-network-dev

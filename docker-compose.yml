@@ -47,6 +47,9 @@ services:
 
   nextjs:
     platform: linux/arm64
+    build:
+      context: .
+      dockerfile: Dockerfile
     image: gfwx/quicksilver-app:latest
     container_name: quicksilver-nextjs
     restart: unless-stopped
