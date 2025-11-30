@@ -13,6 +13,9 @@ export default async function RootLayout({
 }) {
   return (
     <>
+      <head>
+        <link rel="icon" href="/logomark.svg" />
+      </head>
       <html lang="en" suppressHydrationWarning className="bg-background">
         <body>
           <ThemeProvider

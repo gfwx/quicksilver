@@ -107,10 +107,11 @@ export const ProjectTable = ({
             </TableCell>
 
             <TableCell>
-              <div className="flex justify-center items-center gap-4">
+              <div className="flex justify-center items-center gap-2">
                 <Button
                   variant="destructive"
                   size="sm"
+                  className="cursor-pointer w-8 h-8"
                   onClick={() => handleDeleteProject(project.id)}
                   disabled={deletingProjectId === project.id}
                 >
@@ -121,6 +122,7 @@ export const ProjectTable = ({
                   )}
                 </Button>
                 <Button
+                  className="cursor-pointer w-8 h-8"
                   onClick={() =>
                     (window.location.href = `/projects/${project.id}`)
                   }

@@ -16,7 +16,7 @@ export default function Dashboard() {
   const [dialogOpen, setDialogOpen] = useState(false);
 
   return (
-    <section className="flex flex-col gap-9 text-foreground">
+    <section className="flex flex-col gap-9 text-foreground p-8">
       <UserNav />
       <ProjectsHeader
         dialogOpen={dialogOpen}
