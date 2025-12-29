@@ -1,6 +1,13 @@
 import { OLLAMA_ENDPOINT } from "@/lib/config/api";
 import { NextResponse } from "next/server";
 
+interface OllamaModel {
+  name: string;
+  size: number;
+  modified_at: string;
+  digest: string;
+}
+
 const env = process.env.NODE_ENV;
 const ollamaEndpoint =
   env === "production" ? OLLAMA_ENDPOINT : "http://localhost:11434";
@@ -31,7 +38,7 @@ export async function GET() {
     const models = data.models || [];
 
     return NextResponse.json({
-      models: models.map((model: any) => ({
+      models: models.map((model: OllamaModel) => ({
         name: model.name,
         size: model.size,
         modified_at: model.modified_at,
