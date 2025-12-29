@@ -6,7 +6,7 @@ import { useProfile } from "@/lib/hooks/useProfile";
 import Link from "next/link";
 
 export default function Home() {
-  const { currentProfile } = useProfile();
+  const { currentProfile, hasHydrated } = useProfile();
 
   return (
     <div className="flex flex-col h-screen">
@@ -17,7 +17,7 @@ export default function Home() {
           <ProfileSelector />
 
           <div className="flex gap-4 mt-4">
-            {currentProfile && (
+            {hasHydrated && currentProfile && (
               <Link href="/projects">
                 <Button variant="default" className="hover:cursor-pointer">
                   Go to Dashboard

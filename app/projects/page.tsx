@@ -8,13 +8,13 @@ import { UserNav } from "@/lib/components/global";
 
 export default function Dashboard() {
   const { projects } = useProjects();
-  const { currentProfile } = useProfile();
+  const { currentProfile, hasHydrated } = useProfile();
   const [isSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState<
     "idle" | "loading" | "success" | "error"
   >("idle");
   const [dialogOpen, setDialogOpen] = useState(false);
-
+  if (hasHydrated) console.log(`Current profile: ${currentProfile?.id}`);
   return (
     <section className="flex flex-col gap-9 text-foreground p-8">
       <UserNav />

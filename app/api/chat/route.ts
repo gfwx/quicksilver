@@ -45,7 +45,9 @@ export async function POST(req: Request) {
     const {
       messages,
       project_id,
-    }: { messages: UIMessage[]; project_id?: string } = await req.json();
+      model,
+    }: { messages: UIMessage[]; project_id?: string; model?: string } =
+      await req.json();
 
     function getMessageText(msg: UIMessage): string {
       if (!msg.parts) return "";
@@ -84,10 +86,12 @@ export async function POST(req: Request) {
       baseURL: `${ollamaEndpoint}/api`,
     });
 
-    // this is hard-coded. needs to be fixed later.
-    const model = "gemma3:4b-it-qat";
+    // Use provided model or fallback to default
+    const selectedModel = model || "gemma3:4b-it-qat";
+    console.log(`Using model: ${selectedModel}${!model ? " (fallback)" : ""}`);
+
     const result = streamText({
-      model: ollama(model),
+      model: ollama(selectedModel),
       messages: convertToModelMessages([...contextMessages, ...messages]),
     });
 
