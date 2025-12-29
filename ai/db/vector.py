@@ -94,3 +94,11 @@ class VectorStore:
         except Exception as e:
             print(f"An error occured during the search: {e}")
             return []
+
+    def get_all(self, limit: int = 100):
+        try:
+            results = self.table.to_pandas().head(limit).to_dict("records")
+            return results
+        except Exception as e:
+            print(f"An error occured while fetching all embeddings: {e}")
+            return []

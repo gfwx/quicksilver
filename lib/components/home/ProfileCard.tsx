@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@/lib/components/ui/button";
-import { Trash2 } from "lucide-react";
+import { Trash2, Loader2 } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/lib/components/ui/avatar";
 
 interface Profile {
@@ -15,6 +15,7 @@ interface Profile {
 interface ProfileCardProps {
   profile: Profile;
   isActive: boolean;
+  isSelecting?: boolean;
   onSelectAction: () => void;
   onDeleteAction: () => void;
 }
@@ -22,6 +23,7 @@ interface ProfileCardProps {
 export default function ProfileCard({
   profile,
   isActive,
+  isSelecting = false,
   onSelectAction,
   onDeleteAction,
 }: ProfileCardProps) {
@@ -57,8 +59,16 @@ export default function ProfileCard({
               size="sm"
               onClick={onSelectAction}
               className="hover:cursor-pointer"
+              disabled={isSelecting}
             >
-              Select
+              {isSelecting ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                  Selecting...
+                </>
+              ) : (
+                "Select"
+              )}
             </Button>
           )}
           <Button
@@ -66,7 +76,7 @@ export default function ProfileCard({
             size="icon"
             onClick={onDeleteAction}
             className="hover:cursor-pointer hover:bg-destructive hover:text-destructive-foreground"
-            disabled={isActive}
+            disabled={isActive || isSelecting}
           >
             <Trash2 className="h-4 w-4" />
           </Button>

@@ -1,7 +1,5 @@
 "use client";
 
-// study this
-
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 
@@ -19,12 +17,14 @@ interface ProfileState {
   currentProfile: Profile | null;
   profiles: Profile[];
   isLoading: boolean;
+  hasHydrated: boolean;
   setCurrentProfile: (profile: Profile | null) => Promise<void>;
   setProfiles: (profiles: Profile[]) => void;
   addProfile: (profile: Profile) => void;
   updateProfile: (id: string, updates: Partial<Profile>) => void;
   removeProfile: (id: string) => void;
   setLoading: (loading: boolean) => void;
+  setHasHydrated: (hydrated: boolean) => void;
   loadProfiles: () => Promise<void>;
   switchProfile: (profileId: string) => Promise<void>;
   createProfile: (data: {
@@ -40,6 +40,9 @@ export const useProfile = create<ProfileState>()(
       currentProfile: null,
       profiles: [],
       isLoading: false,
+      hasHydrated: false,
+
+      setHasHydrated: (hydrated) => set({ hasHydrated: hydrated }),
 
       setCurrentProfile: async (profile) => {
         console.log(`Set current profile to: ${profile?.profileName}`);
@@ -233,6 +236,34 @@ export const useProfile = create<ProfileState>()(
       partialize: (state) => ({
         currentProfile: state.currentProfile,
       }),
+      onRehydrateStorage: () => (state) => {
+        if (state) {
+          // Sync profile from cookie after hydration
+          const cookieMatch = document.cookie.match(
+            /x-current-user-id=([^;]+)/,
+          );
+          const profileIdFromCookie = cookieMatch ? cookieMatch[1] : null;
+
+          // If cookie exists but doesn't match current profile, trigger a sync
+          if (
+            profileIdFromCookie &&
+            state.currentProfile?.id !== profileIdFromCookie
+          ) {
+            // Load profiles to sync the cookie with the state
+            state.loadProfiles().then(() => {
+              state.setHasHydrated(true);
+            });
+          } else if (!profileIdFromCookie && state.currentProfile) {
+            // Cookie doesn't exist but we have a profile in state - clear it
+            state.setCurrentProfile(null).then(() => {
+              state.setHasHydrated(true);
+            });
+          } else {
+            // Cookie and state are in sync
+            state.setHasHydrated(true);
+          }
+        }
+      },
     },
   ),
 );

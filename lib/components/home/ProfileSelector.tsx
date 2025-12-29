@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useProfile } from "@/lib/hooks/useProfile";
 import ProfileCard from "./ProfileCard";
 import CreateProfileDialog from "./CreateProfileDialog";
@@ -11,20 +11,27 @@ export default function ProfileSelector() {
     profiles,
     currentProfile,
     isLoading,
+    hasHydrated,
     loadProfiles,
     switchProfile,
     deleteProfile,
   } = useProfile();
+  const [selectingProfileId, setSelectingProfileId] = useState<string | null>(
+    null,
+  );
 
   useEffect(() => {
     loadProfiles();
   }, [loadProfiles]);
 
   const handleSelectProfile = async (profileId: string) => {
+    setSelectingProfileId(profileId);
     await switchProfile(profileId);
+
     // Force a full page reload instead of client-side navigation
     // This ensures the cookie is set before the server renders the page
-    window.location.href = "/projects";
+    console.log(`Set profile to ${profileId}`);
+    // window.location.href = "/projects";
   };
 
   const handleDeleteProfile = async (profileId: string) => {
@@ -37,7 +44,7 @@ export default function ProfileSelector() {
     }
   };
 
-  if (isLoading) {
+  if (isLoading || !hasHydrated) {
     return (
       <div className="flex items-center justify-center p-8">
         <Loader2 className="h-8 w-8 animate-spin" />
@@ -66,6 +73,7 @@ export default function ProfileSelector() {
               key={profile.id}
               profile={profile}
               isActive={currentProfile?.id === profile.id}
+              isSelecting={selectingProfileId === profile.id}
               onSelectAction={() => handleSelectProfile(profile.id)}
               onDeleteAction={() => handleDeleteProfile(profile.id)}
             />

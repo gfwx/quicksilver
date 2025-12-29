@@ -6,15 +6,30 @@ import { useParams } from "next/navigation";
 import { v4 as uuidv4 } from "uuid";
 import { useMessages } from "@/lib/providers/chatProvider";
 import { useProfile } from "@/lib/hooks/useProfile";
+import { useModelSelection } from "@/lib/hooks/useModelSelection";
 import { DefaultChatTransport } from "ai";
 import { MessagesSection, ChatInputForm } from "@/lib/components/chat";
+import ModelSelector from "@/lib/components/chat/ModelSelector";
 
 export default function Chat() {
-  const { currentProfile } = useProfile();
+  const { currentProfile, hasHydrated: profileHydrated } = useProfile();
+  const { selectedModel, hasHydrated: modelHydrated } = useModelSelection();
   const params = useParams();
 
   const chatId = params.chat as string;
   const projectId = params.project as string;
+
+  // Use a ref to always get the latest selectedModel value
+  const selectedModelRef = useRef(selectedModel);
+
+  useEffect(() => {
+    selectedModelRef.current = selectedModel;
+    if (modelHydrated && selectedModel) {
+      console.log(`Chat ready with model: ${selectedModel}`);
+    } else if (modelHydrated && !selectedModel) {
+      console.warn("Model hydrated but no model selected!");
+    }
+  }, [modelHydrated, selectedModel]);
 
   const [input, setInput] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -23,10 +38,16 @@ export default function Chat() {
   const { messages, sendMessage, setMessages, status, stop } = useChat({
     transport: new DefaultChatTransport({
       prepareSendMessagesRequest: ({ messages }) => {
+        // Use ref to get the current model value at the time of sending
+        const currentModel = selectedModelRef.current;
+        console.log(
+          `[prepareSendMessagesRequest] Sending with model: ${currentModel}`,
+        );
         return {
           body: {
             messages,
             project_id: projectId,
+            model: currentModel,
           },
         };
       },
@@ -46,7 +67,7 @@ export default function Chat() {
         });
 
         if (!response.ok) {
-          const errorData = await response.json().catch(() => ({}));
+          const errorData = await response.json();
           console.error(
             `[onFinish] Failed to save assistant message to DB. Status: ${response.status}`,
             errorData,
@@ -99,7 +120,7 @@ export default function Chat() {
     const userInput = input;
     try {
       if (userInput.trim() !== "") {
-        await sendMessage({ text: userInput });
+        sendMessage({ text: userInput });
         const userMessageId = uuidv4();
         const userMessage = {
           id: userMessageId,
@@ -149,19 +170,28 @@ export default function Chat() {
 
   console.log(messages);
 
-  return (
-    <div className="flex items-center flex-col h-full w-full max-w-4xl pt-4 mx-auto stretch gap-8">
-      <MessagesSection ref={messagesRef} messages={messages} status={status} />
+  if (modelHydrated && profileHydrated)
+    return (
+      <div className="flex items-center flex-col h-full w-full max-w-4xl pt-4 mx-auto stretch gap-8">
+        <MessagesSection
+          ref={messagesRef}
+          messages={messages}
+          status={status}
+        />
 
-      {error && <p style={{ color: "red" }}>{error}</p>}
-
-      <ChatInputForm
-        input={input}
-        setInput={setInput}
-        status={status}
-        handleSubmit={handleSubmit}
-        handleStop={handleStop}
-      />
-    </div>
-  );
+        {error && <p style={{ color: "red" }}>{error}</p>}
+        <div className="flex w-full flex-col fixed bottom-4 items-center">
+          <div className="w-full max-w-4xl items-start flex">
+            <ModelSelector />
+          </div>
+          <ChatInputForm
+            input={input}
+            setInput={setInput}
+            status={status}
+            handleSubmit={handleSubmit}
+            handleStop={handleStop}
+          />
+        </div>
+      </div>
+    );
 }
