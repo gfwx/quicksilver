@@ -187,3 +187,15 @@ async def delete_vector_embeddings(project_id: str):
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Failed to delete vector embeddings: {e}",
         )
+
+
+@app.get("/api/debug/embeddings")
+async def get_all_embeddings(limit: int = 100):
+    try:
+        embeddings = await asyncio.to_thread(vs.get_all, limit)
+        return {"count": len(embeddings), "embeddings": embeddings}
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to fetch embeddings: {e}",
+        )
