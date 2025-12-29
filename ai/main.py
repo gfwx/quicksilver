@@ -33,8 +33,8 @@ def _process_file_sync(
     fp.process()
     text_content = fp.get()
 
-    if not text_content:
-        raise ValueError("Failed to process file.")
+    if not text_content or not text_content.strip():
+        raise ValueError("Failed to process file. The file may be empty or contain only images (scanned PDF without OCR).")
 
     # 2. Chunk the extracted text
     chunks = fp.chunk_data()
@@ -103,6 +103,7 @@ async def read_process(jsonBody: FileAPIResponse):
         }
 
     except ValueError as e:
+        print(e)
         # Handle expected processing errors
         if "Failed to process file" in str(e):
             raise HTTPException(
@@ -113,7 +114,7 @@ async def read_process(jsonBody: FileAPIResponse):
         elif "Failed to chunk data" in str(e):
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail="Failed to chunk data.",
+                detail="Failed to chunk data. The file may be empty, contain only images (scanned PDF), or have no extractable text.",
                 headers={"X-Error": "Data chunking error"},
             )
         else:
@@ -123,6 +124,7 @@ async def read_process(jsonBody: FileAPIResponse):
                 headers={"X-Error": "Processing error"},
             )
     except Exception as e:
+        print(e)
         # Catch-all for any other unexpected errors
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,

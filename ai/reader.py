@@ -93,6 +93,11 @@ class FileProcessor:
             print("No data to chunk! Run process()")
             return None
 
+        # Check if data is empty or only whitespace
+        if not self.data.strip():
+            print("Data is empty or contains only whitespace. Cannot chunk.")
+            return None
+
         try:
             # Initialize the text splitter
             text_splitter = RecursiveCharacterTextSplitter(
@@ -105,6 +110,12 @@ class FileProcessor:
 
             # Split the text
             chunks = text_splitter.split_text(self.data)
+
+            # Ensure we return None instead of empty list for consistency
+            if not chunks:
+                print("Text splitting resulted in no chunks")
+                return None
+
             return chunks
         except (TypeError, ValueError) as e:
             print(f"Invalid parameters or data type for chunking: {e}")
