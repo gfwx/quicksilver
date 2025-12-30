@@ -40,13 +40,21 @@ echo "Downloading configuration..."
 curl -sSL "$COMPOSE_URL" -o docker-compose.yml
 echo "  ✓ Configuration downloaded"
 
-# Pull latest images
-monitor_pull "Pulling latest images..."
+# Check if containers already exist
+if docker compose ps -q 2>/dev/null | grep -q .; then
+    echo "Existing containers detected"
+    echo "Updating containers..."
+    docker compose up -d
+else
+    # Pull latest images only for fresh install
+    monitor_pull "Pulling latest images..."
 
-# Start the app for the first time
-docker compose up -d
+    # Start the app for the first time
+    docker compose up -d
+fi
 
-# Create launcher script
+# Create or update launcher script
+echo "Installing launcher command..."
 cat <<'EOF' | sudo tee /usr/local/bin/$APP_NAME >/dev/null
 #!/bin/bash
 INSTALL_DIR="$HOME/.quicksilver"
@@ -161,6 +169,7 @@ esac
 EOF
 
 sudo chmod +x /usr/local/bin/$APP_NAME
+echo "  ✓ Launcher command installed"
 
 echo "$APP_NAME installed successfully."
 echo ""
